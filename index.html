@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Magnificent 7 模拟投资系统</title>
+  <title>家庭模拟投资联赛</title>
   <style>
     :root {
       --bg-color: #F5F5F7;
@@ -28,6 +28,33 @@
     .container {
       max-width: 900px;
       margin: 0 auto;
+    }
+
+    /* 用户切换器 (iOS 风格分段控制器) */
+    .user-selector {
+      display: flex;
+      background: rgba(0, 0, 0, 0.05);
+      padding: 4px;
+      border-radius: 14px;
+      margin-bottom: 24px;
+    }
+
+    .user-tab {
+      flex: 1;
+      text-align: center;
+      padding: 10px 0;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-muted);
+      transition: all 0.25s ease;
+    }
+
+    .user-tab.active {
+      background: #FFFFFF;
+      color: var(--text-main);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
     }
 
     /* 顶部账户概览 */
@@ -61,6 +88,7 @@
       font-size: 40px;
       font-weight: 700;
       font-family: "SF Pro Display", sans-serif;
+      margin-bottom: 4px;
     }
 
     .profit-positive { color: var(--apple-green); }
@@ -76,6 +104,7 @@
       font-weight: 600;
       cursor: pointer;
       transition: all 0.2s;
+      margin-top: 8px;
     }
 
     .btn:hover { background: #0077ED; transform: scale(1.02); }
@@ -159,21 +188,36 @@
       border-bottom: 1px solid #F2F2F7;
     }
     .portfolio-item:last-child { border-bottom: none; }
+
+    @media (max-width: 600px) {
+      .dashboard { flex-direction: column; text-align: center; gap: 20px; }
+      .account-info h1 { font-size: 28px; }
+    }
   </style>
 </head>
 <body>
 
   <div class="container">
+    
+    <!-- 四人账户切换器 -->
+    <div class="user-selector" id="user-selector">
+      <div class="user-tab" onclick="switchUser('阿桂')">阿桂</div>
+      <div class="user-tab" onclick="switchUser('UMI')">UMI</div>
+      <div class="user-tab" onclick="switchUser('大圣')">大圣</div>
+      <div class="user-tab" onclick="switchUser('爸爸')">爸爸</div>
+    </div>
+
+    <!-- 账户面板 -->
     <div class="dashboard">
       <div class="account-info">
-        <h1>投资组合</h1>
+        <h1><span id="current-user-name">大圣</span> 的投资组合</h1>
         <p>初始资金: $1000.00 | 已提现收益: $<span id="total-withdrawn">0.00</span></p>
         <div class="balance-display" id="total-value">$1000.00</div>
-        <p style="margin-top: 4px;">可用现金: $<span id="cash-balance">1000.00</span></p>
+        <p>可用现金: $<span id="cash-balance">1000.00</span></p>
       </div>
-      <div style="text-align: right;">
-        <p style="font-size: 14px; margin-bottom: 8px; color: var(--text-muted);">当前净收益</p>
-        <h2 id="total-profit" class="profit-positive">+$0.00</h2>
+      <div style="text-align: right; min-width: 140px;">
+        <p style="font-size: 14px; margin-bottom: 4px; color: var(--text-muted);">当前净收益</p>
+        <h2 id="total-profit" class="profit-positive" style="margin-bottom: 0;">+$0.00</h2>
         <button class="btn" id="withdraw-btn" onclick="withdrawProfit()">提现收益</button>
       </div>
     </div>
@@ -185,12 +229,13 @@
 
     <h2>我的持仓</h2>
     <div class="portfolio-list" id="portfolio-list">
-      <p style="color: #86868B; text-align: center; padding: 20px;">暂无持仓，去买入你的第一支股票吧！</p>
+      <!-- 持仓列表由 JS 自动生成 -->
     </div>
   </div>
 
   <script>
-    // 初始股票数据 (基准价)
+    // 定义用户和股票基准数据
+    const USERS = ['阿桂', 'UMI', '大圣', '爸爸'];
     const M7_STOCKS = [
       { symbol: 'AAPL', name: 'Apple Inc.', basePrice: 175.50 },
       { symbol: 'MSFT', name: 'Microsoft Corp.', basePrice: 405.20 },
@@ -202,26 +247,50 @@
     ];
 
     let currentPrices = {};
+    let currentUser = '大圣'; // 默认进入页面显示大圣的账户
     
-    // 初始化或从本地读取账户数据
-    let account = JSON.parse(localStorage.getItem('kid_stock_account')) || {
-      cash: 1000.00,
-      withdrawn: 0.00,
-      portfolio: {} // 格式: { AAPL: { shares: 2, cost: 350.00 } }
-    };
+    // 初始化所有人的账户数据
+    let accounts = JSON.parse(localStorage.getItem('family_stock_accounts'));
+    if (!accounts) {
+      accounts = {};
+      USERS.forEach(user => {
+        accounts[user] = {
+          cash: 1000.00,
+          withdrawn: 0.00,
+          portfolio: {}
+        };
+      });
+    }
+
+    // 切换用户
+    function switchUser(userName) {
+      currentUser = userName;
+      
+      // 更新 UI 选中状态
+      const tabs = document.querySelectorAll('.user-tab');
+      tabs.forEach(tab => {
+        if (tab.innerText === userName) {
+          tab.classList.add('active');
+        } else {
+          tab.classList.remove('active');
+        }
+      });
+
+      document.getElementById('current-user-name').innerText = userName;
+      renderPortfolio();
+    }
 
     // 模拟股票价格随机波动
     function updatePrices() {
       M7_STOCKS.forEach(stock => {
-        const volatility = stock.basePrice * 0.002; // 0.2% 波动率
+        const volatility = stock.basePrice * 0.002; 
         const change = (Math.random() - 0.5) * volatility;
-        // 如果是首次加载，使用基准价，否则在当前价格上波动
         currentPrices[stock.symbol] = currentPrices[stock.symbol] 
           ? Math.max(1, currentPrices[stock.symbol] + change) 
           : stock.basePrice;
       });
       renderMarket();
-      renderPortfolio();
+      renderPortfolio(); // 价格变动时，实时更新持仓市值
     }
 
     // 渲染市场卡片
@@ -247,22 +316,24 @@
       }).join('');
     }
 
-    // 买入逻辑
+    // 买入逻辑 (记录到当前选中的用户账户)
     function buyStock(symbol) {
       const qtyInput = document.getElementById(`qty-${symbol}`);
       const shares = parseInt(qtyInput.value);
       const price = currentPrices[symbol];
       const totalCost = shares * price;
+      const userAccount = accounts[currentUser];
 
       if (shares <= 0 || isNaN(shares)) return alert('请输入正确的数量');
-      if (account.cash < totalCost) return alert('现金不足，无法买入！');
+      if (userAccount.cash < totalCost) return alert(`⚠️ ${currentUser} 的现金不足，无法买入！`);
 
-      account.cash -= totalCost;
-      if (!account.portfolio[symbol]) {
-        account.portfolio[symbol] = { shares: 0, cost: 0 };
+      // 扣除现金并增加持仓
+      userAccount.cash -= totalCost;
+      if (!userAccount.portfolio[symbol]) {
+        userAccount.portfolio[symbol] = { shares: 0, cost: 0 };
       }
-      account.portfolio[symbol].shares += shares;
-      account.portfolio[symbol].cost += totalCost;
+      userAccount.portfolio[symbol].shares += shares;
+      userAccount.portfolio[symbol].cost += totalCost;
       
       saveData();
       renderPortfolio();
@@ -270,10 +341,11 @@
 
     // 渲染持仓与账户总览
     function renderPortfolio() {
+      const userAccount = accounts[currentUser];
       let stockValue = 0;
       let portfolioHTML = '';
       
-      for (const [symbol, data] of Object.entries(account.portfolio)) {
+      for (const [symbol, data] of Object.entries(userAccount.portfolio)) {
         if (data.shares > 0) {
           const currentPrice = currentPrices[symbol];
           const currentValue = data.shares * currentPrice;
@@ -287,7 +359,7 @@
             <div class="portfolio-item">
               <div>
                 <div style="font-weight: 600;">${symbol}</div>
-                <div style="font-size: 13px; color: #86868B;">${data.shares} 股 | 平均成本 $${(data.cost/data.shares).toFixed(2)}</div>
+                <div style="font-size: 13px; color: #86868B;">${data.shares} 股 | 总成本 $${data.cost.toFixed(2)}</div>
               </div>
               <div style="text-align: right;">
                 <div style="font-weight: 600;">$${currentValue.toFixed(2)}</div>
@@ -299,54 +371,61 @@
       }
 
       if (portfolioHTML === '') {
-        portfolioHTML = '<p style="color: #86868B; text-align: center; padding: 20px;">暂无持仓，去买入你的第一支股票吧！</p>';
+        portfolioHTML = `<p style="color: #86868B; text-align: center; padding: 20px;">${currentUser} 暂无持仓，快去抄底吧！</p>`;
       }
-
       document.getElementById('portfolio-list').innerHTML = portfolioHTML;
 
       // 更新总资产与收益
-      const totalAssets = account.cash + stockValue;
-      // 净利润 = 总资产 + 已提现的钱 - 初始资金1000
-      const totalProfit = totalAssets + account.withdrawn - 1000.00; 
+      const totalAssets = userAccount.cash + stockValue;
+      const totalProfit = totalAssets + userAccount.withdrawn - 1000.00; 
 
       document.getElementById('total-value').innerText = `$${totalAssets.toFixed(2)}`;
-      document.getElementById('cash-balance').innerText = account.cash.toFixed(2);
-      document.getElementById('total-withdrawn').innerText = account.withdrawn.toFixed(2);
+      document.getElementById('cash-balance').innerText = userAccount.cash.toFixed(2);
+      document.getElementById('total-withdrawn').innerText = userAccount.withdrawn.toFixed(2);
       
       const profitEl = document.getElementById('total-profit');
       profitEl.innerText = `${totalProfit >= 0 ? '+' : ''}$${totalProfit.toFixed(2)}`;
       profitEl.className = totalProfit >= 0 ? 'profit-positive' : 'profit-negative';
 
-      // 提现按钮逻辑：只有当系统内总资产 > 当前投入本金(1000 - withdrawn)时，才允许提现
+      // 提现按钮逻辑
       const withdrawBtn = document.getElementById('withdraw-btn');
-      if (totalProfit > 0 && account.cash >= totalProfit) {
+      if (totalProfit > 0 && userAccount.cash >= totalProfit) {
         withdrawBtn.disabled = false;
         withdrawBtn.innerText = `提现收益 ($${totalProfit.toFixed(2)})`;
       } else {
         withdrawBtn.disabled = true;
-        withdrawBtn.innerText = account.cash < totalProfit ? '需卖出股票以提现' : '暂无收益可提现';
+        withdrawBtn.innerText = userAccount.cash < totalProfit ? '需卖出股票以提现' : '暂无收益可提现';
       }
     }
 
     // 提现逻辑
     function withdrawProfit() {
-      const totalAssets = account.cash + Object.values(account.portfolio).reduce((sum, item) => sum + (item.shares * currentPrices[Object.keys(account.portfolio).find(key => account.portfolio[key] === item)]), 0);
-      const totalProfit = totalAssets + account.withdrawn - 1000.00;
+      const userAccount = accounts[currentUser];
+      
+      // 重新计算总资产以防跳动
+      let stockValue = 0;
+      for (const [symbol, data] of Object.entries(userAccount.portfolio)) {
+        if (data.shares > 0) stockValue += data.shares * currentPrices[symbol];
+      }
+      const totalAssets = userAccount.cash + stockValue;
+      const totalProfit = totalAssets + userAccount.withdrawn - 1000.00;
 
-      if (totalProfit > 0 && account.cash >= totalProfit) {
-        account.cash -= totalProfit;
-        account.withdrawn += totalProfit;
-        alert(`🎉 恭喜！成功提现收益 $${totalProfit.toFixed(2)}！拿去买点好吃的吧！`);
+      if (totalProfit > 0 && userAccount.cash >= totalProfit) {
+        userAccount.cash -= totalProfit;
+        userAccount.withdrawn += totalProfit;
+        alert(`🎉 恭喜 ${currentUser}！成功提现收益 $${totalProfit.toFixed(2)}！`);
         saveData();
         renderPortfolio();
       }
     }
 
+    // 保存所有账户数据到本地
     function saveData() {
-      localStorage.setItem('kid_stock_account', JSON.stringify(account));
+      localStorage.setItem('family_stock_accounts', JSON.stringify(accounts));
     }
 
     // 启动系统
+    switchUser('大圣'); // 初始选中大圣
     updatePrices();
     setInterval(updatePrices, 3000); // 每 3 秒刷新一次价格
 

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>家庭模拟投资联赛</title>
+  <title>家庭模拟投资联赛 - 标普500</title>
   <style>
     :root {
       --bg-color: #F5F5F7;
@@ -13,6 +13,7 @@
       --apple-blue: #0071E3;
       --apple-green: #34C759;
       --apple-red: #FF3B30;
+      --border-color: rgba(0, 0, 0, 0.08);
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -21,16 +22,13 @@
       font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
       background-color: var(--bg-color);
       color: var(--text-main);
-      padding: 40px 20px;
+      padding: 30px 20px;
       -webkit-font-smoothing: antialiased;
     }
 
-    .container {
-      max-width: 900px;
-      margin: 0 auto;
-    }
+    .container { max-width: 1100px; margin: 0 auto; }
 
-    /* 用户切换器 (iOS 风格分段控制器) */
+    /* 用户切换器 */
     .user-selector {
       display: flex;
       background: rgba(0, 0, 0, 0.05);
@@ -38,160 +36,99 @@
       border-radius: 14px;
       margin-bottom: 24px;
     }
-
     .user-tab {
-      flex: 1;
-      text-align: center;
-      padding: 10px 0;
-      border-radius: 10px;
-      cursor: pointer;
-      font-size: 15px;
-      font-weight: 600;
-      color: var(--text-muted);
+      flex: 1; text-align: center; padding: 10px 0; border-radius: 10px;
+      cursor: pointer; font-size: 15px; font-weight: 600; color: var(--text-muted);
       transition: all 0.25s ease;
     }
-
-    .user-tab.active {
-      background: #FFFFFF;
-      color: var(--text-main);
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-    }
+    .user-tab.active { background: #FFFFFF; color: var(--text-main); box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
 
     /* 顶部账户概览 */
     .dashboard {
-      background: var(--card-bg);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border-radius: 24px;
-      padding: 32px;
-      margin-bottom: 40px;
-      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border: 1px solid rgba(255,255,255,0.5);
+      background: var(--card-bg); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+      border-radius: 24px; padding: 32px; margin-bottom: 30px;
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04); border: 1px solid rgba(255,255,255,0.5);
+      display: flex; justify-content: space-between; align-items: center;
     }
-
-    .account-info h1 {
-      font-size: 32px;
-      font-weight: 700;
-      letter-spacing: -0.5px;
-      margin-bottom: 8px;
-    }
-
-    .account-info p {
-      color: var(--text-muted);
-      font-size: 14px;
-    }
-
-    .balance-display {
-      font-size: 40px;
-      font-weight: 700;
-      font-family: "SF Pro Display", sans-serif;
-      margin-bottom: 4px;
-    }
-
+    .account-info h1 { font-size: 32px; font-weight: 700; letter-spacing: -0.5px; margin-bottom: 8px; }
+    .account-info p { color: var(--text-muted); font-size: 14px; }
+    .balance-display { font-size: 40px; font-weight: 700; margin-bottom: 4px; }
     .profit-positive { color: var(--apple-green); }
     .profit-negative { color: var(--apple-red); }
-
+    
     .btn {
-      background: var(--apple-blue);
-      color: white;
-      border: none;
-      padding: 12px 24px;
-      border-radius: 980px;
-      font-size: 15px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.2s;
-      margin-top: 8px;
+      background: var(--apple-blue); color: white; border: none; padding: 12px 24px;
+      border-radius: 980px; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.2s;
     }
-
     .btn:hover { background: #0077ED; transform: scale(1.02); }
     .btn:disabled { background: #E5E5EA; color: #86868B; cursor: not-allowed; transform: none; }
 
-    /* 市场与持仓区域 */
-    h2 {
-      font-size: 24px;
-      font-weight: 600;
-      margin-bottom: 20px;
-      letter-spacing: -0.3px;
-    }
-
-    .grid {
+    /* 主体两栏布局 */
+    .main-content {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-      gap: 20px;
-      margin-bottom: 50px;
+      grid-template-columns: 1fr 1fr;
+      gap: 30px;
     }
 
-    .card {
-      background: #FFFFFF;
-      border-radius: 18px;
-      padding: 24px;
-      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.03);
-      transition: transform 0.2s;
-    }
+    h2 { font-size: 22px; font-weight: 600; margin-bottom: 16px; letter-spacing: -0.3px; }
 
-    .card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06); }
-
-    .stock-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 16px;
-    }
-
-    .symbol { font-size: 18px; font-weight: 700; }
-    .company { font-size: 12px; color: var(--text-muted); }
-    .price { font-size: 24px; font-weight: 600; font-family: "SF Pro Display"; }
+    /* 左侧：市场行情 */
+    .market-section { background: #FFFFFF; border-radius: 24px; padding: 24px; box-shadow: 0 2px 12px rgba(0,0,0,0.03); }
     
-    .buy-controls {
-      display: flex;
-      gap: 8px;
-      margin-top: 16px;
+    .search-box {
+      width: 100%; padding: 12px 16px; border-radius: 12px; border: 1px solid var(--border-color);
+      background: var(--bg-color); font-size: 16px; margin-bottom: 16px; outline: none;
+      transition: border-color 0.2s;
     }
+    .search-box:focus { border-color: var(--apple-blue); }
 
-    .buy-controls input {
-      width: 60px;
-      border: 1px solid #D1D1D6;
-      border-radius: 8px;
-      text-align: center;
-      font-size: 14px;
+    .stock-list { height: 450px; overflow-y: auto; padding-right: 8px; }
+    .stock-list::-webkit-scrollbar { width: 6px; }
+    .stock-list::-webkit-scrollbar-thumb { background: #D1D1D6; border-radius: 10px; }
+
+    .stock-row {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 14px; border-bottom: 1px solid var(--border-color);
+      cursor: pointer; transition: background 0.2s; border-radius: 12px;
     }
+    .stock-row:hover { background: var(--bg-color); }
+    .stock-row.selected { background: #E1F0FF; border-color: transparent; }
+    
+    .stock-row .symbol { font-size: 16px; font-weight: 700; }
+    .stock-row .company { font-size: 12px; color: var(--text-muted); }
+    .stock-row .price { font-size: 16px; font-weight: 600; }
 
-    .buy-controls button {
-      flex: 1;
-      background: #F2F2F7;
-      color: var(--apple-blue);
-      border: none;
-      padding: 8px;
-      border-radius: 8px;
-      font-weight: 600;
-      cursor: pointer;
+    /* 右侧：交易台与持仓 */
+    .right-section { display: flex; flex-direction: column; gap: 30px; }
+    
+    .trading-desk {
+      background: #FFFFFF; border-radius: 24px; padding: 24px; box-shadow: 0 2px 12px rgba(0,0,0,0.03);
+      border: 2px solid transparent; transition: border-color 0.3s;
     }
+    .trading-desk.active { border-color: var(--apple-blue); }
 
-    .buy-controls button:hover { background: #E5E5EA; }
-
-    /* 持仓列表 */
-    .portfolio-list {
-      background: #FFFFFF;
-      border-radius: 18px;
-      padding: 24px;
-      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.03);
+    .trade-info { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 20px; }
+    .trade-symbol { font-size: 28px; font-weight: 700; }
+    .trade-price { font-size: 32px; font-weight: 700; color: var(--apple-blue); }
+    
+    .trade-controls { display: flex; gap: 12px; }
+    .trade-controls input {
+      flex: 1; padding: 12px; border: 1px solid var(--border-color);
+      border-radius: 12px; font-size: 18px; text-align: center; outline: none;
     }
-
-    .portfolio-item {
-      display: flex;
-      justify-content: space-between;
-      padding: 16px 0;
-      border-bottom: 1px solid #F2F2F7;
+    .trade-controls button {
+      flex: 2; background: var(--apple-blue); color: white; border: none;
+      border-radius: 12px; font-size: 18px; font-weight: 600; cursor: pointer; transition: 0.2s;
     }
+    .trade-controls button:hover { background: #0077ED; }
+
+    .portfolio-list { background: #FFFFFF; border-radius: 24px; padding: 24px; box-shadow: 0 2px 12px rgba(0,0,0,0.03); flex: 1; }
+    .portfolio-item { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--border-color); }
     .portfolio-item:last-child { border-bottom: none; }
 
-    @media (max-width: 600px) {
+    @media (max-width: 800px) {
+      .main-content { grid-template-columns: 1fr; }
       .dashboard { flex-direction: column; text-align: center; gap: 20px; }
-      .account-info h1 { font-size: 28px; }
     }
   </style>
 </head>
@@ -222,121 +159,213 @@
       </div>
     </div>
 
-    <h2>美股七支花 (Magnificent 7)</h2>
-    <div class="grid" id="market-grid">
-      <!-- 股票卡片由 JS 自动生成 -->
-    </div>
+    <div class="main-content">
+      
+      <!-- 左侧：市场列表 -->
+      <div class="market-section">
+        <h2>标普 500 行情</h2>
+        <input type="text" class="search-box" id="search-input" placeholder="输入股票代码或公司名称搜索..." onkeyup="filterStocks()">
+        <div class="stock-list" id="stock-list">
+          <!-- 列表由 JS 渲染 -->
+        </div>
+      </div>
 
-    <h2>我的持仓</h2>
-    <div class="portfolio-list" id="portfolio-list">
-      <!-- 持仓列表由 JS 自动生成 -->
+      <!-- 右侧：交易台与持仓 -->
+      <div class="right-section">
+        
+        <div class="trading-desk" id="trading-desk">
+          <h2>专属交易台</h2>
+          <div id="trade-empty" style="color: var(--text-muted); padding: 20px 0;">请从左侧列表选择一支股票进行交易。</div>
+          
+          <div id="trade-panel" style="display: none;">
+            <div class="trade-info">
+              <div>
+                <div class="trade-symbol" id="desk-symbol">AAPL</div>
+                <div class="company" id="desk-company">Apple Inc.</div>
+              </div>
+              <div class="trade-price" id="desk-price">$175.50</div>
+            </div>
+            <div class="trade-controls">
+              <input type="number" id="trade-qty" min="1" value="1" placeholder="数量">
+              <button onclick="executeTrade()">确认买入</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="portfolio-list">
+          <h2>我的持仓</h2>
+          <div id="portfolio-list">
+            <!-- 持仓列表由 JS 渲染 -->
+          </div>
+        </div>
+
+      </div>
     </div>
   </div>
 
   <script>
-    // 定义用户和股票基准数据
     const USERS = ['阿桂', 'UMI', '大圣', '爸爸'];
-    const M7_STOCKS = [
+    
+    // 标普500精选列表
+    const SP500_STOCKS = [
       { symbol: 'AAPL', name: 'Apple Inc.', basePrice: 175.50 },
       { symbol: 'MSFT', name: 'Microsoft Corp.', basePrice: 405.20 },
-      { symbol: 'GOOGL', name: 'Alphabet Inc.', basePrice: 145.30 },
-      { symbol: 'AMZN', name: 'Amazon.com', basePrice: 178.10 },
       { symbol: 'NVDA', name: 'NVIDIA Corp.', basePrice: 880.50 },
+      { symbol: 'AMZN', name: 'Amazon.com', basePrice: 178.10 },
       { symbol: 'META', name: 'Meta Platforms', basePrice: 490.00 },
-      { symbol: 'TSLA', name: 'Tesla Inc.', basePrice: 195.80 }
+      { symbol: 'GOOGL', name: 'Alphabet Inc.', basePrice: 145.30 },
+      { symbol: 'BRK.B', name: 'Berkshire Hathaway', basePrice: 405.10 },
+      { symbol: 'TSLA', name: 'Tesla Inc.', basePrice: 195.80 },
+      { symbol: 'LLY', name: 'Eli Lilly & Co.', basePrice: 750.20 },
+      { symbol: 'JPM', name: 'JPMorgan Chase', basePrice: 190.40 },
+      { symbol: 'V', name: 'Visa Inc.', basePrice: 280.60 },
+      { symbol: 'WMT', name: 'Walmart Inc.', basePrice: 60.50 },
+      { symbol: 'JNJ', name: 'Johnson & Johnson', basePrice: 155.30 },
+      { symbol: 'MA', name: 'Mastercard Inc.', basePrice: 470.80 },
+      { symbol: 'PG', name: 'Procter & Gamble', basePrice: 160.20 },
+      { symbol: 'HD', name: 'Home Depot', basePrice: 380.10 },
+      { symbol: 'COST', name: 'Costco Wholesale', basePrice: 730.40 },
+      { symbol: 'MRK', name: 'Merck & Co.', basePrice: 125.60 },
+      { symbol: 'ABBV', name: 'AbbVie Inc.', basePrice: 175.30 },
+      { symbol: 'CRM', name: 'Salesforce', basePrice: 305.20 },
+      { symbol: 'AMD', name: 'Advanced Micro Devices', basePrice: 180.50 },
+      { symbol: 'NFLX', name: 'Netflix Inc.', basePrice: 610.30 },
+      { symbol: 'KO', name: 'Coca-Cola Co.', basePrice: 60.10 },
+      { symbol: 'PEP', name: 'PepsiCo Inc.', basePrice: 170.80 },
+      { symbol: 'BAC', name: 'Bank of America', basePrice: 35.60 },
+      { symbol: 'MCD', name: 'McDonald\'s', basePrice: 290.40 },
+      { symbol: 'DIS', name: 'Walt Disney Co.', basePrice: 110.20 },
+      { symbol: 'ADBE', name: 'Adobe Inc.', basePrice: 550.60 },
+      { symbol: 'CSCO', name: 'Cisco Systems', basePrice: 50.30 },
+      { symbol: 'INTC', name: 'Intel Corp.', basePrice: 42.10 }
     ];
 
     let currentPrices = {};
-    let currentUser = '大圣'; // 默认进入页面显示大圣的账户
+    let currentUser = '大圣'; 
+    let selectedStockSymbol = null; // 当前在交易台中选中的股票
     
-    // 初始化所有人的账户数据
+    // 初始化本地存储数据
     let accounts = JSON.parse(localStorage.getItem('family_stock_accounts'));
     if (!accounts) {
       accounts = {};
       USERS.forEach(user => {
-        accounts[user] = {
-          cash: 1000.00,
-          withdrawn: 0.00,
-          portfolio: {}
-        };
+        accounts[user] = { cash: 1000.00, withdrawn: 0.00, portfolio: {} };
       });
+    }
+
+    // 初始化价格并渲染基础列表 (只渲染一次，后续只更新数字)
+    function initMarket() {
+      const listEl = document.getElementById('stock-list');
+      let html = '';
+      SP500_STOCKS.forEach(stock => {
+        currentPrices[stock.symbol] = stock.basePrice;
+        html += `
+          <div class="stock-row" id="row-${stock.symbol}" onclick="selectStock('${stock.symbol}')">
+            <div>
+              <div class="symbol">${stock.symbol}</div>
+              <div class="company">${stock.name}</div>
+            </div>
+            <div class="price" id="price-${stock.symbol}">$${stock.basePrice.toFixed(2)}</div>
+          </div>
+        `;
+      });
+      listEl.innerHTML = html;
     }
 
     // 切换用户
     function switchUser(userName) {
       currentUser = userName;
-      
-      // 更新 UI 选中状态
-      const tabs = document.querySelectorAll('.user-tab');
-      tabs.forEach(tab => {
-        if (tab.innerText === userName) {
-          tab.classList.add('active');
-        } else {
-          tab.classList.remove('active');
-        }
+      document.querySelectorAll('.user-tab').forEach(tab => {
+        tab.classList.toggle('active', tab.innerText === userName);
       });
-
       document.getElementById('current-user-name').innerText = userName;
       renderPortfolio();
     }
 
-    // 模拟股票价格随机波动
-    function updatePrices() {
-      M7_STOCKS.forEach(stock => {
-        const volatility = stock.basePrice * 0.002; 
-        const change = (Math.random() - 0.5) * volatility;
-        currentPrices[stock.symbol] = currentPrices[stock.symbol] 
-          ? Math.max(1, currentPrices[stock.symbol] + change) 
-          : stock.basePrice;
+    // 搜索过滤逻辑
+    function filterStocks() {
+      const query = document.getElementById('search-input').value.toLowerCase();
+      SP500_STOCKS.forEach(stock => {
+        const row = document.getElementById(`row-${stock.symbol}`);
+        if (stock.symbol.toLowerCase().includes(query) || stock.name.toLowerCase().includes(query)) {
+          row.style.display = 'flex';
+        } else {
+          row.style.display = 'none';
+        }
       });
-      renderMarket();
-      renderPortfolio(); // 价格变动时，实时更新持仓市值
     }
 
-    // 渲染市场卡片
-    function renderMarket() {
-      const grid = document.getElementById('market-grid');
-      grid.innerHTML = M7_STOCKS.map(stock => {
-        const price = currentPrices[stock.symbol].toFixed(2);
-        return `
-          <div class="card">
-            <div class="stock-header">
-              <div>
-                <div class="symbol">${stock.symbol}</div>
-                <div class="company">${stock.name}</div>
-              </div>
-              <div class="price">$${price}</div>
-            </div>
-            <div class="buy-controls">
-              <input type="number" id="qty-${stock.symbol}" min="1" value="1">
-              <button onclick="buyStock('${stock.symbol}')">买入</button>
-            </div>
-          </div>
-        `;
-      }).join('');
+    // 选择股票放入交易台
+    function selectStock(symbol) {
+      selectedStockSymbol = symbol;
+      const stock = SP500_STOCKS.find(s => s.symbol === symbol);
+      
+      // 更新列表高亮
+      document.querySelectorAll('.stock-row').forEach(row => row.classList.remove('selected'));
+      document.getElementById(`row-${symbol}`).classList.add('selected');
+
+      // 更新交易台UI
+      document.getElementById('trade-empty').style.display = 'none';
+      document.getElementById('trade-panel').style.display = 'block';
+      document.getElementById('trading-desk').classList.add('active');
+      
+      document.getElementById('desk-symbol').innerText = stock.symbol;
+      document.getElementById('desk-company').innerText = stock.name;
+      document.getElementById('desk-price').innerText = `$${currentPrices[symbol].toFixed(2)}`;
     }
 
-    // 买入逻辑 (记录到当前选中的用户账户)
-    function buyStock(symbol) {
-      const qtyInput = document.getElementById(`qty-${symbol}`);
+    // 执行买入交易
+    function executeTrade() {
+      if (!selectedStockSymbol) return;
+      const qtyInput = document.getElementById('trade-qty');
       const shares = parseInt(qtyInput.value);
-      const price = currentPrices[symbol];
+      const price = currentPrices[selectedStockSymbol];
       const totalCost = shares * price;
       const userAccount = accounts[currentUser];
 
-      if (shares <= 0 || isNaN(shares)) return alert('请输入正确的数量');
-      if (userAccount.cash < totalCost) return alert(`⚠️ ${currentUser} 的现金不足，无法买入！`);
+      if (shares <= 0 || isNaN(shares)) return alert('请输入正确的购买数量！');
+      if (userAccount.cash < totalCost) return alert(`⚠️ ${currentUser} 的现金不足！需要 $${totalCost.toFixed(2)}`);
 
-      // 扣除现金并增加持仓
       userAccount.cash -= totalCost;
-      if (!userAccount.portfolio[symbol]) {
-        userAccount.portfolio[symbol] = { shares: 0, cost: 0 };
+      if (!userAccount.portfolio[selectedStockSymbol]) {
+        userAccount.portfolio[selectedStockSymbol] = { shares: 0, cost: 0 };
       }
-      userAccount.portfolio[symbol].shares += shares;
-      userAccount.portfolio[symbol].cost += totalCost;
+      userAccount.portfolio[selectedStockSymbol].shares += shares;
+      userAccount.portfolio[selectedStockSymbol].cost += totalCost;
       
       saveData();
       renderPortfolio();
+      
+      // 买入成功提示
+      const btn = document.querySelector('.trade-controls button');
+      const originalText = btn.innerText;
+      btn.innerText = '买入成功 ✓';
+      btn.style.background = 'var(--apple-green)';
+      setTimeout(() => {
+        btn.innerText = originalText;
+        btn.style.background = 'var(--apple-blue)';
+      }, 1500);
+    }
+
+    // 核心：只更新价格文字，不触碰DOM结构，解决输入框重置问题
+    function tickPrices() {
+      SP500_STOCKS.forEach(stock => {
+        const volatility = stock.basePrice * 0.002; 
+        const change = (Math.random() - 0.5) * volatility;
+        currentPrices[stock.symbol] = Math.max(1, currentPrices[stock.symbol] + change);
+        
+        // 只更新具体标签的文本
+        const priceEl = document.getElementById(`price-${stock.symbol}`);
+        if(priceEl) priceEl.innerText = `$${currentPrices[stock.symbol].toFixed(2)}`;
+      });
+
+      // 如果交易台有选中的股票，实时更新交易台价格
+      if (selectedStockSymbol) {
+        document.getElementById('desk-price').innerText = `$${currentPrices[selectedStockSymbol].toFixed(2)}`;
+      }
+
+      // 更新持仓市值
+      renderPortfolio(); 
     }
 
     // 渲染持仓与账户总览
@@ -347,12 +376,11 @@
       
       for (const [symbol, data] of Object.entries(userAccount.portfolio)) {
         if (data.shares > 0) {
-          const currentPrice = currentPrices[symbol];
+          const currentPrice = currentPrices[symbol] || 0;
           const currentValue = data.shares * currentPrice;
           const profit = currentValue - data.cost;
           const profitClass = profit >= 0 ? 'profit-positive' : 'profit-negative';
           const sign = profit >= 0 ? '+' : '';
-          
           stockValue += currentValue;
           
           portfolioHTML += `
@@ -371,11 +399,11 @@
       }
 
       if (portfolioHTML === '') {
-        portfolioHTML = `<p style="color: #86868B; text-align: center; padding: 20px;">${currentUser} 暂无持仓，快去抄底吧！</p>`;
+        portfolioHTML = `<p style="color: #86868B; text-align: center; padding: 20px;">${currentUser} 暂无持仓，在左侧选择股票买入吧！</p>`;
       }
       document.getElementById('portfolio-list').innerHTML = portfolioHTML;
 
-      // 更新总资产与收益
+      // 更新顶部总资产
       const totalAssets = userAccount.cash + stockValue;
       const totalProfit = totalAssets + userAccount.withdrawn - 1000.00; 
 
@@ -387,22 +415,20 @@
       profitEl.innerText = `${totalProfit >= 0 ? '+' : ''}$${totalProfit.toFixed(2)}`;
       profitEl.className = totalProfit >= 0 ? 'profit-positive' : 'profit-negative';
 
-      // 提现按钮逻辑
+      // 提现逻辑判断
       const withdrawBtn = document.getElementById('withdraw-btn');
       if (totalProfit > 0 && userAccount.cash >= totalProfit) {
         withdrawBtn.disabled = false;
         withdrawBtn.innerText = `提现收益 ($${totalProfit.toFixed(2)})`;
       } else {
         withdrawBtn.disabled = true;
-        withdrawBtn.innerText = userAccount.cash < totalProfit ? '需卖出股票以提现' : '暂无收益可提现';
+        withdrawBtn.innerText = userAccount.cash < totalProfit ? '需卖出股票' : '暂无收益';
       }
     }
 
     // 提现逻辑
     function withdrawProfit() {
       const userAccount = accounts[currentUser];
-      
-      // 重新计算总资产以防跳动
       let stockValue = 0;
       for (const [symbol, data] of Object.entries(userAccount.portfolio)) {
         if (data.shares > 0) stockValue += data.shares * currentPrices[symbol];
@@ -419,15 +445,12 @@
       }
     }
 
-    // 保存所有账户数据到本地
-    function saveData() {
-      localStorage.setItem('family_stock_accounts', JSON.stringify(accounts));
-    }
+    function saveData() { localStorage.setItem('family_stock_accounts', JSON.stringify(accounts)); }
 
-    // 启动系统
-    switchUser('大圣'); // 初始选中大圣
-    updatePrices();
-    setInterval(updatePrices, 3000); // 每 3 秒刷新一次价格
+    // 系统启动
+    initMarket();
+    switchUser('大圣');
+    setInterval(tickPrices, 3000); // 独立运作的价格引擎，绝不会干扰输入框
 
   </script>
 </body>

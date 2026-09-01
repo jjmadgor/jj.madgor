@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>家庭模拟投资联赛 - 标普500</title>
+  <title>家庭模拟投资联赛 - S&P 500</title>
   <style>
     :root {
       --bg-color: #F5F5F7;
@@ -30,11 +30,7 @@
 
     /* 用户切换器 */
     .user-selector {
-      display: flex;
-      background: rgba(0, 0, 0, 0.05);
-      padding: 4px;
-      border-radius: 14px;
-      margin-bottom: 24px;
+      display: flex; background: rgba(0, 0, 0, 0.05); padding: 4px; border-radius: 14px; margin-bottom: 24px;
     }
     .user-tab {
       flex: 1; text-align: center; padding: 10px 0; border-radius: 10px;
@@ -51,7 +47,7 @@
       display: flex; justify-content: space-between; align-items: center;
     }
     .account-info h1 { font-size: 32px; font-weight: 700; letter-spacing: -0.5px; margin-bottom: 8px; }
-    .account-info p { color: var(--text-muted); font-size: 14px; }
+    .account-info p { color: var(--text-muted); font-size: 14px; margin-bottom: 4px; }
     .balance-display { font-size: 40px; font-weight: 700; margin-bottom: 4px; }
     .profit-positive { color: var(--apple-green); }
     .profit-negative { color: var(--apple-red); }
@@ -64,21 +60,14 @@
     .btn:disabled { background: #E5E5EA; color: #86868B; cursor: not-allowed; transform: none; }
 
     /* 主体两栏布局 */
-    .main-content {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 30px;
-    }
-
+    .main-content { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
     h2 { font-size: 22px; font-weight: 600; margin-bottom: 16px; letter-spacing: -0.3px; }
 
     /* 左侧：市场行情 */
     .market-section { background: #FFFFFF; border-radius: 24px; padding: 24px; box-shadow: 0 2px 12px rgba(0,0,0,0.03); }
-    
     .search-box {
       width: 100%; padding: 12px 16px; border-radius: 12px; border: 1px solid var(--border-color);
-      background: var(--bg-color); font-size: 16px; margin-bottom: 16px; outline: none;
-      transition: border-color 0.2s;
+      background: var(--bg-color); font-size: 16px; margin-bottom: 16px; outline: none; transition: border-color 0.2s;
     }
     .search-box:focus { border-color: var(--apple-blue); }
 
@@ -93,7 +82,6 @@
     }
     .stock-row:hover { background: var(--bg-color); }
     .stock-row.selected { background: #E1F0FF; border-color: transparent; }
-    
     .stock-row .symbol { font-size: 16px; font-weight: 700; }
     .stock-row .company { font-size: 12px; color: var(--text-muted); }
     .stock-row .price { font-size: 16px; font-weight: 600; }
@@ -106,25 +94,30 @@
       border: 2px solid transparent; transition: border-color 0.3s;
     }
     .trading-desk.active { border-color: var(--apple-blue); }
-
     .trade-info { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 20px; }
     .trade-symbol { font-size: 28px; font-weight: 700; }
     .trade-price { font-size: 32px; font-weight: 700; color: var(--apple-blue); }
     
     .trade-controls { display: flex; gap: 12px; }
     .trade-controls input {
-      flex: 1; padding: 12px; border: 1px solid var(--border-color);
-      border-radius: 12px; font-size: 18px; text-align: center; outline: none;
+      flex: 1; padding: 12px; border: 1px solid var(--border-color); border-radius: 12px; font-size: 18px; text-align: center; outline: none;
     }
     .trade-controls button {
-      flex: 2; background: var(--apple-blue); color: white; border: none;
-      border-radius: 12px; font-size: 18px; font-weight: 600; cursor: pointer; transition: 0.2s;
+      flex: 2; background: var(--apple-blue); color: white; border: none; border-radius: 12px; font-size: 18px; font-weight: 600; cursor: pointer; transition: 0.2s;
     }
     .trade-controls button:hover { background: #0077ED; }
 
     .portfolio-list { background: #FFFFFF; border-radius: 24px; padding: 24px; box-shadow: 0 2px 12px rgba(0,0,0,0.03); flex: 1; }
-    .portfolio-item { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--border-color); }
+    .portfolio-item { display: flex; justify-content: space-between; align-items: center; padding: 16px 0; border-bottom: 1px solid var(--border-color); }
     .portfolio-item:last-child { border-bottom: none; }
+    
+    .sell-controls input {
+      width: 50px; padding: 6px; border: 1px solid var(--border-color); border-radius: 8px; text-align: center; font-size: 14px;
+    }
+    .sell-controls button {
+      background: var(--apple-red); color: white; border: none; padding: 6px 12px; border-radius: 8px; cursor: pointer; font-weight: 600; margin-left: 6px; transition: 0.2s;
+    }
+    .sell-controls button:hover { background: #D92B20; }
 
     @media (max-width: 800px) {
       .main-content { grid-template-columns: 1fr; }
@@ -135,8 +128,6 @@
 <body>
 
   <div class="container">
-    
-    <!-- 四人账户切换器 -->
     <div class="user-selector" id="user-selector">
       <div class="user-tab" onclick="switchUser('阿桂')">阿桂</div>
       <div class="user-tab" onclick="switchUser('UMI')">UMI</div>
@@ -144,39 +135,32 @@
       <div class="user-tab" onclick="switchUser('爸爸')">爸爸</div>
     </div>
 
-    <!-- 账户面板 -->
     <div class="dashboard">
       <div class="account-info">
         <h1><span id="current-user-name">大圣</span> 的投资组合</h1>
-        <p>初始资金: $1000.00 | 已提现收益: $<span id="total-withdrawn">0.00</span></p>
+        <p>可用现金: $<span id="cash-balance" style="font-weight: 600; color: var(--apple-blue);">1000.00</span></p>
         <div class="balance-display" id="total-value">$1000.00</div>
-        <p>可用现金: $<span id="cash-balance">1000.00</span></p>
+        <p>初始总本金: $1000.00 | 已提现总额: $<span id="total-withdrawn">0.00</span></p>
       </div>
-      <div style="text-align: right; min-width: 140px;">
-        <p style="font-size: 14px; margin-bottom: 4px; color: var(--text-muted);">当前净收益</p>
-        <h2 id="total-profit" class="profit-positive" style="margin-bottom: 0;">+$0.00</h2>
+      <div style="text-align: right; min-width: 150px;">
+        <p style="font-size: 14px; margin-bottom: 4px; color: var(--text-muted);">可提现现金收益</p>
+        <h2 id="withdrawable-cash" class="profit-positive" style="margin-bottom: 0;">$0.00</h2>
         <button class="btn" id="withdraw-btn" onclick="withdrawProfit()">提现收益</button>
+        <div style="font-size: 12px; color: var(--text-muted); margin-top: 8px;">(需先卖出股票换取现金)</div>
       </div>
     </div>
 
     <div class="main-content">
-      
-      <!-- 左侧：市场列表 -->
       <div class="market-section">
-        <h2>标普 500 行情</h2>
-        <input type="text" class="search-box" id="search-input" placeholder="输入股票代码或公司名称搜索..." onkeyup="filterStocks()">
-        <div class="stock-list" id="stock-list">
-          <!-- 列表由 JS 渲染 -->
-        </div>
+        <h2>标普 500 行情 (Top 100)</h2>
+        <input type="text" class="search-box" id="search-input" placeholder="输入代码或名称搜索..." onkeyup="filterStocks()">
+        <div class="stock-list" id="stock-list"></div>
       </div>
 
-      <!-- 右侧：交易台与持仓 -->
       <div class="right-section">
-        
         <div class="trading-desk" id="trading-desk">
-          <h2>专属交易台</h2>
-          <div id="trade-empty" style="color: var(--text-muted); padding: 20px 0;">请从左侧列表选择一支股票进行交易。</div>
-          
+          <h2>专属交易台 (买入)</h2>
+          <div id="trade-empty" style="color: var(--text-muted); padding: 20px 0;">请从左侧列表选择一支股票。</div>
           <div id="trade-panel" style="display: none;">
             <div class="trade-info">
               <div>
@@ -186,19 +170,16 @@
               <div class="trade-price" id="desk-price">$175.50</div>
             </div>
             <div class="trade-controls">
-              <input type="number" id="trade-qty" min="1" value="1" placeholder="数量">
-              <button onclick="executeTrade()">确认买入</button>
+              <input type="number" id="trade-qty" min="1" value="1" placeholder="买入数量">
+              <button onclick="executeBuy()">确认买入</button>
             </div>
           </div>
         </div>
 
         <div class="portfolio-list">
-          <h2>我的持仓</h2>
-          <div id="portfolio-list">
-            <!-- 持仓列表由 JS 渲染 -->
-          </div>
+          <h2>我的持仓 (卖出)</h2>
+          <div id="portfolio-list"></div>
         </div>
-
       </div>
     </div>
   </div>
@@ -206,54 +187,71 @@
   <script>
     const USERS = ['阿桂', 'UMI', '大圣', '爸爸'];
     
-    // 标普500精选列表
+    // 标普500市值前100真实数据池
     const SP500_STOCKS = [
-      { symbol: 'AAPL', name: 'Apple Inc.', basePrice: 175.50 },
-      { symbol: 'MSFT', name: 'Microsoft Corp.', basePrice: 405.20 },
-      { symbol: 'NVDA', name: 'NVIDIA Corp.', basePrice: 880.50 },
-      { symbol: 'AMZN', name: 'Amazon.com', basePrice: 178.10 },
-      { symbol: 'META', name: 'Meta Platforms', basePrice: 490.00 },
-      { symbol: 'GOOGL', name: 'Alphabet Inc.', basePrice: 145.30 },
-      { symbol: 'BRK.B', name: 'Berkshire Hathaway', basePrice: 405.10 },
-      { symbol: 'TSLA', name: 'Tesla Inc.', basePrice: 195.80 },
-      { symbol: 'LLY', name: 'Eli Lilly & Co.', basePrice: 750.20 },
-      { symbol: 'JPM', name: 'JPMorgan Chase', basePrice: 190.40 },
-      { symbol: 'V', name: 'Visa Inc.', basePrice: 280.60 },
-      { symbol: 'WMT', name: 'Walmart Inc.', basePrice: 60.50 },
-      { symbol: 'JNJ', name: 'Johnson & Johnson', basePrice: 155.30 },
-      { symbol: 'MA', name: 'Mastercard Inc.', basePrice: 470.80 },
-      { symbol: 'PG', name: 'Procter & Gamble', basePrice: 160.20 },
-      { symbol: 'HD', name: 'Home Depot', basePrice: 380.10 },
-      { symbol: 'COST', name: 'Costco Wholesale', basePrice: 730.40 },
-      { symbol: 'MRK', name: 'Merck & Co.', basePrice: 125.60 },
-      { symbol: 'ABBV', name: 'AbbVie Inc.', basePrice: 175.30 },
-      { symbol: 'CRM', name: 'Salesforce', basePrice: 305.20 },
-      { symbol: 'AMD', name: 'Advanced Micro Devices', basePrice: 180.50 },
-      { symbol: 'NFLX', name: 'Netflix Inc.', basePrice: 610.30 },
-      { symbol: 'KO', name: 'Coca-Cola Co.', basePrice: 60.10 },
-      { symbol: 'PEP', name: 'PepsiCo Inc.', basePrice: 170.80 },
-      { symbol: 'BAC', name: 'Bank of America', basePrice: 35.60 },
-      { symbol: 'MCD', name: 'McDonald\'s', basePrice: 290.40 },
-      { symbol: 'DIS', name: 'Walt Disney Co.', basePrice: 110.20 },
-      { symbol: 'ADBE', name: 'Adobe Inc.', basePrice: 550.60 },
-      { symbol: 'CSCO', name: 'Cisco Systems', basePrice: 50.30 },
-      { symbol: 'INTC', name: 'Intel Corp.', basePrice: 42.10 }
+      { symbol: 'AAPL', name: 'Apple Inc.', basePrice: 173.50 }, { symbol: 'MSFT', name: 'Microsoft Corp.', basePrice: 406.20 },
+      { symbol: 'NVDA', name: 'NVIDIA Corp.', basePrice: 881.50 }, { symbol: 'AMZN', name: 'Amazon.com', basePrice: 178.10 },
+      { symbol: 'META', name: 'Meta Platforms', basePrice: 489.00 }, { symbol: 'GOOGL', name: 'Alphabet Class A', basePrice: 144.30 },
+      { symbol: 'GOOG', name: 'Alphabet Class C', basePrice: 145.10 }, { symbol: 'BRK.B', name: 'Berkshire Hathaway', basePrice: 408.10 },
+      { symbol: 'TSLA', name: 'Tesla Inc.', basePrice: 195.80 }, { symbol: 'LLY', name: 'Eli Lilly & Co.', basePrice: 752.20 },
+      { symbol: 'AVGO', name: 'Broadcom Inc.', basePrice: 1300.50 }, { symbol: 'JPM', name: 'JPMorgan Chase', basePrice: 191.40 },
+      { symbol: 'UNH', name: 'UnitedHealth Group', basePrice: 485.30 }, { symbol: 'V', name: 'Visa Inc.', basePrice: 282.60 },
+      { symbol: 'XOM', name: 'Exxon Mobil', basePrice: 115.50 }, { symbol: 'MA', name: 'Mastercard', basePrice: 472.80 },
+      { symbol: 'JNJ', name: 'Johnson & Johnson', basePrice: 156.30 }, { symbol: 'PG', name: 'Procter & Gamble', basePrice: 161.20 },
+      { symbol: 'HD', name: 'Home Depot', basePrice: 382.10 }, { symbol: 'COST', name: 'Costco Wholesale', basePrice: 735.40 },
+      { symbol: 'MRK', name: 'Merck & Co.', basePrice: 126.60 }, { symbol: 'ABBV', name: 'AbbVie Inc.', basePrice: 177.30 },
+      { symbol: 'CRM', name: 'Salesforce', basePrice: 308.20 }, { symbol: 'CVX', name: 'Chevron Corp.', basePrice: 155.10 },
+      { symbol: 'NFLX', name: 'Netflix Inc.', basePrice: 612.30 }, { symbol: 'AMD', name: 'Advanced Micro Devices', basePrice: 182.50 },
+      { symbol: 'KO', name: 'Coca-Cola Co.', basePrice: 60.50 }, { symbol: 'PEP', name: 'PepsiCo', basePrice: 171.80 },
+      { symbol: 'BAC', name: 'Bank of America', basePrice: 36.60 }, { symbol: 'LIN', name: 'Linde plc', basePrice: 450.20 },
+      { symbol: 'TMO', name: 'Thermo Fisher Scientific', basePrice: 580.40 }, { symbol: 'MCD', name: 'McDonald\'s', basePrice: 292.40 },
+      { symbol: 'DIS', name: 'Walt Disney', basePrice: 111.20 }, { symbol: 'ADBE', name: 'Adobe Inc.', basePrice: 552.60 },
+      { symbol: 'CSCO', name: 'Cisco Systems', basePrice: 50.80 }, { symbol: 'INTC', name: 'Intel Corp.', basePrice: 42.50 },
+      { symbol: 'WMT', name: 'Walmart Inc.', basePrice: 60.90 }, { symbol: 'ABT', name: 'Abbott Laboratories', basePrice: 110.30 },
+      { symbol: 'DHR', name: 'Danaher Corp.', basePrice: 250.70 }, { symbol: 'GE', name: 'General Electric', basePrice: 160.20 },
+      { symbol: 'VZ', name: 'Verizon Communications', basePrice: 40.10 }, { symbol: 'CMCSA', name: 'Comcast Corp.', basePrice: 42.80 },
+      { symbol: 'PFE', name: 'Pfizer Inc.', basePrice: 28.50 }, { symbol: 'NKE', name: 'NIKE Inc.', basePrice: 95.40 },
+      { symbol: 'PM', name: 'Philip Morris International', basePrice: 92.10 }, { symbol: 'UNP', name: 'Union Pacific', basePrice: 245.30 },
+      { symbol: 'TXN', name: 'Texas Instruments', basePrice: 170.80 }, { symbol: 'QCOM', name: 'QUALCOMM', basePrice: 165.20 },
+      { symbol: 'HON', name: 'Honeywell', basePrice: 200.50 }, { symbol: 'RTX', name: 'Raytheon Technologies', basePrice: 95.20 },
+      { symbol: 'BMY', name: 'Bristol-Myers Squibb', basePrice: 52.30 }, { symbol: 'UPS', name: 'United Parcel Service', basePrice: 150.40 },
+      { symbol: 'BA', name: 'Boeing Company', basePrice: 205.10 }, { symbol: 'COP', name: 'ConocoPhillips', basePrice: 120.60 },
+      { symbol: 'AMGN', name: 'Amgen Inc.', basePrice: 280.90 }, { symbol: 'IBM', name: 'IBM', basePrice: 190.20 },
+      { symbol: 'SBUX', name: 'Starbucks Corp.', basePrice: 92.50 }, { symbol: 'MDT', name: 'Medtronic', basePrice: 85.30 },
+      { symbol: 'CAT', name: 'Caterpillar Inc.', basePrice: 340.50 }, { symbol: 'C', name: 'Citigroup', basePrice: 60.40 },
+      { symbol: 'DE', name: 'Deere & Co.', basePrice: 390.20 }, { symbol: 'GILD', name: 'Gilead Sciences', basePrice: 72.80 },
+      { symbol: 'LMT', name: 'Lockheed Martin', basePrice: 440.10 }, { symbol: 'GS', name: 'Goldman Sachs', basePrice: 405.30 },
+      { symbol: 'ISRG', name: 'Intuitive Surgical', basePrice: 385.60 }, { symbol: 'BKNG', name: 'Booking Holdings', basePrice: 3500.20 },
+      { symbol: 'SYK', name: 'Stryker Corp.', basePrice: 350.50 }, { symbol: 'NOW', name: 'ServiceNow', basePrice: 760.30 },
+      { symbol: 'TJX', name: 'TJX Companies', basePrice: 98.40 }, { symbol: 'CVS', name: 'CVS Health', basePrice: 75.10 },
+      { symbol: 'BLK', name: 'BlackRock', basePrice: 810.50 }, { symbol: 'ZTS', name: 'Zoetis', basePrice: 175.20 },
+      { symbol: 'VRTX', name: 'Vertex Pharmaceuticals', basePrice: 420.30 }, { symbol: 'SPGI', name: 'S&P Global', basePrice: 425.60 },
+      { symbol: 'REGN', name: 'Regeneron Pharmaceuticals', basePrice: 950.40 }, { symbol: 'AXP', name: 'American Express', basePrice: 220.10 },
+      { symbol: 'PGR', name: 'Progressive Corp.', basePrice: 195.20 }, { symbol: 'AMT', name: 'American Tower', basePrice: 190.50 },
+      { symbol: 'MDLZ', name: 'Mondelez International', basePrice: 70.30 }, { symbol: 'BSX', name: 'Boston Scientific', basePrice: 65.40 },
+      { symbol: 'CB', name: 'Chubb Limited', basePrice: 250.60 }, { symbol: 'ADI', name: 'Analog Devices', basePrice: 192.30 },
+      { symbol: 'MMC', name: 'Marsh & McLennan', basePrice: 205.80 }, { symbol: 'ADP', name: 'Automatic Data Processing', basePrice: 250.10 },
+      { symbol: 'CI', name: 'Cigna', basePrice: 345.20 }, { symbol: 'LRCX', name: 'Lam Research', basePrice: 950.50 },
+      { symbol: 'CME', name: 'CME Group', basePrice: 215.40 }, { symbol: 'SCHW', name: 'Charles Schwab', basePrice: 68.30 },
+      { symbol: 'ETN', name: 'Eaton Corp.', basePrice: 310.20 }, { symbol: 'MU', name: 'Micron Technology', basePrice: 115.40 },
+      { symbol: 'ELV', name: 'Elevance Health', basePrice: 510.60 }, { symbol: 'FI', name: 'Fiserv', basePrice: 155.30 },
+      { symbol: 'KLAC', name: 'KLA Corp.', basePrice: 680.10 }, { symbol: 'CSX', name: 'CSX Corp.', basePrice: 38.50 },
+      { symbol: 'SO', name: 'Southern Company', basePrice: 70.20 }, { symbol: 'SHW', name: 'Sherwin-Williams', basePrice: 335.60 },
+      { symbol: 'ICE', name: 'Intercontinental Exchange', basePrice: 135.40 }, { symbol: 'GPN', name: 'Global Payments', basePrice: 130.20 },
+      { symbol: 'MO', name: 'Altria Group', basePrice: 42.50 }, { symbol: 'SLB', name: 'Schlumberger', basePrice: 52.80 }
     ];
 
     let currentPrices = {};
     let currentUser = '大圣'; 
-    let selectedStockSymbol = null; // 当前在交易台中选中的股票
+    let selectedStockSymbol = null; 
     
-    // 初始化本地存储数据
+    // 初始化账户
     let accounts = JSON.parse(localStorage.getItem('family_stock_accounts'));
     if (!accounts) {
       accounts = {};
-      USERS.forEach(user => {
-        accounts[user] = { cash: 1000.00, withdrawn: 0.00, portfolio: {} };
-      });
+      USERS.forEach(user => { accounts[user] = { cash: 1000.00, withdrawn: 0.00, portfolio: {} }; });
     }
 
-    // 初始化价格并渲染基础列表 (只渲染一次，后续只更新数字)
     function initMarket() {
       const listEl = document.getElementById('stock-list');
       let html = '';
@@ -261,10 +259,7 @@
         currentPrices[stock.symbol] = stock.basePrice;
         html += `
           <div class="stock-row" id="row-${stock.symbol}" onclick="selectStock('${stock.symbol}')">
-            <div>
-              <div class="symbol">${stock.symbol}</div>
-              <div class="company">${stock.name}</div>
-            </div>
+            <div><div class="symbol">${stock.symbol}</div><div class="company">${stock.name}</div></div>
             <div class="price" id="price-${stock.symbol}">$${stock.basePrice.toFixed(2)}</div>
           </div>
         `;
@@ -272,7 +267,6 @@
       listEl.innerHTML = html;
     }
 
-    // 切换用户
     function switchUser(userName) {
       currentUser = userName;
       document.querySelectorAll('.user-tab').forEach(tab => {
@@ -282,29 +276,20 @@
       renderPortfolio();
     }
 
-    // 搜索过滤逻辑
     function filterStocks() {
       const query = document.getElementById('search-input').value.toLowerCase();
       SP500_STOCKS.forEach(stock => {
         const row = document.getElementById(`row-${stock.symbol}`);
-        if (stock.symbol.toLowerCase().includes(query) || stock.name.toLowerCase().includes(query)) {
-          row.style.display = 'flex';
-        } else {
-          row.style.display = 'none';
-        }
+        row.style.display = (stock.symbol.toLowerCase().includes(query) || stock.name.toLowerCase().includes(query)) ? 'flex' : 'none';
       });
     }
 
-    // 选择股票放入交易台
     function selectStock(symbol) {
       selectedStockSymbol = symbol;
       const stock = SP500_STOCKS.find(s => s.symbol === symbol);
-      
-      // 更新列表高亮
       document.querySelectorAll('.stock-row').forEach(row => row.classList.remove('selected'));
       document.getElementById(`row-${symbol}`).classList.add('selected');
 
-      // 更新交易台UI
       document.getElementById('trade-empty').style.display = 'none';
       document.getElementById('trade-panel').style.display = 'block';
       document.getElementById('trading-desk').classList.add('active');
@@ -314,61 +299,71 @@
       document.getElementById('desk-price').innerText = `$${currentPrices[symbol].toFixed(2)}`;
     }
 
-    // 执行买入交易
-    function executeTrade() {
+    // 买入逻辑
+    function executeBuy() {
       if (!selectedStockSymbol) return;
-      const qtyInput = document.getElementById('trade-qty');
-      const shares = parseInt(qtyInput.value);
+      const shares = parseInt(document.getElementById('trade-qty').value);
       const price = currentPrices[selectedStockSymbol];
       const totalCost = shares * price;
       const userAccount = accounts[currentUser];
 
-      if (shares <= 0 || isNaN(shares)) return alert('请输入正确的购买数量！');
-      if (userAccount.cash < totalCost) return alert(`⚠️ ${currentUser} 的现金不足！需要 $${totalCost.toFixed(2)}`);
+      if (shares <= 0 || isNaN(shares)) return alert('请输入正确的买入数量！');
+      if (userAccount.cash < totalCost) return alert(`⚠️ 现金不足！需要 $${totalCost.toFixed(2)}，当前现金 $${userAccount.cash.toFixed(2)}`);
 
       userAccount.cash -= totalCost;
-      if (!userAccount.portfolio[selectedStockSymbol]) {
-        userAccount.portfolio[selectedStockSymbol] = { shares: 0, cost: 0 };
-      }
+      if (!userAccount.portfolio[selectedStockSymbol]) userAccount.portfolio[selectedStockSymbol] = { shares: 0, cost: 0 };
+      
       userAccount.portfolio[selectedStockSymbol].shares += shares;
       userAccount.portfolio[selectedStockSymbol].cost += totalCost;
       
       saveData();
       renderPortfolio();
       
-      // 买入成功提示
       const btn = document.querySelector('.trade-controls button');
-      const originalText = btn.innerText;
-      btn.innerText = '买入成功 ✓';
-      btn.style.background = 'var(--apple-green)';
-      setTimeout(() => {
-        btn.innerText = originalText;
-        btn.style.background = 'var(--apple-blue)';
-      }, 1500);
+      btn.innerText = '买入成功 ✓'; btn.style.background = 'var(--apple-green)';
+      setTimeout(() => { btn.innerText = '确认买入'; btn.style.background = 'var(--apple-blue)'; }, 1000);
     }
 
-    // 核心：只更新价格文字，不触碰DOM结构，解决输入框重置问题
+    // 新增：卖出逻辑
+    function sellStock(symbol) {
+      const sharesToSell = parseInt(document.getElementById(`sell-qty-${symbol}`).value);
+      const userAccount = accounts[currentUser];
+      const stockData = userAccount.portfolio[symbol];
+
+      if (isNaN(sharesToSell) || sharesToSell <= 0) return alert('请输入正确的卖出数量！');
+      if (sharesToSell > stockData.shares) return alert(`⚠️ 卖出数量不能超过您持有的 ${stockData.shares} 股！`);
+
+      const price = currentPrices[symbol];
+      const revenue = sharesToSell * price;
+      const costPerShare = stockData.cost / stockData.shares;
+
+      // 按比例扣减股份和成本，并将卖出的钱加入现金余额
+      stockData.shares -= sharesToSell;
+      stockData.cost -= (costPerShare * sharesToSell);
+      userAccount.cash += revenue;
+
+      // 如果全部卖光，则清空该条目
+      if (stockData.shares === 0) delete userAccount.portfolio[symbol];
+
+      saveData();
+      renderPortfolio();
+    }
+
+    // 引擎：仅刷新价格文字
     function tickPrices() {
       SP500_STOCKS.forEach(stock => {
         const volatility = stock.basePrice * 0.002; 
         const change = (Math.random() - 0.5) * volatility;
         currentPrices[stock.symbol] = Math.max(1, currentPrices[stock.symbol] + change);
         
-        // 只更新具体标签的文本
         const priceEl = document.getElementById(`price-${stock.symbol}`);
         if(priceEl) priceEl.innerText = `$${currentPrices[stock.symbol].toFixed(2)}`;
       });
 
-      // 如果交易台有选中的股票，实时更新交易台价格
-      if (selectedStockSymbol) {
-        document.getElementById('desk-price').innerText = `$${currentPrices[selectedStockSymbol].toFixed(2)}`;
-      }
-
-      // 更新持仓市值
+      if (selectedStockSymbol) document.getElementById('desk-price').innerText = `$${currentPrices[selectedStockSymbol].toFixed(2)}`;
       renderPortfolio(); 
     }
 
-    // 渲染持仓与账户总览
     function renderPortfolio() {
       const userAccount = accounts[currentUser];
       let stockValue = 0;
@@ -378,6 +373,7 @@
         if (data.shares > 0) {
           const currentPrice = currentPrices[symbol] || 0;
           const currentValue = data.shares * currentPrice;
+          const avgCost = data.cost / data.shares;
           const profit = currentValue - data.cost;
           const profitClass = profit >= 0 ? 'profit-positive' : 'profit-negative';
           const sign = profit >= 0 ? '+' : '';
@@ -385,61 +381,56 @@
           
           portfolioHTML += `
             <div class="portfolio-item">
-              <div>
-                <div style="font-weight: 600;">${symbol}</div>
-                <div style="font-size: 13px; color: #86868B;">${data.shares} 股 | 总成本 $${data.cost.toFixed(2)}</div>
+              <div style="flex: 1;">
+                <div style="font-weight: 700; font-size: 16px;">${symbol}</div>
+                <div style="font-size: 12px; color: var(--text-muted);">${data.shares} 股 | 均价 $${avgCost.toFixed(2)}</div>
               </div>
-              <div style="text-align: right;">
-                <div style="font-weight: 600;">$${currentValue.toFixed(2)}</div>
+              <div style="flex: 1; text-align: right; margin-right: 20px;">
+                <div style="font-weight: 700;">$${currentValue.toFixed(2)}</div>
                 <div class="${profitClass}" style="font-size: 13px;">${sign}$${profit.toFixed(2)}</div>
+              </div>
+              <div class="sell-controls" style="display: flex; align-items: center;">
+                <input type="number" id="sell-qty-${symbol}" min="1" max="${data.shares}" value="${data.shares}">
+                <button onclick="sellStock('${symbol}')">卖出</button>
               </div>
             </div>
           `;
         }
       }
 
-      if (portfolioHTML === '') {
-        portfolioHTML = `<p style="color: #86868B; text-align: center; padding: 20px;">${currentUser} 暂无持仓，在左侧选择股票买入吧！</p>`;
-      }
+      if (portfolioHTML === '') portfolioHTML = `<p style="color: #86868B; text-align: center; padding: 20px;">暂无持仓，快去抄底吧！</p>`;
       document.getElementById('portfolio-list').innerHTML = portfolioHTML;
 
-      // 更新顶部总资产
       const totalAssets = userAccount.cash + stockValue;
-      const totalProfit = totalAssets + userAccount.withdrawn - 1000.00; 
+      // 可提现现金逻辑 = 账户内实打实的可用现金 - (初始本金 1000)
+      const withdrawableCash = Math.max(0, userAccount.cash - 1000.00); 
 
       document.getElementById('total-value').innerText = `$${totalAssets.toFixed(2)}`;
       document.getElementById('cash-balance').innerText = userAccount.cash.toFixed(2);
       document.getElementById('total-withdrawn').innerText = userAccount.withdrawn.toFixed(2);
       
-      const profitEl = document.getElementById('total-profit');
-      profitEl.innerText = `${totalProfit >= 0 ? '+' : ''}$${totalProfit.toFixed(2)}`;
-      profitEl.className = totalProfit >= 0 ? 'profit-positive' : 'profit-negative';
-
-      // 提现逻辑判断
+      const withdrawEl = document.getElementById('withdrawable-cash');
+      withdrawEl.innerText = `$${withdrawableCash.toFixed(2)}`;
+      
       const withdrawBtn = document.getElementById('withdraw-btn');
-      if (totalProfit > 0 && userAccount.cash >= totalProfit) {
+      if (withdrawableCash > 0) {
         withdrawBtn.disabled = false;
-        withdrawBtn.innerText = `提现收益 ($${totalProfit.toFixed(2)})`;
+        withdrawBtn.innerText = `提现现金收益 ($${withdrawableCash.toFixed(2)})`;
       } else {
         withdrawBtn.disabled = true;
-        withdrawBtn.innerText = userAccount.cash < totalProfit ? '需卖出股票' : '暂无收益';
+        withdrawBtn.innerText = '余额不足提现';
       }
     }
 
-    // 提现逻辑
+    // 提现逻辑：直接扣除超越 1000 美金的那部分现金
     function withdrawProfit() {
       const userAccount = accounts[currentUser];
-      let stockValue = 0;
-      for (const [symbol, data] of Object.entries(userAccount.portfolio)) {
-        if (data.shares > 0) stockValue += data.shares * currentPrices[symbol];
-      }
-      const totalAssets = userAccount.cash + stockValue;
-      const totalProfit = totalAssets + userAccount.withdrawn - 1000.00;
+      const withdrawableCash = Math.max(0, userAccount.cash - 1000.00);
 
-      if (totalProfit > 0 && userAccount.cash >= totalProfit) {
-        userAccount.cash -= totalProfit;
-        userAccount.withdrawn += totalProfit;
-        alert(`🎉 恭喜 ${currentUser}！成功提现收益 $${totalProfit.toFixed(2)}！`);
+      if (withdrawableCash > 0) {
+        userAccount.cash -= withdrawableCash;
+        userAccount.withdrawn += withdrawableCash;
+        alert(`🎉 恭喜 ${currentUser}！成功提现已实现利润 $${withdrawableCash.toFixed(2)}！`);
         saveData();
         renderPortfolio();
       }
@@ -447,11 +438,9 @@
 
     function saveData() { localStorage.setItem('family_stock_accounts', JSON.stringify(accounts)); }
 
-    // 系统启动
     initMarket();
     switchUser('大圣');
-    setInterval(tickPrices, 3000); // 独立运作的价格引擎，绝不会干扰输入框
-
+    setInterval(tickPrices, 3000);
   </script>
 </body>
 </html>

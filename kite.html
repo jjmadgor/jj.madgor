@@ -39,7 +39,7 @@
 
         .container {
             width: 100%;
-            max-width: 440px; /* 适配 iPhone 17 Pro Max */
+            max-width: 440px;
             display: flex;
             flex-direction: column;
             gap: 22px;
@@ -148,7 +148,7 @@
             border-radius: 6px;
         }
 
-        /* 风况与装备参数栏 (新注入) */
+        /* 风况与装备参数栏 */
         .telemetry-box {
             background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
             border: 1px solid #bae6fd;
@@ -291,9 +291,10 @@
         </div>
     </header>
 
-    <!-- 背景音乐：同目录下的 bgm.mp3 -->
+    <!-- 背景音乐：指定同目录下的 who tell me.m4a -->
     <audio id="bgmAudio" loop preload="auto">
-        <source src="bgm.mp3" type="audio/mpeg">
+        <source src="who%20tell%20me.m4a" type="audio/mp4">
+        <source src="who tell me.m4a" type="audio/mp4">
     </audio>
 
     <!-- 时间线篇章一：8月31日 启程与抵达 -->
@@ -395,7 +396,7 @@
 </div>
 
 <script>
-    // 1. 方式 A：无缝播放同目录下的 bgm.mp3
+    // 1. 播放控制：支持 who tell me.m4a
     const audio = document.getElementById('bgmAudio');
     const disc = document.getElementById('discIcon');
     const statusLabel = document.getElementById('musicStatus');
@@ -405,9 +406,9 @@
             audio.play().then(() => {
                 disc.innerHTML = "⏸";
                 disc.classList.add('playing');
-                statusLabel.innerText = "音乐播放中";
+                statusLabel.innerText = "播放中 · Who Tell Me";
             }).catch(e => {
-                alert("请确保同目录下存放了名为 bgm.mp3 的音频文件");
+                alert("播放提示：请确认 who tell me.m4a 文件名正确且已上传至同一目录。");
             });
         } else {
             audio.pause();
@@ -417,7 +418,7 @@
         }
     }
 
-    // 2. 自动拉取 Kalpitiya Dream Spot 现场实况风速
+    // 2. 自动拉取 Kalpitiya Dream Spot 实况风速
     function loadDay1Wind() {
         fetch('https://api.open-meteo.com/v1/forecast?latitude=8.232&longitude=79.761&current=wind_speed_10m,wind_gusts_10m,wind_direction_10m&wind_speed_unit=kn')
             .then(res => res.json())

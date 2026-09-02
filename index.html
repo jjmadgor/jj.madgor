@@ -182,12 +182,12 @@
         <div class="account-info">
           <h1>[<span id="current-user-name">阿桂</span>] 独立投资组合</h1>
           <p>
-            初始核准本金: $<span id="acc-principal">1000.00</span> (USD) 
+            初始核准本金: $<span id="acc-principal">2000.00</span> (USD) 
             <span class="link-btn" onclick="adjustPrincipal()">[调整本金]</span> 
             | 历史出金: $<span id="total-withdrawn">0.00</span>
           </p>
-          <div class="balance-display" id="total-value">$1000.00</div>
-          <p style="font-size: 14px; font-weight: 600;">可用购买力 (现金): $<span id="cash-balance" style="color: var(--apple-blue);">1000.00</span></p>
+          <div class="balance-display" id="total-value">$2000.00</div>
+          <p style="font-size: 14px; font-weight: 600;">可用购买力 (现金): $<span id="cash-balance" style="color: var(--apple-blue);">2000.00</span></p>
         </div>
         <div style="text-align: right; min-width: 200px;">
           <p style="font-size: 13px; margin-bottom: 4px; color: var(--text-muted);">未结/已结净收益 (Net PnL)</p>
@@ -270,35 +270,32 @@
     ];
 
     let currentPrices = {};
-    let activeView = '总览'; // 默认视图
+    let activeView = '总览'; 
     let selectedStockSymbol = ''; 
     let currentMarketTab = 'ALL';
 
-    // 数据库初始化，强制注入 JJ 的真实数据（按汇率折算）
-    let accounts = JSON.parse(localStorage.getItem('jj_invest_db_pro_v1'));
+    // 数据库 v3，所有账户按要求限制本金（等比缩放至 10k 和 2k）
+    let accounts = JSON.parse(localStorage.getItem('jj_invest_db_pro_v3'));
     if (!accounts) {
       accounts = {};
       USERS.forEach(user => { 
         if (user === 'JJ') {
-          // 真实数据还原:
-          // 威腾: 7304 * 45.571 / 7.2 = 46229.42 USD
-          // 京蓝: 132600 * 5.013 / 7.2 = 92322.75 USD
-          // 同有: 8100 * 54.711 / 7.2 = 61549.88 USD
-          // 现金: 3238.23 / 7.2 = 449.75 USD
+          // 真实数据等比微缩至 10000 美金
           accounts[user] = { 
-            principal: 200551.80, 
-            cash: 449.75, 
+            principal: 10000.00, 
+            cash: 23.07, 
             withdrawn: 0.00, 
             portfolio: {
-              '688226': { shares: 7304, costUSD: 46229.42, market: 'CN' },
-              '000711': { shares: 132600, costUSD: 92322.75, market: 'CN' },
-              '300302': { shares: 8100, costUSD: 61549.88, market: 'CN' }
+              '688226': { shares: 364, costUSD: 2303.87, market: 'CN' },
+              '000711': { shares: 6611, costUSD: 4602.94, market: 'CN' },
+              '300302': { shares: 404, costUSD: 3070.12, market: 'CN' }
             } 
           };
         } else if (user === '奶奶') {
-          accounts[user] = { principal: 50000.00, cash: 50000.00, withdrawn: 0.00, portfolio: {} };
+          accounts[user] = { principal: 10000.00, cash: 10000.00, withdrawn: 0.00, portfolio: {} };
         } else {
-          accounts[user] = { principal: 1000.00, cash: 1000.00, withdrawn: 0.00, portfolio: {} };
+          // 阿桂和 UMI 设定为 2000 美金
+          accounts[user] = { principal: 2000.00, cash: 2000.00, withdrawn: 0.00, portfolio: {} };
         }
       });
     }
@@ -358,7 +355,7 @@
         if (!isNaN(parsed) && parsed > 0) {
           const diff = parsed - acc.principal;
           acc.principal = parsed;
-          acc.cash += diff; // 资金补齐/抽离
+          acc.cash += diff;
           saveData();
           renderPortfolio();
         } else {
@@ -560,7 +557,6 @@
       document.getElementById('portfolio-list').innerHTML = html || `<p style="color: var(--text-muted); text-align: center; padding: 30px;">暂无持仓数据</p>`;
 
       const totalAssets = account.cash + stockValueUSD;
-      // 净利润 = 现存资产 + 历史提现 - 个人设定的初始本金
       const netProfit = (totalAssets + account.withdrawn) - account.principal;
 
       document.getElementById('total-value').innerText = `$${totalAssets.toFixed(2)}`;
@@ -651,7 +647,7 @@
       pEl.className = globalProfit >= 0 ? 'profit-positive' : 'profit-negative';
     }
 
-    function saveData() { localStorage.setItem('jj_invest_db_pro_v1', JSON.stringify(accounts)); }
+    function saveData() { localStorage.setItem('jj_invest_db_pro_v3', JSON.stringify(accounts)); }
 
     initSystem();
     setInterval(tickPrices, 3000);

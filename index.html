@@ -246,19 +246,18 @@
   </div>
 
   <script>
-    // 系统核心配置
     const USERS = ['JJ', '奶奶', '阿桂', 'UMI'];
     const CURRENCIES = { US: '$', HK: 'HK$', CN: '¥' };
     const FX_RATES = { US: 1.0, HK: 7.8, CN: 7.2 }; 
     
-    // 注入 JJ 截图的真实标的及基础核心股
+    // 注入全部真实标的及基础核心股
     const GLOBAL_STOCKS = [
-      // JJ 真实持仓
       { symbol: '688226', name: '威腾电气', market: 'CN', basePrice: 28.540 },
       { symbol: '000711', name: '京蓝科技', market: 'CN', basePrice: 6.480 },
       { symbol: '300302', name: '同有科技', market: 'CN', basePrice: 29.290 },
+      { symbol: 'DIDIY', name: '滴滴 (DiDi Global)', market: 'US', basePrice: 3.65 },
+      { symbol: 'NIO', name: '蔚来 (NIO)', market: 'US', basePrice: 4.01 },
       
-      // 其他核心证券
       { symbol: 'AAPL', name: '苹果公司', market: 'US', basePrice: 173.50 },
       { symbol: 'MSFT', name: '微软', market: 'US', basePrice: 406.20 },
       { symbol: 'NVDA', name: '英伟达', market: 'US', basePrice: 881.50 },
@@ -274,21 +273,23 @@
     let selectedStockSymbol = ''; 
     let currentMarketTab = 'ALL';
 
-    // 数据库 v3，所有账户按要求限制本金（等比缩放至 10k 和 2k）
-    let accounts = JSON.parse(localStorage.getItem('jj_invest_db_pro_v3'));
+    // 数据库 v4：完美缩放，JJ及奶奶本金1万，小孩本金2千
+    let accounts = JSON.parse(localStorage.getItem('jj_invest_db_pro_v4'));
     if (!accounts) {
       accounts = {};
       USERS.forEach(user => { 
         if (user === 'JJ') {
-          // 真实数据等比微缩至 10000 美金
+          // 精确等比微缩至 10,000 美金
           accounts[user] = { 
             principal: 10000.00, 
-            cash: 23.07, 
+            cash: 12.68, 
             withdrawn: 0.00, 
             portfolio: {
-              '688226': { shares: 364, costUSD: 2303.87, market: 'CN' },
-              '000711': { shares: 6611, costUSD: 4602.94, market: 'CN' },
-              '300302': { shares: 404, costUSD: 3070.12, market: 'CN' }
+              '688226': { shares: 289, costUSD: 1829.17, market: 'CN' },
+              '000711': { shares: 5241, costUSD: 3649.05, market: 'CN' },
+              '300302': { shares: 320, costUSD: 2431.60, market: 'CN' },
+              'DIDIY':  { shares: 86,  costUSD: 502.50,  market: 'US' },
+              'NIO':    { shares: 250, costUSD: 1575.00, market: 'US' }
             } 
           };
         } else if (user === '奶奶') {
@@ -647,7 +648,7 @@
       pEl.className = globalProfit >= 0 ? 'profit-positive' : 'profit-negative';
     }
 
-    function saveData() { localStorage.setItem('jj_invest_db_pro_v3', JSON.stringify(accounts)); }
+    function saveData() { localStorage.setItem('jj_invest_db_pro_v4', JSON.stringify(accounts)); }
 
     initSystem();
     setInterval(tickPrices, 3000);

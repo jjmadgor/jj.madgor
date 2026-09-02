@@ -31,14 +31,14 @@
             background-attachment: fixed;
             color: var(--text-main);
             min-height: 100vh;
-            padding: calc(var(--safe-top) + 20px) 20px calc(var(--safe-bottom) + 40px);
+            padding: calc(var(--safe-top) + 20px) 18px calc(var(--safe-bottom) + 40px);
             display: flex;
             justify-content: center;
         }
 
         .container {
             width: 100%;
-            max-width: 440px; /* 适配 iPhone 17 Pro Max */
+            max-width: 440px; /* 适配 iPhone 17 Pro Max 视口 */
             display: flex;
             flex-direction: column;
             gap: 22px;
@@ -154,7 +154,7 @@
             border-radius: 6px;
         }
 
-        /* 文案段落样式 */
+        /* 文案排版 */
         .story-text {
             font-size: 15px;
             line-height: 1.85;
@@ -163,16 +163,22 @@
         }
 
         .story-text p {
-            margin-bottom: 14px;
+            margin-bottom: 12px;
         }
 
         .story-text p:last-child {
             margin-bottom: 0;
         }
 
-        .story-text strong {
-            color: var(--ocean-dark);
-            font-weight: 700;
+        /* 半夜感悟文字排版 */
+        .midnight-poetry {
+            font-size: 16px;
+            line-height: 2.2;
+            color: #2c3e50;
+            letter-spacing: 1px;
+            font-weight: 500;
+            padding: 4px 8px;
+            border-left: 3px solid var(--accent-sunset);
         }
 
         /* 视频容器 */
@@ -192,6 +198,43 @@
             border-radius: 18px;
             max-height: 520px;
             object-fit: cover;
+        }
+
+        /* 照片画廊网格 */
+        .photo-grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 4px;
+        }
+
+        .photo-grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-top: 6px;
+        }
+
+        .gallery-img {
+            width: 100%;
+            border-radius: 14px;
+            object-fit: cover;
+            display: block;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            transition: transform 0.2s ease;
+        }
+
+        .photo-grid-2 .gallery-img {
+            height: 150px;
+        }
+
+        .photo-grid-3 .gallery-img {
+            height: 110px;
+        }
+
+        .gallery-img:active {
+            transform: scale(0.98);
         }
 
         .log-footer {
@@ -245,11 +288,11 @@
             <p>窗外掠过的灯火忽明忽暗，把所有的疲惫与心绪，都悄无声息地揉碎在南亚的海风里。</p>
         </div>
 
-        <!-- 8月31日 视频容器：同目录下的 video1.mp4 -->
+        <!-- 8月31日 视频：Drive.mp4 -->
         <div class="video-wrapper">
-            <video controls playsinline preload="metadata" poster="">
-                <source src="video1.mp4" type="video/mp4">
-                您的浏览器不支持视频播放标签。
+            <video controls playsinline preload="metadata">
+                <source src="Drive.mp4" type="video/mp4">
+                您的浏览器不支持视频播放。
             </video>
         </div>
 
@@ -259,11 +302,44 @@
         </div>
     </section>
 
+    <!-- 时间线独立篇章：8月31日 半夜心绪 -->
+    <section class="log-card">
+        <div class="timeline-header">
+            <div class="timeline-date">🌙 8月31日 · 半夜</div>
+            <span class="timeline-location">Kalpitiya 静夜</span>
+        </div>
+
+        <div class="midnight-poetry">
+            一个人，一只狗<br>
+            一池水，一轮月<br>
+            一杯酒，一首歌<br>
+            一段过往，一抹愁
+        </div>
+
+        <!-- 半夜照片：狗.JPG, moon.JPG, drink.JPG -->
+        <div class="photo-grid-3">
+            <img src="狗.JPG" alt="狗" class="gallery-img" loading="lazy">
+            <img src="moon.JPG" alt="月" class="gallery-img" loading="lazy">
+            <img src="drink.JPG" alt="酒" class="gallery-img" loading="lazy">
+        </div>
+
+        <div class="log-footer">
+            <span>Poolside Quiet Night</span>
+            <span>Whisky & Moon 🥃</span>
+        </div>
+    </section>
+
     <!-- 时间线篇章二：9月1日 Dream Spot 下水实感 -->
     <section class="log-card">
         <div class="timeline-header">
             <div class="timeline-date">🗓️ 9月1日 · 撕裂重力</div>
             <span class="timeline-location">Dream Spot 泻湖</span>
+        </div>
+
+        <!-- 9月1日 照片：water.JPG, cat.JPG -->
+        <div class="photo-grid-2">
+            <img src="water.JPG" alt="Water" class="gallery-img" loading="lazy">
+            <img src="cat.JPG" alt="Cat" class="gallery-img" loading="lazy">
         </div>
 
         <div class="story-text">

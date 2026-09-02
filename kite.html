@@ -41,10 +41,10 @@
             max-width: 440px; /* 适配 iPhone 17 Pro Max */
             display: flex;
             flex-direction: column;
-            gap: 24px;
+            gap: 20px;
         }
 
-        /* 顶部只保留标题与音乐播放器 */
+        /* 顶部标题与音乐胶囊 */
         header {
             display: flex;
             justify-content: space-between;
@@ -69,7 +69,6 @@
             margin-top: 2px;
         }
 
-        /* 极简随身听胶囊 */
         .music-pill {
             display: inline-flex;
             align-items: center;
@@ -115,111 +114,136 @@
             color: var(--ocean-dark);
         }
 
-        /* 斯里兰卡主体正文卡片 */
-        .story-card {
+        /* 时间线日记主卡片 */
+        .log-card {
             background: rgba(255, 255, 255, 0.92);
             backdrop-filter: blur(24px);
             -webkit-backdrop-filter: blur(24px);
             border: 1px solid rgba(255, 255, 255, 0.8);
             border-radius: 24px;
-            padding: 26px 22px;
+            padding: 24px 20px;
             box-shadow: 0 16px 36px rgba(10, 17, 40, 0.06);
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
         }
 
-        .badge {
-            display: inline-block;
-            background: #ffe4e6;
-            color: var(--accent-sunset);
-            font-size: 11px;
-            font-weight: 800;
-            padding: 4px 10px;
-            border-radius: 8px;
-            letter-spacing: 0.5px;
-            margin-bottom: 12px;
+        .timeline-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            border-bottom: 1px dashed rgba(0, 119, 182, 0.18);
+            padding-bottom: 12px;
         }
 
-        .story-title {
-            font-size: 20px;
+        .timeline-date {
+            font-size: 18px;
             font-weight: 800;
             color: var(--ocean-dark);
-            line-height: 1.35;
-            margin-bottom: 18px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
 
-        .story-content p {
+        .timeline-location {
+            font-size: 12px;
+            color: var(--primary);
+            font-weight: 600;
+            background: #e0f2fe;
+            padding: 3px 8px;
+            border-radius: 6px;
+        }
+
+        /* 文案段落样式 */
+        .story-text {
             font-size: 15px;
-            line-height: 1.85;
-            color: var(--text-sub);
-            margin-bottom: 16px;
+            line-height: 1.9;
+            color: var(--text-main);
             text-align: justify;
         }
 
-        .story-content p strong {
-            color: var(--ocean-dark);
-            font-weight: 700;
+        .story-text p {
+            margin-bottom: 12px;
         }
 
-        .story-footer {
-            margin-top: 24px;
-            padding-top: 16px;
-            border-top: 1px dashed rgba(0, 119, 182, 0.2);
+        .story-text p:last-child {
+            margin-bottom: 0;
+        }
+
+        /* 视频容器 */
+        .video-wrapper {
+            width: 100%;
+            border-radius: 18px;
+            overflow: hidden;
+            background: #000000;
+            box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
+            position: relative;
+            margin-top: 4px;
+        }
+
+        video {
+            width: 100%;
+            display: block;
+            border-radius: 18px;
+            max-height: 520px;
+            object-fit: cover;
+        }
+
+        .log-footer {
+            margin-top: 4px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            font-size: 12px;
+            font-size: 11px;
             color: #8395a7;
-        }
-
-        .story-footer span:last-child {
-            color: var(--primary);
-            font-weight: 700;
         }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <!-- 顶部极简保留 -->
+    <!-- 顶部状态栏与播放器 -->
     <header>
         <div class="brand">
             <h1>🌊 CHASING THE WIND</h1>
             <p>从雪域到无垠之海</p>
         </div>
         
-        <!-- BGM 随身听组件（播放同目录下的 bgm.mp3） -->
         <div class="music-pill" onclick="toggleBGM()">
             <div class="disc-icon" id="discIcon">▶</div>
             <span class="music-label" id="musicStatus">播放海风 🎵</span>
         </div>
     </header>
 
+    <!-- 背景音乐：同目录下的 bgm.mp3 -->
     <audio id="bgmAudio" loop preload="auto">
         <source src="bgm.mp3" type="audio/mpeg">
     </audio>
 
-    <!-- 斯里兰卡主体正文 -->
-    <main class="story-card">
-        <span class="badge">📍 SRI LANKA · KALPITIYA</span>
-        <h2 class="story-title">印度洋信风与镜面泻湖：在 Dream Spot 撕裂重力</h2>
-        
-        <div class="story-content">
-            <p>
-                滑了二十年的单板，雪山教给我最深刻的一件事就是<strong>在不稳定的介质中寻找极速的平衡</strong>。但直到站在斯里兰卡 Kalpitiya 这片被全世界风冲骑手奉为圣地的海滩，我才真正把沉淀了二十年的板刃记忆，彻底释放在这片狂暴又温柔的印度洋水域。
-            </p>
-            <p>
-                穿过绵延的沙洲，眼前就是纯粹为极限而生的 <strong>Dream Spot</strong>。一面是印度洋翻滚咆哮的汹涌白浪，另一面则是被天然沙坝隔绝出如明镜般平整的泻湖水面。西南季风以极其稳定且蛮横的姿态掠过水面，风速毫无杂质地灌满气囊伞翼。
-            </p>
-            <p>
-                深吸一口气，拉杆，降压，切水。单板走刃深压刻滑的重心转换几乎在零点几秒内就唤醒了肌肉的直觉。双向板的板刃在镜面一样的水中撕开一道泛着白沫的狭长弧线，没有拖泥带水的抗力，只有纯粹的风力拉扯着整个身体贴着水面高速飞驰。
-            </p>
-            <p>
-                看准起跳时机的一瞬间，控筝越过头顶，猛力压板起跳——重力在这一刻彻底失效。没有雪山冰裂缝的恐惧，只有整个人被托举在碧蓝海天之间的通透与轻盈。二十年穿梭在全球雪山寻找粉雪，而今天，在印度洋的信风里，我找到了另一场永不融化的起飞。
-            </p>
+    <!-- 时间线第一篇：8月31日 抵达日记 -->
+    <main class="log-card">
+        <div class="timeline-header">
+            <div class="timeline-date">🗓️ 8月31日 · 启程与抵达</div>
+            <span class="timeline-location">北京 ➔ 成都 ➔ 科伦坡</span>
         </div>
 
-        <div class="story-footer">
-            <span>Kalpitiya Lagoon · 航行中</span>
-            <span>Rider On Board 🤙</span>
+        <div class="story-text">
+            <p>机翼刺破云层，从北京到成都，再落进科伦坡的湿夜。</p>
+            <p>辗转十数个小时，车轮又在颠簸中丈量了三个小时的雨林与长路。</p>
+            <p>窗外掠过的灯火忽明忽暗，把所有的疲惫与心绪，都悄无声息地揉碎在南亚的海风里。</p>
+        </div>
+
+        <!-- 视频播放区域：放置于同目录下的 video1.mp4 -->
+        <div class="video-wrapper">
+            <video controls playsinline preload="metadata" poster="">
+                <source src="video1.mp4" type="video/mp4">
+                您的浏览器不支持视频播放标签。
+            </video>
+        </div>
+
+        <div class="log-footer">
+            <span>Kalpitiya, Sri Lanka</span>
+            <span>Day 1 · Night Landing</span>
         </div>
     </main>
 </div>

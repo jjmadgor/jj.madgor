@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>JJ 投资 - 移动端专业交易</title>
+  <title>JJ 投资 - 全球实时交易终端</title>
   <style>
     :root {
       --bg-color: #F5F5F7;
@@ -29,17 +29,16 @@
 
     .container { max-width: 1200px; margin: 0 auto; }
     
-    /* 顶部导航 */
     .nav-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
     .brand { font-size: 22px; font-weight: 700; letter-spacing: -0.5px; }
     .brand span { color: var(--apple-blue); }
+    .live-indicator { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; color: var(--apple-green); }
+    .live-dot { width: 8px; height: 8px; background-color: var(--apple-green); border-radius: 50%; animation: pulse 1.5s infinite; }
+    @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(52, 199, 89, 0.4); } 70% { box-shadow: 0 0 0 6px rgba(52, 199, 89, 0); } 100% { box-shadow: 0 0 0 0 rgba(52, 199, 89, 0); } }
 
-    /* 用户/视图切换器 (支持横向滚动) */
     .user-selector-wrapper { margin-bottom: 20px; overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 4px; }
     .user-selector-wrapper::-webkit-scrollbar { display: none; }
-    .user-selector {
-      display: inline-flex; background: rgba(0, 0, 0, 0.06); padding: 4px; border-radius: 10px; min-width: 380px; width: 100%;
-    }
+    .user-selector { display: inline-flex; background: rgba(0, 0, 0, 0.06); padding: 4px; border-radius: 10px; min-width: 380px; width: 100%; }
     .user-tab {
       flex: 1; text-align: center; padding: 8px 12px; border-radius: 8px;
       cursor: pointer; font-size: 14px; font-weight: 600; color: var(--text-muted);
@@ -47,7 +46,6 @@
     }
     .user-tab.active { background: #FFFFFF; color: var(--text-main); box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
 
-    /* 数据概览面板 */
     .dashboard {
       background: var(--card-bg); border-radius: 16px; padding: 20px; margin-bottom: 20px;
       box-shadow: var(--panel-shadow); display: flex; flex-direction: column; gap: 16px;
@@ -67,13 +65,11 @@
     .btn:hover { background: #0077ED; }
     .btn:disabled { background: #E5E5EA; color: #86868B; cursor: not-allowed; }
 
-    /* 主体两栏布局 (桌面端分栏，移动端堆叠) */
     .main-content { display: grid; grid-template-columns: 1fr; gap: 20px; }
     @media (min-width: 900px) { .main-content { grid-template-columns: 380px 1fr; } }
     
     .panel-title { font-size: 17px; font-weight: 700; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; }
 
-    /* 行情中心 */
     .market-section { background: var(--card-bg); border-radius: 16px; padding: 20px; box-shadow: var(--panel-shadow); }
     .market-tabs { display: flex; gap: 8px; margin-bottom: 12px; overflow-x: auto; padding-bottom: 4px; -webkit-overflow-scrolling: touch; }
     .market-tabs::-webkit-scrollbar { display: none; }
@@ -97,9 +93,8 @@
     .stock-row.selected { background: rgba(0, 113, 227, 0.08); }
     .stock-row .symbol { font-size: 15px; font-weight: 700; }
     .stock-row .company { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
-    .stock-row .price { font-size: 15px; font-weight: 600; font-family: "SF Pro Display"; }
+    .stock-row .price { font-size: 15px; font-weight: 600; font-family: "SF Pro Display"; transition: color 0.3s; }
 
-    /* 交易终端 */
     .trading-desk {
       background: var(--card-bg); border-radius: 16px; padding: 20px; box-shadow: var(--panel-shadow);
       border: 1px solid var(--apple-blue); margin-bottom: 20px;
@@ -124,7 +119,6 @@
     .est-cost { font-size: 13px; color: var(--text-muted); text-align: center; }
     .est-cost span { font-weight: 600; color: #1D1D1F; }
 
-    /* 移动端卡片式持仓列表 */
     .portfolio-list { background: transparent; }
     .port-card {
       background: var(--card-bg); border-radius: 16px; padding: 16px; margin-bottom: 16px;
@@ -148,7 +142,6 @@
     .port-actions button { flex: 1; background: rgba(255, 59, 48, 0.1); color: var(--apple-red); border: none; border-radius: 8px; font-weight: 600; font-size: 14px; cursor: pointer; transition: 0.2s; }
     .port-actions button:hover { background: var(--apple-red); color: white; }
 
-    /* 综合总览 */
     .overview-grid { display: grid; grid-template-columns: 1fr; gap: 16px; }
     @media (min-width: 768px) { .overview-grid { grid-template-columns: 1fr 1fr; } }
     .overview-card { background: var(--card-bg); border-radius: 16px; padding: 20px; box-shadow: var(--panel-shadow); }
@@ -161,6 +154,9 @@
   <div class="container">
     <div class="nav-header">
       <div class="brand">JJ <span>投资</span></div>
+      <div class="live-indicator">
+        <div class="live-dot"></div> 真实行情连接中
+      </div>
     </div>
     
     <div class="user-selector-wrapper">
@@ -179,7 +175,7 @@
         <p style="font-size: 14px; color: var(--text-muted); margin-bottom: -10px;">全局资产管理规模 (AUM / USD)</p>
         <div class="balance-display" id="global-total-assets" style="font-size: 42px;">$0.00</div>
         <div style="font-size: 14px; font-weight: 600; padding: 8px 16px; background: var(--bg-color); border-radius: 20px;">
-          累计净收益: <span id="global-total-profit">+$0.00</span>
+          累计总收益: <span id="global-total-profit">+$0.00</span>
         </div>
       </div>
       <div class="overview-grid" id="overview-grid-container"></div>
@@ -238,7 +234,7 @@
 
         <!-- 行情参考 -->
         <div class="market-section">
-          <div class="panel-title">市场参考 (点击直达交易)</div>
+          <div class="panel-title">市场参考 (实时同步)</div>
           <div class="market-tabs">
             <div class="m-tab active" onclick="switchMarketCategory('ALL')">全部</div>
             <div class="m-tab" onclick="switchMarketCategory('US')">美股</div>
@@ -250,7 +246,6 @@
         </div>
       </div>
     </div>
-
   </div>
 
   <script>
@@ -258,11 +253,11 @@
     const CURRENCIES = { US: '$', HK: 'HK$', CN: '¥' };
     const FX_RATES = { US: 1.0, HK: 7.8, CN: 7.2 }; 
     
-    // 全球证券及真实名称
+    // 初始化列表 (系统会以后台拉取的最新价格覆盖 BasePrice)
     const GLOBAL_STOCKS = [
-      { symbol: '688226', name: '威腾电气', market: 'CN', basePrice: 28.540 },
-      { symbol: '000711', name: '京蓝科技', market: 'CN', basePrice: 6.480 },
-      { symbol: '300302', name: '同有科技', market: 'CN', basePrice: 29.290 },
+      { symbol: '688226', name: '威腾电气', market: 'CN', basePrice: 28.54 },
+      { symbol: '000711', name: '京蓝科技', market: 'CN', basePrice: 6.48 },
+      { symbol: '300302', name: '同有科技', market: 'CN', basePrice: 29.29 },
       { symbol: 'DIDIY', name: '滴滴 (DiDi)', market: 'US', basePrice: 3.65 },
       { symbol: 'NIO', name: '蔚来 (NIO)', market: 'US', basePrice: 4.01 },
       { symbol: 'AAPL', name: '苹果 (Apple)', market: 'US', basePrice: 173.50 },
@@ -280,8 +275,8 @@
     let selectedStockSymbol = ''; 
     let currentMarketTab = 'ALL';
 
-    // 数据库 v5：结构不变，依然完美缩放 10k 和 2k
-    let accounts = JSON.parse(localStorage.getItem('jj_invest_db_pro_v5'));
+    // 数据库 v7：结构不变
+    let accounts = JSON.parse(localStorage.getItem('jj_invest_db_pro_v7'));
     if (!accounts) {
       accounts = {};
       USERS.forEach(user => { 
@@ -305,23 +300,99 @@
     }
 
     function initSystem() {
-      GLOBAL_STOCKS.forEach(stock => {
-        if (!currentPrices[stock.symbol]) currentPrices[stock.symbol] = stock.basePrice;
-      });
+      GLOBAL_STOCKS.forEach(stock => { currentPrices[stock.symbol] = stock.basePrice; });
       for (const u in accounts) {
         for (const sym in accounts[u].portfolio) {
-          if (!currentPrices[sym]) currentPrices[sym] = generateMockPrice(sym);
+          if (!currentPrices[sym]) currentPrices[sym] = 100.00; // 默认防爆值
         }
       }
       renderMarketList();
       switchView('总览');
+      fetchRealPrices(); // 启动第一次拉取
     }
 
-    function generateMockPrice(symbol) {
-      let hash = 0;
-      for (let i = 0; i < symbol.length; i++) hash += symbol.charCodeAt(i);
-      return (hash % 200) + 15; 
+    // --- 核心：新浪财经 API 抓取引擎 ---
+    function getSinaSymbol(symbol) {
+      if (symbol.includes('.HK')) {
+        let code = symbol.replace('.HK', '');
+        while(code.length < 5) code = '0' + code;
+        return 'hk' + code;
+      }
+      if (/^\d{6}$/.test(symbol)) {
+        if (symbol.startsWith('6')) return 'sh' + symbol;
+        else return 'sz' + symbol;
+      }
+      return 'gb_' + symbol.toLowerCase();
     }
+
+    function parseSinaData(symbol, sinaSymbol) {
+      const dataStr = window['hq_str_' + sinaSymbol];
+      if (!dataStr) return null;
+      const elements = dataStr.split(',');
+      if (elements.length < 3) return null;
+      
+      let price = 0;
+      if (sinaSymbol.startsWith('hk')) price = parseFloat(elements[6]);
+      else if (sinaSymbol.startsWith('sh') || sinaSymbol.startsWith('sz')) price = parseFloat(elements[3]);
+      else if (sinaSymbol.startsWith('gb_')) price = parseFloat(elements[1]);
+      
+      return price > 0 ? price : null;
+    }
+
+    function fetchRealPrices() {
+      // 收集所有需要抓取的代码
+      const symbolsToFetch = new Set(GLOBAL_STOCKS.map(s => s.symbol));
+      for (const u in accounts) {
+        for (const sym in accounts[u].portfolio) symbolsToFetch.add(sym);
+      }
+      if (selectedStockSymbol) symbolsToFetch.add(selectedStockSymbol);
+      
+      const queryList = Array.from(symbolsToFetch).map(getSinaSymbol).join(',');
+      if(!queryList) return;
+      
+      // JSONP 动态拉取
+      const script = document.createElement('script');
+      script.src = `https://hq.sinajs.cn/list=${queryList}`;
+      script.onload = () => {
+        Array.from(symbolsToFetch).forEach(sym => {
+          const sinaSym = getSinaSymbol(sym);
+          const realPrice = parseSinaData(sym, sinaSym);
+          if (realPrice) {
+            // 如果价格变动，给个小闪烁动画
+            if (currentPrices[sym] !== realPrice) {
+              currentPrices[sym] = realPrice;
+              const el = document.getElementById(`price-${sym}`);
+              if(el) { el.style.color = 'var(--apple-green)'; setTimeout(()=> el.style.color = '', 1000); }
+            }
+          }
+        });
+        updateUIDiscreetly(); 
+      };
+      document.head.appendChild(script);
+      setTimeout(() => script.remove(), 2000); // 阅后即焚
+    }
+
+    // 静默更新 UI，不打断用户输入
+    function updateUIDiscreetly() {
+      Object.keys(currentPrices).forEach(sym => {
+        const el = document.getElementById(`price-${sym}`);
+        const market = parseSymbolInfo(sym).market;
+        if(el) el.innerText = `${CURRENCIES[market]}${currentPrices[sym].toFixed(2)}`;
+      });
+      if (selectedStockSymbol && currentPrices[selectedStockSymbol]) {
+        const market = parseSymbolInfo(selectedStockSymbol).market;
+        const pEl = document.getElementById('desk-price');
+        if (pEl) pEl.innerText = `${CURRENCIES[market]}${currentPrices[selectedStockSymbol].toFixed(2)}`;
+        calculateEstCost();
+      }
+      
+      // 保护机制：如果用户正在输入框里打字（尤其是卖出框），则跳过本次列表重绘，保护焦点
+      if (document.activeElement && document.activeElement.tagName === 'INPUT') return;
+      
+      if (activeView === '总览') renderOverview();
+      else renderPortfolio();
+    }
+    // ---------------------------------
 
     function getStockName(symbol) {
       const s = GLOBAL_STOCKS.find(x => x.symbol === symbol);
@@ -358,18 +429,14 @@
     function adjustPrincipal() {
       const acc = accounts[activeView];
       const newPrincipal = prompt(`当前初始核准本金为 $${acc.principal.toFixed(2)} USD。\n请输入调整后的本金总额 (将会自动补齐或扣除可用现金):`, acc.principal);
-      
       if (newPrincipal !== null) {
         const parsed = parseFloat(newPrincipal);
         if (!isNaN(parsed) && parsed > 0) {
-          const diff = parsed - acc.principal;
+          acc.cash += (parsed - acc.principal);
           acc.principal = parsed;
-          acc.cash += diff;
           saveData();
           renderPortfolio();
-        } else {
-          alert('⚠️ 请输入有效的数字金额！');
-        }
+        } else { alert('⚠️ 请输入有效的数字金额！'); }
       }
     }
 
@@ -424,11 +491,7 @@
       document.getElementById('desk-company').innerText = `${stockName} (${market})`;
       document.getElementById('desk-price').innerText = `${CURRENCIES[market]}${currentPrices[symbol].toFixed(2)}`;
       calculateEstCost();
-      
-      // 移动端自动滚动到交易台
-      if(window.innerWidth < 900) {
-          document.querySelector('.trading-desk').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-      }
+      if(window.innerWidth < 900) { document.querySelector('.trading-desk').scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }
     }
 
     function handleManualInput() {
@@ -443,15 +506,15 @@
 
       const parsed = parseSymbolInfo(rawInput);
       selectedStockSymbol = parsed.symbol;
-      
       const found = GLOBAL_STOCKS.find(s => s.symbol === selectedStockSymbol || s.symbol.startsWith(rawInput.toUpperCase()));
-      if (found) {
-        selectStock(found.symbol);
-      } else {
-        if (!currentPrices[selectedStockSymbol]) currentPrices[selectedStockSymbol] = generateMockPrice(selectedStockSymbol);
+      
+      if (found) { selectStock(found.symbol); } 
+      else {
         document.getElementById('desk-company').innerText = `自选证券 (${parsed.market})`;
+        if (!currentPrices[selectedStockSymbol]) currentPrices[selectedStockSymbol] = 100.00;
         document.getElementById('desk-price').innerText = `${CURRENCIES[parsed.market]}${currentPrices[selectedStockSymbol].toFixed(2)}`;
         calculateEstCost();
+        fetchRealPrices(); // 立即去拉取这个陌生股票的价格
       }
     }
 
@@ -459,8 +522,7 @@
       if (!selectedStockSymbol) return;
       const shares = parseInt(document.getElementById('trade-qty').value) || 0;
       const market = parseSymbolInfo(selectedStockSymbol).market;
-      const localPrice = currentPrices[selectedStockSymbol];
-      const usdCost = (shares * localPrice) / FX_RATES[market];
+      const usdCost = (shares * currentPrices[selectedStockSymbol]) / FX_RATES[market];
       document.getElementById('est-cost-display').innerHTML = `折合消耗 (USD): <span>$${usdCost.toFixed(2)}</span>`;
     }
 
@@ -470,18 +532,14 @@
       if (isNaN(shares) || shares <= 0) return alert('数量无效！');
 
       const market = parseSymbolInfo(selectedStockSymbol).market;
-      const localPrice = currentPrices[selectedStockSymbol];
-      const usdCost = (shares * localPrice) / FX_RATES[market];
+      const usdCost = (shares * currentPrices[selectedStockSymbol]) / FX_RATES[market];
       const account = accounts[activeView];
 
-      if (account.cash < usdCost) {
-        return alert(`⚠️ 购买力不足！\n折合需要: $${usdCost.toFixed(2)}\n当前可用: $${account.cash.toFixed(2)}`);
-      }
+      if (account.cash < usdCost) return alert(`⚠️ 购买力不足！\n折合需要: $${usdCost.toFixed(2)}\n当前可用: $${account.cash.toFixed(2)}`);
 
       account.cash -= usdCost;
-      if (!account.portfolio[selectedStockSymbol]) {
-        account.portfolio[selectedStockSymbol] = { shares: 0, costUSD: 0, market: market };
-      }
+      if (!account.portfolio[selectedStockSymbol]) account.portfolio[selectedStockSymbol] = { shares: 0, costUSD: 0, market: market };
+      
       account.portfolio[selectedStockSymbol].shares += shares;
       account.portfolio[selectedStockSymbol].costUSD += usdCost;
       
@@ -501,8 +559,7 @@
       if (isNaN(sharesToSell) || sharesToSell <= 0) return alert('数量无效！');
       if (sharesToSell > stockData.shares) return alert(`⚠️ 卖出数不能超过持仓 (${stockData.shares} 股)！`);
 
-      const localPrice = currentPrices[symbol];
-      const usdRevenue = (sharesToSell * localPrice) / FX_RATES[stockData.market];
+      const usdRevenue = (sharesToSell * currentPrices[symbol]) / FX_RATES[stockData.market];
       const costPerShareUSD = stockData.costUSD / stockData.shares;
 
       stockData.shares -= sharesToSell;
@@ -513,28 +570,6 @@
 
       saveData();
       renderPortfolio();
-    }
-
-    function tickPrices() {
-      Object.keys(currentPrices).forEach(symbol => {
-        const base = currentPrices[symbol];
-        const volatility = base * 0.002; 
-        const delta = (Math.random() - 0.49) * volatility;
-        currentPrices[symbol] = Math.max(0.01, base + delta);
-        
-        const el = document.getElementById(`price-${symbol}`);
-        const market = parseSymbolInfo(symbol).market;
-        if(el) el.innerText = `${CURRENCIES[market]}${currentPrices[symbol].toFixed(2)}`;
-      });
-
-      if (selectedStockSymbol && currentPrices[selectedStockSymbol]) {
-        const market = parseSymbolInfo(selectedStockSymbol).market;
-        document.getElementById('desk-price').innerText = `${CURRENCIES[market]}${currentPrices[selectedStockSymbol].toFixed(2)}`;
-        calculateEstCost();
-      }
-
-      if (activeView === '总览') renderOverview();
-      else renderPortfolio(); 
     }
 
     function renderPortfolio() {
@@ -548,48 +583,30 @@
           const localPrice = currentPrices[symbol] || 0;
           const currentValUSD = (data.shares * localPrice) / FX_RATES[data.market];
           const profitUSD = currentValUSD - data.costUSD;
-          const profitPercent = (profitUSD / data.costUSD) * 100;
+          const profitPercent = data.costUSD > 0 ? ((profitUSD / data.costUSD) * 100) : 0;
           
           const profitSign = profitUSD >= 0 ? '+' : '';
           const profitClass = profitUSD >= 0 ? 'profit-positive' : 'profit-negative';
           const curSym = CURRENCIES[data.market];
-          
-          // 计算本币单价，供直观对比
           const costPerShareLocal = (data.costUSD / data.shares) * FX_RATES[data.market];
           
           stockValueUSD += currentValUSD;
           
-          // 移动端专业卡片布局
           html += `
             <div class="port-card">
               <div class="port-header">
-                <div class="port-title">
-                  <span class="port-name">${name}</span>
-                  <span class="port-symbol">${symbol} (${data.market})</span>
-                </div>
+                <div class="port-title"><span class="port-name">${name}</span><span class="port-symbol">${symbol} (${data.market})</span></div>
                 <div class="port-price">${curSym}${localPrice.toFixed(2)}</div>
               </div>
-              
               <div class="port-stats">
-                <div class="stat-box">
-                  <span class="stat-label">成本单价</span>
-                  <span class="stat-val">${curSym}${costPerShareLocal.toFixed(2)}</span>
-                </div>
-                <div class="stat-box">
-                  <span class="stat-label">持仓数量</span>
-                  <span class="stat-val">${data.shares}</span>
-                </div>
-                <div class="stat-box">
-                  <span class="stat-label">总成本(USD)</span>
-                  <span class="stat-val">$${data.costUSD.toFixed(2)}</span>
-                </div>
+                <div class="stat-box"><span class="stat-label">成本单价</span><span class="stat-val">${curSym}${costPerShareLocal.toFixed(3)}</span></div>
+                <div class="stat-box"><span class="stat-label">持仓数量</span><span class="stat-val">${data.shares}</span></div>
+                <div class="stat-box"><span class="stat-label">总成本(USD)</span><span class="stat-val">$${data.costUSD.toFixed(2)}</span></div>
               </div>
-              
               <div class="port-pnl ${profitClass}">
                 <span>浮动盈亏</span>
                 <span>${profitSign}$${profitUSD.toFixed(2)} (${profitSign}${profitPercent.toFixed(2)}%)</span>
               </div>
-              
               <div class="port-actions">
                 <input type="number" id="sell-qty-${symbol}" min="1" max="${data.shares}" value="${data.shares}">
                 <button onclick="sellStock('${symbol}')">卖出平仓</button>
@@ -664,12 +681,10 @@
               <span style="font-size:12px; color:var(--text-muted); font-weight:normal;">本金: $${acc.principal.toFixed(0)}</span>
             </div>
             <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 14px;">
-              <span style="color: var(--text-muted);">总资产估值</span>
-              <span style="font-weight: 600;">$${totalAsst.toFixed(2)}</span>
+              <span style="color: var(--text-muted);">总资产估值</span><span style="font-weight: 600;">$${totalAsst.toFixed(2)}</span>
             </div>
             <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 14px;">
-              <span style="color: var(--text-muted);">现金 / 仓位价值</span>
-              <span style="font-weight: 600; font-size: 13px;">$${acc.cash.toFixed(0)} / $${stockVal.toFixed(0)}</span>
+              <span style="color: var(--text-muted);">现金 / 仓位价值</span><span style="font-weight: 600; font-size: 13px;">$${acc.cash.toFixed(0)} / $${stockVal.toFixed(0)}</span>
             </div>
             <div style="display: flex; justify-content: space-between; margin-top: 12px; padding-top: 12px; border-top: 1px dashed var(--bg-color);">
               <span style="color: var(--text-muted); font-size: 14px;">累计净收益</span>
@@ -688,10 +703,11 @@
       pEl.className = globalProfit >= 0 ? 'profit-positive' : 'profit-negative';
     }
 
-    function saveData() { localStorage.setItem('jj_invest_db_pro_v5', JSON.stringify(accounts)); }
+    function saveData() { localStorage.setItem('jj_invest_db_pro_v7', JSON.stringify(accounts)); }
 
     initSystem();
-    setInterval(tickPrices, 3000);
+    // 启动全局真实网络数据拉取，每 5 秒刷新一次
+    setInterval(fetchRealPrices, 5000);
   </script>
 </body>
 </html>

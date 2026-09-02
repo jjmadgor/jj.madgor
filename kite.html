@@ -12,6 +12,7 @@
             --primary: #0077b6;
             --accent-sunset: #ff6b6b;
             --accent-yellow: #ffd166;
+            --duotone-orange: #ff5500;
             --text-main: #1c2d42;
             --text-sub: #4b6584;
             --safe-bottom: env(safe-area-inset-bottom, 20px);
@@ -38,7 +39,7 @@
 
         .container {
             width: 100%;
-            max-width: 440px; /* 适配 iPhone 17 Pro Max 视口 */
+            max-width: 440px; /* 适配 iPhone 17 Pro Max */
             display: flex;
             flex-direction: column;
             gap: 22px;
@@ -83,9 +84,7 @@
             transition: transform 0.15s ease;
         }
 
-        .music-pill:active {
-            transform: scale(0.96);
-        }
+        .music-pill:active { transform: scale(0.96); }
 
         .disc-icon {
             width: 24px;
@@ -100,13 +99,8 @@
             transition: transform 0.3s ease;
         }
 
-        .disc-icon.playing {
-            animation: spin 3s linear infinite;
-        }
-
-        @keyframes spin {
-            100% { transform: rotate(360deg); }
-        }
+        .disc-icon.playing { animation: spin 3s linear infinite; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
 
         .music-label {
             font-size: 12px;
@@ -154,6 +148,50 @@
             border-radius: 6px;
         }
 
+        /* 风况与装备参数栏 (新注入) */
+        .telemetry-box {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            border: 1px solid #bae6fd;
+            border-radius: 14px;
+            padding: 10px 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .telemetry-item {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .telemetry-lbl {
+            font-size: 10px;
+            font-weight: 600;
+            color: #0369a1;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .telemetry-val {
+            font-size: 13px;
+            font-weight: 800;
+            color: var(--ocean-dark);
+        }
+
+        .duotone-pill {
+            display: inline-flex;
+            align-items: center;
+            background: #fff;
+            color: var(--duotone-orange);
+            font-size: 12px;
+            font-weight: 800;
+            padding: 3px 8px;
+            border-radius: 6px;
+            border: 1px solid rgba(255, 85, 0, 0.25);
+            box-shadow: 0 2px 6px rgba(255, 85, 0, 0.08);
+        }
+
         /* 文案排版 */
         .story-text {
             font-size: 15px;
@@ -162,15 +200,9 @@
             text-align: justify;
         }
 
-        .story-text p {
-            margin-bottom: 12px;
-        }
+        .story-text p { margin-bottom: 12px; }
+        .story-text p:last-child { margin-bottom: 0; }
 
-        .story-text p:last-child {
-            margin-bottom: 0;
-        }
-
-        /* 半夜感悟文字排版 */
         .midnight-poetry {
             font-size: 16px;
             line-height: 2.2;
@@ -200,12 +232,11 @@
             object-fit: cover;
         }
 
-        /* 照片画廊网格 */
+        /* 照片网格 */
         .photo-grid-2 {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 10px;
-            margin-bottom: 4px;
         }
 
         .photo-grid-3 {
@@ -222,20 +253,10 @@
             display: block;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
             border: 1px solid rgba(255, 255, 255, 0.8);
-            transition: transform 0.2s ease;
         }
 
-        .photo-grid-2 .gallery-img {
-            height: 150px;
-        }
-
-        .photo-grid-3 .gallery-img {
-            height: 110px;
-        }
-
-        .gallery-img:active {
-            transform: scale(0.98);
-        }
+        .photo-grid-2 .gallery-img { height: 150px; }
+        .photo-grid-3 .gallery-img { height: 110px; }
 
         .log-footer {
             margin-top: 4px;
@@ -342,6 +363,18 @@
             <img src="cat.JPG" alt="Cat" class="gallery-img" loading="lazy">
         </div>
 
+        <!-- 9月1日 现场风况与装备标注看板 -->
+        <div class="telemetry-box">
+            <div class="telemetry-item">
+                <span class="telemetry-lbl">💨 泻湖现场风况</span>
+                <span class="telemetry-val" id="day1Wind">拉取风况中...</span>
+            </div>
+            <div class="telemetry-item" style="text-align:right;">
+                <span class="telemetry-lbl">🪁 驭风主力</span>
+                <span class="duotone-pill">Duotone Rebel SLS</span>
+            </div>
+        </div>
+
         <div class="story-text">
             <p>
                 穿过绵延的沙洲，眼前就是纯粹为极限而生的 <strong>Dream Spot</strong>。一面是印度洋翻滚咆哮的汹涌白浪，另一面则是被天然沙坝隔绝出如明镜般平整的泻湖水面。西南季风以极其稳定且蛮横的姿态掠过水面，风速毫无杂质地灌满气囊伞翼。
@@ -356,12 +389,13 @@
 
         <div class="log-footer">
             <span>Kalpitiya Lagoon · 首航记录</span>
-            <span>Rider On Board 🤙</span>
+            <span>Rider: Rebel SLS 🤙</span>
         </div>
     </section>
 </div>
 
 <script>
+    // 1. 方式 A：无缝播放同目录下的 bgm.mp3
     const audio = document.getElementById('bgmAudio');
     const disc = document.getElementById('discIcon');
     const statusLabel = document.getElementById('musicStatus');
@@ -382,6 +416,22 @@
             statusLabel.innerText = "已暂停";
         }
     }
+
+    // 2. 自动拉取 Kalpitiya Dream Spot 现场实况风速
+    function loadDay1Wind() {
+        fetch('https://api.open-meteo.com/v1/forecast?latitude=8.232&longitude=79.761&current=wind_speed_10m,wind_gusts_10m,wind_direction_10m&wind_speed_unit=kn')
+            .then(res => res.json())
+            .then(data => {
+                const speed = Math.round(data.current.wind_speed_10m);
+                const gust = Math.round(data.current.wind_gusts_10m);
+                document.getElementById('day1Wind').innerText = `${speed} 节 · 阵风 ${gust} kts (西南)`;
+            })
+            .catch(() => {
+                document.getElementById('day1Wind').innerText = "20-24 节 · 侧岸平水";
+            });
+    }
+
+    loadDay1Wind();
 </script>
 
 </body>

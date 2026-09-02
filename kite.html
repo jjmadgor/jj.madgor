@@ -12,6 +12,7 @@
             --primary: #0077b6;
             --accent-sunset: #ff6b6b;
             --accent-yellow: #ffd166;
+            --woo-blue: #0099ff;
             --duotone-orange: #ff5500;
             --text-main: #1c2d42;
             --text-sub: #4b6584;
@@ -148,48 +149,112 @@
             border-radius: 6px;
         }
 
-        /* 装备与风况徽章 */
-        .telemetry-box {
-            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
-            border: 1px solid #bae6fd;
-            border-radius: 14px;
-            padding: 10px 14px;
+        /* WOO 数据仪表盘区块 */
+        .woo-block {
+            background: #ffffff;
+            border: 1px solid #e0f0fa;
+            border-radius: 18px;
+            padding: 16px;
+            box-shadow: 0 4px 14px rgba(0, 153, 255, 0.06);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .woo-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
 
-        .telemetry-item {
-            display: flex;
-            flex-direction: column;
-            gap: 2px;
-        }
-
-        .telemetry-lbl {
-            font-size: 10px;
-            font-weight: 600;
-            color: #0369a1;
-            text-transform: uppercase;
+        .woo-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 11px;
+            font-weight: 800;
+            color: var(--woo-blue);
+            background: rgba(0, 153, 255, 0.08);
+            padding: 3px 8px;
+            border-radius: 6px;
             letter-spacing: 0.5px;
         }
 
-        .telemetry-val {
-            font-size: 13px;
+        .gear-pill {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--duotone-orange);
+            background: #fff5f0;
+            padding: 3px 8px;
+            border-radius: 6px;
+            border: 1px solid rgba(255, 85, 0, 0.2);
+        }
+
+        /* WOO 三大核心数据看板 */
+        .woo-highlight-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 8px;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            border-radius: 14px;
+            padding: 14px 8px;
+            color: white;
+            text-align: center;
+        }
+
+        .woo-highlight-item .val {
+            font-size: 19px;
+            font-weight: 900;
+            color: #38bdf8;
+            line-height: 1.2;
+        }
+
+        .woo-highlight-item .lbl {
+            font-size: 10px;
+            color: #94a3b8;
+            margin-top: 4px;
+            font-weight: 600;
+        }
+
+        /* WOO 细分网格 3x3 */
+        .woo-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+
+        .stat-cell {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 8px 6px;
+            text-align: center;
+            border: 1px solid #f1f5f9;
+        }
+
+        .stat-cell .num {
+            font-size: 14px;
             font-weight: 800;
             color: var(--ocean-dark);
         }
 
-        .duotone-pill {
-            display: inline-flex;
-            align-items: center;
-            background: #fff;
-            color: var(--duotone-orange);
-            font-size: 12px;
-            font-weight: 800;
-            padding: 3px 8px;
+        .stat-cell .txt {
+            font-size: 10px;
+            color: var(--text-sub);
+            margin-top: 2px;
+            font-weight: 500;
+        }
+
+        /* Jump 战报小标 */
+        .jump-milestone {
+            background: #f0f9ff;
+            border-left: 3px solid var(--woo-blue);
             border-radius: 6px;
-            border: 1px solid rgba(255, 85, 0, 0.25);
-            box-shadow: 0 2px 6px rgba(255, 85, 0, 0.08);
+            padding: 6px 10px;
+            font-size: 11px;
+            color: #0369a1;
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
         }
 
         /* 正文与排版 */
@@ -213,7 +278,6 @@
             border-left: 3px solid var(--accent-sunset);
         }
 
-        /* 视频容器 */
         .video-wrapper {
             width: 100%;
             border-radius: 18px;
@@ -232,7 +296,6 @@
             object-fit: cover;
         }
 
-        /* 照片画廊网格 */
         .photo-grid-2 {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -291,13 +354,12 @@
         </div>
     </header>
 
-    <!-- 背景音乐：指定同目录下的 who tell me.m4a -->
     <audio id="bgmAudio" loop preload="auto">
         <source src="who%20tell%20me.m4a" type="audio/mp4">
         <source src="who tell me.m4a" type="audio/mp4">
     </audio>
 
-    <!-- 时间线篇章一：8月31日 启程与抵达 -->
+    <!-- 篇章一：8月31日 启程与抵达 -->
     <section class="log-card">
         <div class="timeline-header">
             <div class="timeline-date">🗓️ 8月31日 · 启程与抵达</div>
@@ -324,7 +386,7 @@
         </div>
     </section>
 
-    <!-- 时间线独立篇章：8月31日 半夜心绪 -->
+    <!-- 独立篇章：8月31日 半夜心绪 -->
     <section class="log-card">
         <div class="timeline-header">
             <div class="timeline-date">🌙 8月31日 · 半夜</div>
@@ -338,7 +400,6 @@
             一段过往，一抹愁
         </div>
 
-        <!-- 半夜照片：狗.JPG, moon.JPG, drink.JPG -->
         <div class="photo-grid-3">
             <img src="狗.JPG" alt="狗" class="gallery-img" loading="lazy">
             <img src="moon.JPG" alt="月" class="gallery-img" loading="lazy">
@@ -351,28 +412,85 @@
         </div>
     </section>
 
-    <!-- 时间线篇章二：9月1日 Dream Spot 下水实感 -->
+    <!-- 篇章二：9月1日 Dream Spot 下水实感与 WOO 数据明细 -->
     <section class="log-card">
         <div class="timeline-header">
             <div class="timeline-date">🗓️ 9月1日 · 撕裂重力</div>
             <span class="timeline-location">Dream Spot 泻湖</span>
         </div>
 
-        <!-- 9月1日 照片：water.JPG, cat.JPG -->
         <div class="photo-grid-2">
             <img src="water.JPG" alt="Water" class="gallery-img" loading="lazy">
             <img src="cat.JPG" alt="Cat" class="gallery-img" loading="lazy">
         </div>
 
-        <!-- 9月1日 现场风况与装备标注看板 -->
-        <div class="telemetry-box">
-            <div class="telemetry-item">
-                <span class="telemetry-lbl">💨 泻湖现场风况</span>
-                <span class="telemetry-val" id="day1Wind">拉取风况中...</span>
+        <!-- WOO 数据与装备实况仪表盘 -->
+        <div class="woo-block">
+            <div class="woo-header">
+                <span class="woo-badge">⚡ WOO Sensor & Watch 实测</span>
+                <span class="gear-pill">12m Duotone Rebel SLS 2025 · TT</span>
             </div>
-            <div class="telemetry-item" style="text-align:right;">
-                <span class="telemetry-lbl">🪁 驭风主力</span>
-                <span class="duotone-pill">Duotone Rebel SLS</span>
+
+            <!-- 核心三指标 -->
+            <div class="woo-highlight-row">
+                <div class="woo-highlight-item">
+                    <div class="val">▲ 4.0 m</div>
+                    <div class="lbl">Highest Jump</div>
+                </div>
+                <div class="woo-highlight-item">
+                    <div class="val">44.4 m</div>
+                    <div class="lbl">Longest Distance</div>
+                </div>
+                <div class="woo-highlight-item">
+                    <div class="val">3h 54m</div>
+                    <div class="lbl">Session Duration</div>
+                </div>
+            </div>
+
+            <!-- 9 项完整传感器明细 -->
+            <div class="woo-stats-grid">
+                <div class="stat-cell">
+                    <div class="num">3.1 s</div>
+                    <div class="txt">Max Airtime</div>
+                </div>
+                <div class="stat-cell">
+                    <div class="num">6.7 G</div>
+                    <div class="txt">Max Landing</div>
+                </div>
+                <div class="stat-cell">
+                    <div class="num">43 次</div>
+                    <div class="txt">Total Jumps</div>
+                </div>
+                <div class="stat-cell">
+                    <div class="num">1m 30s</div>
+                    <div class="txt">Total Airtime</div>
+                </div>
+                <div class="stat-cell">
+                    <div class="num">86.3 m</div>
+                    <div class="txt">Total Height</div>
+                </div>
+                <div class="stat-cell">
+                    <div class="num">31.57 km</div>
+                    <div class="txt">Total Distance</div>
+                </div>
+                <div class="stat-cell">
+                    <div class="num">36.3 kph</div>
+                    <div class="txt">Max Speed</div>
+                </div>
+                <div class="stat-cell">
+                    <div class="num">27.0 kph</div>
+                    <div class="txt">500m Speed</div>
+                </div>
+                <div class="stat-cell">
+                    <div class="num">16.29 km</div>
+                    <div class="txt">Distance 1hr</div>
+                </div>
+            </div>
+
+            <!-- 第 42 跳最佳高光 -->
+            <div class="jump-milestone">
+                <span>🎯 Day High: #42 Jump</span>
+                <span>4.0 m · 3.0 s Air · 4.2G Land</span>
             </div>
         </div>
 
@@ -389,8 +507,8 @@
         </div>
 
         <div class="log-footer">
-            <span>Kalpitiya Lagoon · 首航记录</span>
-            <span>Rider: Rebel SLS 🤙</span>
+            <span>Kalpitiya Lagoon · 11:24 Launch</span>
+            <span>Rider: Rebel SLS 2025 🤙</span>
         </div>
     </section>
 </div>
@@ -400,7 +518,6 @@
     const disc = document.getElementById('discIcon');
     const statusLabel = document.getElementById('musicStatus');
 
-    // 统一界面与动效
     function updateMusicUI(isPlaying) {
         if (isPlaying) {
             disc.innerHTML = "⏸";
@@ -413,7 +530,6 @@
         }
     }
 
-    // 手动点击胶囊切换
     function toggleBGM() {
         if (audio.paused) {
             audio.play().then(() => updateMusicUI(true)).catch(() => {
@@ -425,7 +541,7 @@
         }
     }
 
-    // 突破移动端限制：首次在屏幕任何地方轻触或滑动，静默起播
+    // 突破移动端限制：首次在屏幕任何地方轻触或滑动，无感自启
     function triggerAutoPlay() {
         audio.play().then(() => {
             updateMusicUI(true);
@@ -437,26 +553,9 @@
     document.addEventListener('touchstart', triggerAutoPlay, { once: true });
     document.addEventListener('click', triggerAutoPlay, { once: true });
 
-    // 微信内置浏览器专属自启通道
     document.addEventListener('WeixinJSBridgeReady', () => {
         audio.play().then(() => updateMusicUI(true)).catch(() => {});
     }, false);
-
-    // 自动拉取 Kalpitiya 现场风速
-    function loadDay1Wind() {
-        fetch('https://api.open-meteo.com/v1/forecast?latitude=8.232&longitude=79.761&current=wind_speed_10m,wind_gusts_10m,wind_direction_10m&wind_speed_unit=kn')
-            .then(res => res.json())
-            .then(data => {
-                const speed = Math.round(data.current.wind_speed_10m);
-                const gust = Math.round(data.current.wind_gusts_10m);
-                document.getElementById('day1Wind').innerText = `${speed} 节 · 阵风 ${gust} kts (西南)`;
-            })
-            .catch(() => {
-                document.getElementById('day1Wind').innerText = "20-24 节 · 侧岸平水";
-            });
-    }
-
-    loadDay1Wind();
 </script>
 
 </body>

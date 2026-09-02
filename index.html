@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>财富是投出来的</title>
+  <title>家庭模拟投资联赛 - 全球市场版</title>
   <style>
     :root {
       --bg-color: #F5F5F7;
-      --card-bg: rgba(255, 255, 255, 0.7);
+      --card-bg: rgba(255, 255, 255, 0.75);
       --text-main: #1D1D1F;
       --text-muted: #86868B;
       --apple-blue: #0071E3;
@@ -64,26 +64,38 @@
     .main-content { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
     h2 { font-size: 22px; font-weight: 600; margin-bottom: 16px; letter-spacing: -0.3px; }
 
-    /* 左侧：市场行情 */
+    /* 左侧：市场参考 */
     .market-section { background: #FFFFFF; border-radius: 24px; padding: 24px; box-shadow: 0 2px 12px rgba(0,0,0,0.03); }
+    
+    /* 市场 Tab 切换 */
+    .market-tabs { display: flex; gap: 8px; margin-bottom: 16px; }
+    .m-tab {
+      padding: 6px 14px; border-radius: 8px; background: var(--bg-color); font-size: 13px; font-weight: 600;
+      color: var(--text-muted); cursor: pointer; transition: 0.2s;
+    }
+    .m-tab.active { background: var(--apple-blue); color: #FFF; }
+
     .search-box {
       width: 100%; padding: 12px 16px; border-radius: 12px; border: 1px solid var(--border-color);
-      background: var(--bg-color); font-size: 16px; margin-bottom: 16px; outline: none; transition: border-color 0.2s;
+      background: var(--bg-color); font-size: 15px; margin-bottom: 16px; outline: none; transition: border-color 0.2s;
     }
     .search-box:focus { border-color: var(--apple-blue); }
 
-    .stock-list { height: 450px; overflow-y: auto; padding-right: 8px; }
+    .stock-list { height: 430px; overflow-y: auto; padding-right: 6px; }
     .stock-list::-webkit-scrollbar { width: 6px; }
     .stock-list::-webkit-scrollbar-thumb { background: #D1D1D6; border-radius: 10px; }
 
     .stock-row {
       display: flex; justify-content: space-between; align-items: center;
-      padding: 14px; border-bottom: 1px solid var(--border-color);
+      padding: 12px 14px; border-bottom: 1px solid var(--border-color);
       cursor: pointer; transition: background 0.2s; border-radius: 12px;
     }
     .stock-row:hover { background: var(--bg-color); }
     .stock-row.selected { background: #E1F0FF; border-color: transparent; }
-    .stock-row .symbol { font-size: 16px; font-weight: 700; }
+    .stock-row .symbol { font-size: 15px; font-weight: 700; }
+    .stock-row .market-tag {
+      font-size: 10px; padding: 2px 6px; border-radius: 4px; background: rgba(0,0,0,0.06); margin-left: 6px; font-weight: normal;
+    }
     .stock-row .company { font-size: 12px; color: var(--text-muted); }
     .stock-row .price { font-size: 16px; font-weight: 600; }
 
@@ -95,13 +107,16 @@
       border: 2px solid var(--apple-blue);
     }
     
-    .trade-info { display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; }
+    .trade-info { display: flex; flex-direction: column; gap: 10px; margin-bottom: 18px; }
     .custom-symbol-input {
-      font-size: 24px; font-weight: 700; padding: 12px; border-radius: 12px; border: 1px solid var(--border-color);
+      font-size: 20px; font-weight: 700; padding: 12px; border-radius: 12px; border: 1px solid var(--border-color);
       text-transform: uppercase; outline: none; transition: 0.2s; background: var(--bg-color);
     }
     .custom-symbol-input:focus { border-color: var(--apple-blue); background: #FFF; }
-    .trade-price { font-size: 36px; font-weight: 700; color: var(--apple-blue); }
+    
+    .trade-meta { display: flex; justify-content: space-between; align-items: flex-end; }
+    .trade-company { font-size: 14px; color: var(--text-muted); }
+    .trade-price { font-size: 32px; font-weight: 700; color: var(--apple-blue); }
     
     .trade-controls { display: flex; gap: 12px; }
     .trade-controls input {
@@ -117,10 +132,10 @@
     .portfolio-item:last-child { border-bottom: none; }
     
     .sell-controls input {
-      width: 50px; padding: 6px; border: 1px solid var(--border-color); border-radius: 8px; text-align: center; font-size: 14px;
+      width: 55px; padding: 6px; border: 1px solid var(--border-color); border-radius: 8px; text-align: center; font-size: 14px;
     }
     .sell-controls button {
-      background: var(--apple-red); color: white; border: none; padding: 6px 12px; border-radius: 8px; cursor: pointer; font-weight: 600; margin-left: 6px; transition: 0.2s;
+      background: var(--apple-red); color: white; border: none; padding: 6px 14px; border-radius: 8px; cursor: pointer; font-weight: 600; margin-left: 6px; transition: 0.2s;
     }
     .sell-controls button:hover { background: #D92B20; }
 
@@ -133,7 +148,6 @@
 <body>
 
   <div class="container">
-    <!-- 仅保留两人切换 -->
     <div class="user-selector" id="user-selector">
       <div class="user-tab" onclick="switchUser('阿桂')">阿桂</div>
       <div class="user-tab" onclick="switchUser('UMI')">UMI</div>
@@ -144,41 +158,51 @@
         <h1><span id="current-user-name">阿桂</span> 的投资组合</h1>
         <p>可用现金: $<span id="cash-balance" style="font-weight: 600; color: var(--apple-blue);">1000.00</span></p>
         <div class="balance-display" id="total-value">$1000.00</div>
-        <p>初始总本金: $1000.00 | 已提现总额: $<span id="total-withdrawn">0.00</span></p>
+        <p>初始本金: $1000.00 | 已成功提现总额: $<span id="total-withdrawn">0.00</span></p>
       </div>
-      <div style="text-align: right; min-width: 150px;">
-        <p style="font-size: 14px; margin-bottom: 4px; color: var(--text-muted);">可提现现金收益</p>
-        <h2 id="withdrawable-cash" class="profit-positive" style="margin-bottom: 0;">$0.00</h2>
-        <button class="btn" id="withdraw-btn" onclick="withdrawProfit()">提现收益</button>
-        <div style="font-size: 12px; color: var(--text-muted); margin-top: 8px;">(需先卖出股票换取现金)</div>
+      <div style="text-align: right; min-width: 170px;">
+        <p style="font-size: 14px; margin-bottom: 4px; color: var(--text-muted);">实时净收益 (可提现)</p>
+        <h2 id="realtime-profit" class="profit-positive" style="margin-bottom: 0; font-size: 32px;">+$0.00</h2>
+        <button class="btn" id="withdraw-btn" onclick="withdrawProfit()">提现净利润</button>
       </div>
     </div>
 
     <div class="main-content">
+      <!-- 左侧：三大市场行情参考 -->
       <div class="market-section">
-        <h2>市场参考 (快捷选择)</h2>
-        <input type="text" class="search-box" id="search-input" placeholder="输入代码或名称搜索..." onkeyup="filterStocks()">
+        <h2>市场参考 (点击直达交易台)</h2>
+        <div class="market-tabs">
+          <div class="m-tab active" onclick="switchMarketCategory('ALL')">全部</div>
+          <div class="m-tab" onclick="switchMarketCategory('US')">美股 S&P</div>
+          <div class="m-tab" onclick="switchMarketCategory('HK')">港股</div>
+          <div class="m-tab" onclick="switchMarketCategory('CN')">A股</div>
+        </div>
+        <input type="text" class="search-box" id="search-input" placeholder="输入代码/拼音/公司名搜索..." onkeyup="filterStocks()">
         <div class="stock-list" id="stock-list"></div>
       </div>
 
+      <!-- 右侧：交易台与持仓 -->
       <div class="right-section">
         <div class="trading-desk" id="trading-desk">
           <h2>自由交易台 (全市场)</h2>
-          <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">直接输入任意美股、港股或 A 股代码进行买入，系统将自动生成初始模拟价。</p>
+          <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">直接输入任意美股代码、港股代码或 A 股 6 位代码，系统会自动识别公司并生成报价。</p>
           <div id="trade-panel">
             <div class="trade-info">
-              <input type="text" id="desk-symbol-input" class="custom-symbol-input" placeholder="输入代码 (如 AAPL, 0700.HK, 600519)" oninput="handleManualInput()">
-              <div class="trade-price" id="desk-price">$0.00</div>
+              <input type="text" id="desk-symbol-input" class="custom-symbol-input" placeholder="输入代码 (如 NVDA, 0700.HK, 600519)" oninput="handleManualInput()">
+              <div class="trade-meta">
+                <div class="trade-company" id="desk-company">请选择或输入股票代码</div>
+                <div class="trade-price" id="desk-price">$0.00</div>
+              </div>
             </div>
             <div class="trade-controls">
-              <input type="number" id="trade-qty" min="1" value="1" placeholder="买入数量">
+              <input type="number" id="trade-qty" min="1" value="1" placeholder="数量">
               <button onclick="executeBuy()">确认买入</button>
             </div>
           </div>
         </div>
 
         <div class="portfolio-list">
-          <h2>我的持仓 (卖出)</h2>
+          <h2>当前持仓 (可实时卖出)</h2>
           <div id="portfolio-list"></div>
         </div>
       </div>
@@ -188,57 +212,96 @@
   <script>
     const USERS = ['阿桂', 'UMI'];
     
-    // 标普500市值前列真实数据池
-    const SP500_STOCKS = [
-      { symbol: 'AAPL', name: 'Apple Inc.', basePrice: 173.50 }, { symbol: 'MSFT', name: 'Microsoft Corp.', basePrice: 406.20 },
-      { symbol: 'NVDA', name: 'NVIDIA Corp.', basePrice: 881.50 }, { symbol: 'AMZN', name: 'Amazon.com', basePrice: 178.10 },
-      { symbol: 'META', name: 'Meta Platforms', basePrice: 489.00 }, { symbol: 'GOOGL', name: 'Alphabet Class A', basePrice: 144.30 },
-      { symbol: 'TSLA', name: 'Tesla Inc.', basePrice: 195.80 }, { symbol: 'BRK.B', name: 'Berkshire Hathaway', basePrice: 408.10 },
-      { symbol: 'LLY', name: 'Eli Lilly & Co.', basePrice: 752.20 }, { symbol: 'AVGO', name: 'Broadcom Inc.', basePrice: 1300.50 },
-      { symbol: 'JPM', name: 'JPMorgan Chase', basePrice: 191.40 }, { symbol: 'V', name: 'Visa Inc.', basePrice: 282.60 },
-      { symbol: 'XOM', name: 'Exxon Mobil', basePrice: 115.50 }, { symbol: 'WMT', name: 'Walmart Inc.', basePrice: 60.90 }
+    // 三大市场核心真实数据库
+    const GLOBAL_STOCKS = [
+      // 美股
+      { symbol: 'AAPL', name: '苹果公司 (Apple)', market: 'US', basePrice: 173.50 },
+      { symbol: 'MSFT', name: '微软公司 (Microsoft)', market: 'US', basePrice: 406.20 },
+      { symbol: 'NVDA', name: '英伟达 (NVIDIA)', market: 'US', basePrice: 881.50 },
+      { symbol: 'AMZN', name: '亚马逊 (Amazon)', market: 'US', basePrice: 178.10 },
+      { symbol: 'META', name: 'Meta (Facebook)', market: 'US', basePrice: 489.00 },
+      { symbol: 'GOOGL', name: '谷歌 (Alphabet)', market: 'US', basePrice: 144.30 },
+      { symbol: 'TSLA', name: '特斯拉 (Tesla)', market: 'US', basePrice: 195.80 },
+      { symbol: 'BRK.B', name: '伯克希尔哈撒韦', market: 'US', basePrice: 408.10 },
+      { symbol: 'LLY', name: '礼来制药', market: 'US', basePrice: 752.20 },
+      { symbol: 'AVGO', name: '博通 (Broadcom)', market: 'US', basePrice: 1300.50 },
+      { symbol: 'JPM', name: '摩根大通', market: 'US', basePrice: 191.40 },
+      { symbol: 'V', name: 'Visa', market: 'US', basePrice: 282.60 },
+      { symbol: 'WMT', name: '沃尔玛', market: 'US', basePrice: 60.90 },
+      { symbol: 'NFLX', name: '奈飞 (Netflix)', market: 'US', basePrice: 612.30 },
+      { symbol: 'AMD', name: '超威半导体 (AMD)', market: 'US', basePrice: 182.50 },
+
+      // 港股
+      { symbol: '0700.HK', name: '腾讯控股 (Tencent)', market: 'HK', basePrice: 48.50 },
+      { symbol: '9988.HK', name: '阿里巴巴 (Alibaba)', market: 'HK', basePrice: 10.20 },
+      { symbol: '3690.HK', name: '美团 (Meituan)', market: 'HK', basePrice: 15.60 },
+      { symbol: '1810.HK', name: '小米集团 (Xiaomi)', market: 'HK', basePrice: 2.30 },
+      { symbol: '9618.HK', name: '京东集团 (JD)', market: 'HK', basePrice: 14.80 },
+      { symbol: '1211.HK', name: '比亚迪股份 (BYD)', market: 'HK', basePrice: 28.50 },
+
+      // A股
+      { symbol: '600519', name: '贵州茅台 (Kweichow Moutai)', market: 'CN', basePrice: 230.00 },
+      { symbol: '300750', name: '宁德时代 (CATL)', market: 'CN', basePrice: 26.50 },
+      { symbol: '002594', name: '比亚迪 (BYD A股)', market: 'CN', basePrice: 32.40 },
+      { symbol: '601398', name: '工商银行 (ICBC)', market: 'CN', basePrice: 0.75 },
+      { symbol: '601318', name: '中国平安 (Ping An)', market: 'CN', basePrice: 6.20 },
+      { symbol: '000858', name: '五粮液 (Wuliangye)', market: 'CN', basePrice: 21.00 }
     ];
 
     let currentPrices = {};
     let currentUser = '阿桂'; 
     let selectedStockSymbol = ''; 
-    
-    // 更改了本地存储的 Key，这样会强制重置所有旧的错误数据
-    let accounts = JSON.parse(localStorage.getItem('family_stock_accounts_v2'));
+    let currentMarketTab = 'ALL';
+
+    // 采用新版本 Key 彻底重置所有账户为 $1000 初始本金
+    let accounts = JSON.parse(localStorage.getItem('family_stock_v3'));
     if (!accounts) {
       accounts = {};
       USERS.forEach(user => { accounts[user] = { cash: 1000.00, withdrawn: 0.00, portfolio: {} }; });
     }
 
     function initMarket() {
+      GLOBAL_STOCKS.forEach(stock => {
+        if (!currentPrices[stock.symbol]) currentPrices[stock.symbol] = stock.basePrice;
+      });
+      renderMarketList();
+    }
+
+    function renderMarketList() {
       const listEl = document.getElementById('stock-list');
       let html = '';
-      SP500_STOCKS.forEach(stock => {
-        currentPrices[stock.symbol] = stock.basePrice;
+      GLOBAL_STOCKS.forEach(stock => {
+        const isSelected = selectedStockSymbol === stock.symbol ? 'selected' : '';
         html += `
-          <div class="stock-row" id="row-${stock.symbol}" onclick="selectStock('${stock.symbol}')">
-            <div><div class="symbol">${stock.symbol}</div><div class="company">${stock.name}</div></div>
-            <div class="price" id="price-${stock.symbol}">$${stock.basePrice.toFixed(2)}</div>
+          <div class="stock-row ${isSelected}" id="row-${stock.symbol}" onclick="selectStock('${stock.symbol}')" data-market="${stock.market}">
+            <div>
+              <div class="symbol">${stock.symbol} <span class="market-tag">${stock.market}</span></div>
+              <div class="company">${stock.name}</div>
+            </div>
+            <div class="price" id="price-${stock.symbol}">$${(currentPrices[stock.symbol] || stock.basePrice).toFixed(2)}</div>
           </div>
         `;
       });
       listEl.innerHTML = html;
-
-      // 确保之前持仓中自己输入的股票代码也拥有模拟价格
-      for (const user in accounts) {
-        for (const symbol in accounts[user].portfolio) {
-          if (!currentPrices[symbol]) {
-             currentPrices[symbol] = generateMockPrice(symbol);
-          }
-        }
-      }
+      filterStocks();
     }
 
-    // 根据股票代码字符串生成一个固定的初始模拟价格
-    function generateMockPrice(symbol) {
-      let hash = 0;
-      for (let i = 0; i < symbol.length; i++) hash += symbol.charCodeAt(i);
-      return (hash % 280) + 20; // 价格区间控制在 20 到 300 之间
+    function switchMarketCategory(category) {
+      currentMarketTab = category;
+      document.querySelectorAll('.m-tab').forEach(t => t.classList.remove('active'));
+      event.target.classList.add('active');
+      filterStocks();
+    }
+
+    function filterStocks() {
+      const query = document.getElementById('search-input').value.toLowerCase();
+      GLOBAL_STOCKS.forEach(stock => {
+        const row = document.getElementById(`row-${stock.symbol}`);
+        if (!row) return;
+        const matchCategory = currentMarketTab === 'ALL' || stock.market === currentMarketTab;
+        const matchSearch = stock.symbol.toLowerCase().includes(query) || stock.name.toLowerCase().includes(query);
+        row.style.display = (matchCategory && matchSearch) ? 'flex' : 'none';
+      });
     }
 
     function switchUser(userName) {
@@ -250,41 +313,54 @@
       renderPortfolio();
     }
 
-    function filterStocks() {
-      const query = document.getElementById('search-input').value.toLowerCase();
-      SP500_STOCKS.forEach(stock => {
-        const row = document.getElementById(`row-${stock.symbol}`);
-        row.style.display = (stock.symbol.toLowerCase().includes(query) || stock.name.toLowerCase().includes(query)) ? 'flex' : 'none';
-      });
+    // 格式化解析用户输入的代码（智能补全港股、A股）
+    function parseSymbol(raw) {
+      let s = raw.toUpperCase().trim();
+      // 如果是纯 4 位数字，自动识别为港股
+      if (/^\d{4}$/.test(s)) return { symbol: `${s}.HK`, market: 'HK' };
+      // 如果是纯 6 位数字，自动识别为 A 股
+      if (/^\d{6}$/.test(s)) return { symbol: s, market: 'CN' };
+      return { symbol: s, market: s.includes('.HK') ? 'HK' : 'US' };
     }
 
-    // 点击左侧列表，填充到右侧交易台
     function selectStock(symbol) {
       selectedStockSymbol = symbol;
+      const stock = GLOBAL_STOCKS.find(s => s.symbol === symbol);
       document.querySelectorAll('.stock-row').forEach(row => row.classList.remove('selected'));
-      document.getElementById(`row-${symbol}`).classList.add('selected');
+      const activeRow = document.getElementById(`row-${symbol}`);
+      if (activeRow) activeRow.classList.add('selected');
 
       document.getElementById('desk-symbol-input').value = symbol;
+      document.getElementById('desk-company').innerText = stock ? stock.name : '自选股票';
       document.getElementById('desk-price').innerText = `$${currentPrices[symbol].toFixed(2)}`;
     }
 
-    // 手动在交易台输入股票代码
     function handleManualInput() {
-      const symbol = document.getElementById('desk-symbol-input').value.toUpperCase().trim();
-      selectedStockSymbol = symbol;
-      
-      document.querySelectorAll('.stock-row').forEach(row => row.classList.remove('selected'));
-      if (document.getElementById(`row-${symbol}`)) {
-        document.getElementById(`row-${symbol}`).classList.add('selected');
+      const rawInput = document.getElementById('desk-symbol-input').value;
+      if (!rawInput.trim()) {
+        selectedStockSymbol = '';
+        document.getElementById('desk-company').innerText = '请选择或输入股票代码';
+        document.getElementById('desk-price').innerText = '$0.00';
+        return;
       }
 
-      if (symbol !== '') {
-        if (!currentPrices[symbol]) {
-          currentPrices[symbol] = generateMockPrice(symbol);
-        }
-        document.getElementById('desk-price').innerText = `$${currentPrices[symbol].toFixed(2)}`;
+      const parsed = parseSymbol(rawInput);
+      selectedStockSymbol = parsed.symbol;
+      
+      const found = GLOBAL_STOCKS.find(s => s.symbol === selectedStockSymbol || s.symbol.startsWith(rawInput.toUpperCase()));
+      if (found) {
+        selectedStockSymbol = found.symbol;
+        document.getElementById('desk-company').innerText = found.name;
+        document.getElementById('desk-price').innerText = `$${currentPrices[found.symbol].toFixed(2)}`;
       } else {
-        document.getElementById('desk-price').innerText = `$0.00`;
+        // 自定义股票代码：生成确定性的模拟初始价格
+        if (!currentPrices[selectedStockSymbol]) {
+          let hash = 0;
+          for (let i = 0; i < selectedStockSymbol.length; i++) hash += selectedStockSymbol.charCodeAt(i);
+          currentPrices[selectedStockSymbol] = (hash % 180) + 20;
+        }
+        document.getElementById('desk-company').innerText = `${parsed.market} 市场证券`;
+        document.getElementById('desk-price').innerText = `$${currentPrices[selectedStockSymbol].toFixed(2)}`;
       }
     }
 
@@ -297,7 +373,7 @@
       const userAccount = accounts[currentUser];
 
       if (shares <= 0 || isNaN(shares)) return alert('请输入正确的买入数量！');
-      if (userAccount.cash < totalCost) return alert(`⚠️ 现金不足！需要 $${totalCost.toFixed(2)}，当前现金 $${userAccount.cash.toFixed(2)}`);
+      if (userAccount.cash < totalCost) return alert(`⚠️ 现金不足！需要 $${totalCost.toFixed(2)}，当前可用现金仅 $${userAccount.cash.toFixed(2)}`);
 
       userAccount.cash -= totalCost;
       if (!userAccount.portfolio[selectedStockSymbol]) userAccount.portfolio[selectedStockSymbol] = { shares: 0, cost: 0 };
@@ -320,7 +396,7 @@
       const stockData = userAccount.portfolio[symbol];
 
       if (isNaN(sharesToSell) || sharesToSell <= 0) return alert('请输入正确的卖出数量！');
-      if (sharesToSell > stockData.shares) return alert(`⚠️ 卖出数量不能超过您持有的 ${stockData.shares} 股！`);
+      if (sharesToSell > stockData.shares) return alert(`⚠️ 卖出数量不能超过持有的 ${stockData.shares} 股！`);
 
       const price = currentPrices[symbol];
       const revenue = sharesToSell * price;
@@ -336,21 +412,23 @@
       renderPortfolio();
     }
 
-    // 引擎：刷新所有被监控的价格（包括列表里的和自己输入的）
+    // 价格引擎：每 3 秒真实微幅变动
     function tickPrices() {
       Object.keys(currentPrices).forEach(symbol => {
-        const basePrice = currentPrices[symbol];
-        const volatility = basePrice * 0.002; 
-        const change = (Math.random() - 0.5) * volatility;
-        currentPrices[symbol] = Math.max(1, basePrice + change); // 保证价格不为负
+        const base = currentPrices[symbol];
+        const volatility = base * 0.002; 
+        const delta = (Math.random() - 0.49) * volatility;
+        currentPrices[symbol] = Math.max(0.01, base + delta);
         
-        const priceEl = document.getElementById(`price-${symbol}`);
-        if(priceEl) priceEl.innerText = `$${currentPrices[symbol].toFixed(2)}`;
+        const el = document.getElementById(`price-${symbol}`);
+        if(el) el.innerText = `$${currentPrices[symbol].toFixed(2)}`;
       });
 
       if (selectedStockSymbol && currentPrices[selectedStockSymbol]) {
         document.getElementById('desk-price').innerText = `$${currentPrices[selectedStockSymbol].toFixed(2)}`;
       }
+
+      // 实时更新总资产和净收益！
       renderPortfolio(); 
     }
 
@@ -388,46 +466,60 @@
         }
       }
 
-      if (portfolioHTML === '') portfolioHTML = `<p style="color: #86868B; text-align: center; padding: 20px;">暂无持仓，在上方输入代码买入吧！</p>`;
+      if (portfolioHTML === '') portfolioHTML = `<p style="color: #86868B; text-align: center; padding: 20px;">暂无持仓，快去挑选或输入股票买入吧！</p>`;
       document.getElementById('portfolio-list').innerHTML = portfolioHTML;
 
+      // 核心修复：总资产 = 可用现金 + 所有股票实时总市值
       const totalAssets = userAccount.cash + stockValue;
-      const withdrawableCash = Math.max(0, userAccount.cash - 1000.00); 
+      // 实时净收益 = 总资产 + 已提取部分 - 初始本金1000
+      const netProfit = (totalAssets + userAccount.withdrawn) - 1000.00;
 
       document.getElementById('total-value').innerText = `$${totalAssets.toFixed(2)}`;
       document.getElementById('cash-balance').innerText = userAccount.cash.toFixed(2);
       document.getElementById('total-withdrawn').innerText = userAccount.withdrawn.toFixed(2);
       
-      const withdrawEl = document.getElementById('withdrawable-cash');
-      withdrawEl.innerText = `$${withdrawableCash.toFixed(2)}`;
+      const profitEl = document.getElementById('realtime-profit');
+      const isProfitable = netProfit > 0.01;
+      profitEl.innerText = `${isProfitable ? '+' : ''}$${netProfit.toFixed(2)}`;
+      profitEl.className = isProfitable ? 'profit-positive' : 'profit-negative';
       
       const withdrawBtn = document.getElementById('withdraw-btn');
-      if (withdrawableCash > 0) {
+      // 如果总收益 > 0，且手头可用现金足够兑现该利润
+      if (isProfitable && userAccount.cash >= netProfit) {
         withdrawBtn.disabled = false;
-        withdrawBtn.innerText = `提现现金收益 ($${withdrawableCash.toFixed(2)})`;
+        withdrawBtn.innerText = `提现净利润 ($${netProfit.toFixed(2)})`;
+      } else if (isProfitable && userAccount.cash < netProfit) {
+        withdrawBtn.disabled = true;
+        withdrawBtn.innerText = `浮盈中 (需卖出持仓兑现)`;
       } else {
         withdrawBtn.disabled = true;
-        withdrawBtn.innerText = '余额不足提现';
+        withdrawBtn.innerText = '暂无净利润';
       }
     }
 
+    // 提现净利润逻辑
     function withdrawProfit() {
       const userAccount = accounts[currentUser];
-      const withdrawableCash = Math.max(0, userAccount.cash - 1000.00);
+      let stockValue = 0;
+      for (const [symbol, data] of Object.entries(userAccount.portfolio)) {
+        if (data.shares > 0) stockValue += data.shares * (currentPrices[symbol] || 0);
+      }
+      const totalAssets = userAccount.cash + stockValue;
+      const netProfit = (totalAssets + userAccount.withdrawn) - 1000.00;
 
-      if (withdrawableCash > 0) {
-        userAccount.cash -= withdrawableCash;
-        userAccount.withdrawn += withdrawableCash;
-        alert(`🎉 恭喜 ${currentUser}！成功提现已实现利润 $${withdrawableCash.toFixed(2)}！`);
+      if (netProfit > 0 && userAccount.cash >= netProfit) {
+        userAccount.cash -= netProfit;
+        userAccount.withdrawn += netProfit;
+        alert(`🎉 恭喜 ${currentUser}！成功提现净利润 $${netProfit.toFixed(2)}！`);
         saveData();
         renderPortfolio();
       }
     }
 
-    function saveData() { localStorage.setItem('family_stock_accounts_v2', JSON.stringify(accounts)); }
+    function saveData() { localStorage.setItem('family_stock_v3', JSON.stringify(accounts)); }
 
     initMarket();
-    switchUser('阿桂'); // 默认进场账号为阿桂
+    switchUser('阿桂');
     setInterval(tickPrices, 3000);
   </script>
 </body>

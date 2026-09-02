@@ -14,6 +14,7 @@
             --accent-yellow: #ffd166;
             --woo-blue: #0099ff;
             --duotone-orange: #ff5500;
+            --duotone-dlab: #10b981;
             --text-main: #1c2d42;
             --text-sub: #4b6584;
             --safe-bottom: env(safe-area-inset-bottom, 20px);
@@ -190,7 +191,13 @@
             border: 1px solid rgba(255, 85, 0, 0.2);
         }
 
-        /* WOO 三大核心数据看板 */
+        .gear-pill.dlab {
+            color: #047857;
+            background: #ecfdf5;
+            border-color: rgba(16, 185, 129, 0.25);
+        }
+
+        /* WOO 三大核心指标看板 */
         .woo-highlight-row {
             display: grid;
             grid-template-columns: 1fr 1fr 1fr;
@@ -244,7 +251,7 @@
             font-weight: 500;
         }
 
-        /* Jump 战报小标 */
+        /* 战报高光条 */
         .jump-milestone {
             background: #f0f9ff;
             border-left: 3px solid var(--woo-blue);
@@ -372,7 +379,6 @@
             <p>窗外掠过的灯火忽明忽暗，把所有的疲惫与心绪，都悄无声息地揉碎在南亚的海风里。</p>
         </div>
 
-        <!-- 8月31日 视频：Drive.mp4 -->
         <div class="video-wrapper">
             <video controls playsinline preload="metadata">
                 <source src="Drive.mp4" type="video/mp4">
@@ -424,14 +430,13 @@
             <img src="cat.JPG" alt="Cat" class="gallery-img" loading="lazy">
         </div>
 
-        <!-- WOO 数据与装备实况仪表盘 -->
+        <!-- 9月1日 WOO 数据仪表盘 -->
         <div class="woo-block">
             <div class="woo-header">
                 <span class="woo-badge">⚡ WOO Sensor & Watch 实测</span>
                 <span class="gear-pill">12m Duotone Rebel SLS 2025 · TT</span>
             </div>
 
-            <!-- 核心三指标 -->
             <div class="woo-highlight-row">
                 <div class="woo-highlight-item">
                     <div class="val">▲ 4.0 m</div>
@@ -447,7 +452,6 @@
                 </div>
             </div>
 
-            <!-- 9 项完整传感器明细 -->
             <div class="woo-stats-grid">
                 <div class="stat-cell">
                     <div class="num">3.1 s</div>
@@ -487,7 +491,6 @@
                 </div>
             </div>
 
-            <!-- 第 42 跳最佳高光 -->
             <div class="jump-milestone">
                 <span>🎯 Day High: #42 Jump</span>
                 <span>4.0 m · 3.0 s Air · 4.2G Land</span>
@@ -509,6 +512,98 @@
         <div class="log-footer">
             <span>Kalpitiya Lagoon · 11:24 Launch</span>
             <span>Rider: Rebel SLS 2025 🤙</span>
+        </div>
+    </section>
+
+    <!-- 篇章三：9月2日 Dream Spot 第二航次与 D/LAB 数据 -->
+    <section class="log-card">
+        <div class="timeline-header">
+            <div class="timeline-date">🗓️ 9月2日 · 进阶超越</div>
+            <span class="timeline-location">Dream Spot 泻湖</span>
+        </div>
+
+        <!-- 9月2日 WOO 数据仪表盘 -->
+        <div class="woo-block">
+            <div class="woo-header">
+                <span class="woo-badge">⚡ WOO Sensor & Watch 实测</span>
+                <span class="gear-pill dlab">9m Duotone Rebel D/LAB 2025 · TT</span>
+            </div>
+
+            <!-- 核心三指标 -->
+            <div class="woo-highlight-row">
+                <div class="woo-highlight-item">
+                    <div class="val">▲ 4.1 m</div>
+                    <div class="lbl">Highest Jump</div>
+                </div>
+                <div class="woo-highlight-item">
+                    <div class="val">45.3 m</div>
+                    <div class="lbl">Longest Distance</div>
+                </div>
+                <div class="woo-highlight-item">
+                    <div class="val">4h 43m</div>
+                    <div class="lbl">Session Duration</div>
+                </div>
+            </div>
+
+            <!-- 9 项完整传感器明细 -->
+            <div class="woo-stats-grid">
+                <div class="stat-cell">
+                    <div class="num">3.6 s</div>
+                    <div class="txt">Max Airtime</div>
+                </div>
+                <div class="stat-cell">
+                    <div class="num">4.9 G</div>
+                    <div class="txt">Max Landing</div>
+                </div>
+                <div class="stat-cell">
+                    <div class="num">45 次</div>
+                    <div class="txt">Total Jumps</div>
+                </div>
+                <div class="stat-cell">
+                    <div class="num">1m 40s</div>
+                    <div class="txt">Total Airtime</div>
+                </div>
+                <div class="stat-cell">
+                    <div class="num">108.6 m</div>
+                    <div class="txt">Total Height</div>
+                </div>
+                <div class="stat-cell">
+                    <div class="num">50.74 km</div>
+                    <div class="txt">Total Distance</div>
+                </div>
+                <div class="stat-cell">
+                    <div class="num">40.5 kph</div>
+                    <div class="txt">Max Speed</div>
+                </div>
+                <div class="stat-cell">
+                    <div class="num">34.9 kph</div>
+                    <div class="txt">500m Speed</div>
+                </div>
+                <div class="stat-cell">
+                    <div class="num">18.82 km</div>
+                    <div class="txt">Distance 1hr</div>
+                </div>
+            </div>
+
+            <!-- 第 45 跳最高光 -->
+            <div class="jump-milestone">
+                <span>🎯 Day High: #45 Jump</span>
+                <span>4.1 m · 2.9 s Air · 4.1G Land (4h 27m)</span>
+            </div>
+        </div>
+
+        <div class="story-text">
+            <p>
+                第二天下水换上 <strong>9m Duotone Rebel D/LAB</strong>。风力更加充沛硬朗，D/LAB 材质的刚性与拉力反馈几乎瞬时传导，切水提速迅猛，极速直接冲破 <strong>40.5 kph</strong>。
+            </p>
+            <p>
+                整整 4 小时 43 分钟、跨越 50.74 公里的长距离巡航与拉扯，在第 45 次起跳中将高度刷新到 <strong>4.1 米</strong>，最长滞空 <strong>3.6 秒</strong>。每一次升空后的平稳吸震与控风收板，越来越接近雪山深粉刻滑时那种随心所欲的自在。
+            </p>
+        </div>
+
+        <div class="log-footer">
+            <span>Kalpitiya Lagoon · 11:19 Launch</span>
+            <span>Rider: Rebel D/LAB 2025 🤙</span>
         </div>
     </section>
 </div>
@@ -541,7 +636,6 @@
         }
     }
 
-    // 突破移动端限制：首次在屏幕任何地方轻触或滑动，无感自启
     function triggerAutoPlay() {
         audio.play().then(() => {
             updateMusicUI(true);

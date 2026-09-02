@@ -8,19 +8,12 @@
     <title>CHASING THE WIND</title>
     <style>
         :root {
-            --ocean-dark: #0f172a;
-            --ocean-blue: #0284c7;
-            --ocean-light: #38bdf8;
-            --sky-ice: #f0f9ff;
-            --sand-gold: #f59e0b;
-            --coral-sunset: #f43f5e;
-            --snow-white: #ffffff;
-            --text-main: #0f172a;
-            --text-sub: #475569;
-            --text-muted: #94a3b8;
-            --card-bg: rgba(255, 255, 255, 0.9);
-            --card-border: rgba(255, 255, 255, 0.8);
-            --shadow-card: 0 12px 32px rgba(15, 23, 42, 0.06);
+            --ocean-dark: #0a1128;
+            --primary: #0077b6;
+            --accent-sunset: #ff6b6b;
+            --accent-yellow: #ffd166;
+            --text-main: #1c2d42;
+            --text-sub: #4b6584;
             --safe-bottom: env(safe-area-inset-bottom, 20px);
             --safe-top: env(safe-area-inset-top, 20px);
         }
@@ -30,71 +23,76 @@
             margin: 0;
             padding: 0;
             -webkit-tap-highlight-color: transparent;
-            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "PingFang SC", "Segoe UI", Roboto, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "PingFang SC", "Hiragino Sans GB", "Segoe UI", sans-serif;
         }
 
         body {
-            background: linear-gradient(180deg, #e0f2fe 0%, #f0fdf4 35%, #fafaf9 100%);
+            background: linear-gradient(180deg, #d8f3dc 0%, #e0f2fe 30%, #f4f9fc 100%);
             background-attachment: fixed;
             color: var(--text-main);
             min-height: 100vh;
-            padding: calc(var(--safe-top) + 16px) 16px calc(var(--safe-bottom) + 36px);
+            padding: calc(var(--safe-top) + 20px) 20px calc(var(--safe-bottom) + 40px);
             display: flex;
             justify-content: center;
         }
 
         .container {
             width: 100%;
-            max-width: 440px; /* 精准适配 iPhone 17 Pro Max 视口 */
+            max-width: 440px; /* 适配 iPhone 17 Pro Max */
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 24px;
         }
 
-        /* 顶部导航与随身听 */
+        /* 顶部只保留标题与音乐播放器 */
         header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 2px 2px;
+            padding: 4px 0;
         }
 
-        .hero-title h1 {
-            font-size: 22px;
+        .brand h1 {
+            font-size: 24px;
             font-weight: 900;
             letter-spacing: -0.5px;
             color: var(--ocean-dark);
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
 
-        .hero-title p {
-            font-size: 12px;
-            color: var(--ocean-blue);
+        .brand p {
+            font-size: 13px;
+            color: var(--primary);
             font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+            margin-top: 2px;
         }
 
+        /* 极简随身听胶囊 */
         .music-pill {
             display: inline-flex;
             align-items: center;
-            background: #ffffff;
+            background: rgba(255, 255, 255, 0.9);
             border-radius: 30px;
             padding: 6px 14px;
-            box-shadow: 0 4px 16px rgba(2, 132, 199, 0.12);
+            box-shadow: 0 4px 16px rgba(0, 119, 182, 0.12);
             gap: 8px;
-            border: 1px solid rgba(56, 189, 248, 0.3);
+            border: 1px solid rgba(0, 119, 182, 0.15);
             cursor: pointer;
             user-select: none;
             transition: transform 0.15s ease;
         }
 
-        .music-pill:active { transform: scale(0.96); }
+        .music-pill:active {
+            transform: scale(0.96);
+        }
 
         .disc-icon {
             width: 24px;
             height: 24px;
             border-radius: 50%;
-            background: linear-gradient(135deg, var(--coral-sunset), var(--sand-gold));
+            background: linear-gradient(135deg, var(--accent-sunset), var(--accent-yellow));
             display: flex;
             align-items: center;
             justify-content: center;
@@ -107,7 +105,9 @@
             animation: spin 3s linear infinite;
         }
 
-        @keyframes spin { 100% { transform: rotate(360deg); } }
+        @keyframes spin {
+            100% { transform: rotate(360deg); }
+        }
 
         .music-label {
             font-size: 12px;
@@ -115,460 +115,116 @@
             color: var(--ocean-dark);
         }
 
-        /* 经历前言：从雪山到大海 */
-        .bio-card {
-            background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
-            border-radius: 22px;
-            padding: 20px;
-            color: #ffffff;
-            box-shadow: 0 12px 28px rgba(2, 132, 199, 0.25);
-            position: relative;
-            overflow: hidden;
+        /* 斯里兰卡主体正文卡片 */
+        .story-card {
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            border-radius: 24px;
+            padding: 26px 22px;
+            box-shadow: 0 16px 36px rgba(10, 17, 40, 0.06);
         }
 
-        .bio-card::after {
-            content: "RIDER";
-            position: absolute;
-            right: -10px;
-            bottom: -15px;
-            font-size: 64px;
-            font-weight: 900;
-            color: rgba(255, 255, 255, 0.07);
-            pointer-events: none;
-        }
-
-        .bio-card h2 {
-            font-size: 17px;
+        .badge {
+            display: inline-block;
+            background: #ffe4e6;
+            color: var(--accent-sunset);
+            font-size: 11px;
             font-weight: 800;
-            margin-bottom: 8px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 8px;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
         }
 
-        .bio-card p {
-            font-size: 13px;
-            line-height: 1.65;
-            color: #e0f2fe;
-            margin-bottom: 14px;
-        }
-
-        .stat-badges {
-            display: flex;
-            gap: 8px;
-        }
-
-        .stat-badge {
-            background: rgba(255, 255, 255, 0.18);
-            backdrop-filter: blur(10px);
-            border-radius: 12px;
-            padding: 6px 10px;
-            flex: 1;
-            text-align: center;
-        }
-
-        .stat-badge .num {
-            font-size: 17px;
+        .story-title {
+            font-size: 20px;
             font-weight: 800;
-            color: #ffffff;
-            display: block;
+            color: var(--ocean-dark);
+            line-height: 1.35;
+            margin-bottom: 18px;
         }
 
-        .stat-badge .lbl {
-            font-size: 10px;
-            color: #bae6fd;
-            font-weight: 500;
+        .story-content p {
+            font-size: 15px;
+            line-height: 1.85;
+            color: var(--text-sub);
+            margin-bottom: 16px;
+            text-align: justify;
         }
 
-        /* 实时风况条 (轻量化嵌入) */
-        .live-bar {
-            background: #ffffff;
-            border-radius: 18px;
-            padding: 14px;
-            border: 1px solid rgba(2, 132, 199, 0.12);
-            box-shadow: var(--shadow-card);
+        .story-content p strong {
+            color: var(--ocean-dark);
+            font-weight: 700;
         }
 
-        .live-bar-header {
+        .story-footer {
+            margin-top: 24px;
+            padding-top: 16px;
+            border-top: 1px dashed rgba(0, 119, 182, 0.2);
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 10px;
+            font-size: 12px;
+            color: #8395a7;
         }
 
-        .live-bar-title {
-            font-size: 13px;
+        .story-footer span:last-child {
+            color: var(--primary);
             font-weight: 700;
-            color: var(--ocean-dark);
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        .live-refresh-btn {
-            background: none;
-            border: none;
-            color: var(--ocean-blue);
-            font-size: 11px;
-            font-weight: 600;
-            cursor: pointer;
-        }
-
-        .spot-chips {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 6px;
-        }
-
-        .spot-chip {
-            background: #f8fafc;
-            border: 1px solid #e2e8f0;
-            border-radius: 12px;
-            padding: 8px 4px;
-            text-align: center;
-        }
-
-        .spot-chip .name {
-            font-size: 11px;
-            font-weight: 700;
-            color: var(--text-sub);
-            margin-bottom: 2px;
-        }
-
-        .spot-chip .wind {
-            font-size: 14px;
-            font-weight: 900;
-            color: var(--ocean-blue);
-        }
-
-        .spot-chip .wind small {
-            font-size: 9px;
-            font-weight: normal;
-        }
-
-        .spot-chip .dir {
-            font-size: 10px;
-            color: var(--text-muted);
-            margin-top: 2px;
-        }
-
-        /* 倒叙编年史 Timeline */
-        .section-title {
-            font-size: 17px;
-            font-weight: 800;
-            color: var(--ocean-dark);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-top: 4px;
-        }
-
-        .timeline {
-            position: relative;
-            padding-left: 24px;
-            display: flex;
-            flex-direction: column;
-            gap: 22px;
-        }
-
-        .timeline::before {
-            content: '';
-            position: absolute;
-            left: 7px;
-            top: 10px;
-            bottom: 10px;
-            width: 2px;
-            background: linear-gradient(180deg, var(--coral-sunset) 0%, var(--ocean-blue) 60%, #cbd5e1 100%);
-            border-radius: 2px;
-        }
-
-        .timeline-card {
-            position: relative;
-            background: var(--card-bg);
-            backdrop-filter: blur(16px);
-            border: 1px solid var(--card-border);
-            border-radius: 20px;
-            padding: 16px 16px;
-            box-shadow: var(--shadow-card);
-        }
-
-        .timeline-card::before {
-            content: '';
-            position: absolute;
-            left: -21px;
-            top: 18px;
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            background: var(--snow-white);
-            border: 3px solid var(--ocean-blue);
-        }
-
-        .timeline-card.active::before {
-            border-color: var(--coral-sunset);
-            box-shadow: 0 0 0 3px rgba(244, 63, 94, 0.2);
-        }
-
-        .timeline-tag {
-            display: inline-block;
-            font-size: 11px;
-            font-weight: 800;
-            padding: 2px 8px;
-            border-radius: 6px;
-            margin-bottom: 6px;
-        }
-
-        .tag-now { background: #ffe4e6; color: var(--coral-sunset); }
-        .tag-phase { background: #e0f2fe; color: var(--ocean-blue); }
-        .tag-flash { background: #fef3c7; color: #b45309; }
-        .tag-snow { background: #f1f5f9; color: #475569; }
-
-        .timeline-title {
-            font-size: 16px;
-            font-weight: 800;
-            color: var(--text-main);
-            margin-bottom: 6px;
-        }
-
-        .timeline-body {
-            font-size: 13px;
-            line-height: 1.65;
-            color: var(--text-sub);
-        }
-
-        .gear-highlight {
-            margin-top: 10px;
-            padding-top: 10px;
-            border-top: 1px dashed #e2e8f0;
-            font-size: 11px;
-            color: var(--ocean-blue);
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        /* 气象雷达与工具 */
-        .radar-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 8px;
-        }
-
-        .radar-item {
-            text-decoration: none;
-            background: #ffffff;
-            padding: 12px 4px;
-            border-radius: 16px;
-            text-align: center;
-            border: 1px solid #f1f5f9;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 4px;
-        }
-
-        .radar-item .emoji { font-size: 20px; }
-        .radar-item .name { font-size: 11px; font-weight: 700; color: var(--text-sub); }
-
-        /* 极简新增打卡折叠 */
-        .log-btn {
-            background: #ffffff;
-            border: 1px dashed var(--ocean-blue);
-            color: var(--ocean-blue);
-            border-radius: 14px;
-            padding: 14px;
-            text-align: center;
-            font-size: 14px;
-            font-weight: 700;
-            cursor: pointer;
         }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <!-- 顶部状态栏与播放器 -->
+    <!-- 顶部极简保留 -->
     <header>
-        <div class="hero-title">
+        <div class="brand">
             <h1>🌊 CHASING THE WIND</h1>
             <p>从雪域到无垠之海</p>
         </div>
         
+        <!-- BGM 随身听组件（播放同目录下的 bgm.mp3） -->
         <div class="music-pill" onclick="toggleBGM()">
             <div class="disc-icon" id="discIcon">▶</div>
             <span class="music-label" id="musicStatus">播放海风 🎵</span>
         </div>
     </header>
 
-    <!-- 背景音乐：同目录下的 bgm.mp3 -->
     <audio id="bgmAudio" loop preload="auto">
         <source src="bgm.mp3" type="audio/mpeg">
     </audio>
 
-    <!-- 个人履历名片 -->
-    <div class="bio-card">
-        <h2>🏂 20年单板底蕴，换取风筝起飞的自由</h2>
-        <p>滑了20年的雪，单板带我走遍了全球绝大多数知名雪山。板刃吃雪的直觉早已刻进骨子里。当风筝带着风力拉扯起身体的一刹那，我知道这不过是把脚下的高山换成了印度洋与太平洋的波涛。</p>
-        <div class="stat-badges">
-            <div class="stat-badge">
-                <span class="num">20年</span>
-                <span class="lbl">全球单板雪龄</span>
-            </div>
-            <div class="stat-badge">
-                <span class="num">首日</span>
-                <span class="lbl">风冲上板起滑</span>
-            </div>
-            <div class="stat-badge">
-                <span class="num">4大</span>
-                <span class="lbl">核心追风浪点</span>
-            </div>
-        </div>
-    </div>
-
-    <!-- 4 大浪点轻量实时风速看板 -->
-    <div class="live-bar">
-        <div class="live-bar-header">
-            <span class="live-bar-title">📡 核心浪点实况 (Open-Meteo)</span>
-            <button class="live-refresh-btn" onclick="fetchLiveWeather()">🔄 刷新风况</button>
-        </div>
-        <div class="spot-chips" id="spotsChips">
-            <div style="grid-column: span 4; text-align:center; font-size:11px; color:#94a3b8; padding:6px;">正在拉取实况...</div>
-        </div>
-    </div>
-
-    <!-- 倒叙编年史 (Reverse Timeline) -->
-    <div class="section-title">⏱️ 倒叙 · 极限航迹线</div>
-    <div class="timeline">
-
-        <!-- 当前节点：斯里兰卡 -->
-        <div class="timeline-card active">
-            <span class="timeline-tag tag-now">📍 NOW · 2026 航行中</span>
-            <h3 class="timeline-title">斯里兰卡 · Kalpitiya (Dream Spot)</h3>
-            <p class="timeline-body">
-                此刻正身处印度洋著名的风冲圣地 Kalpitiya。在经典的 Dream Spot 泻湖，平整如镜的水面与印度洋咆哮的侧岸风交织。20节以上的稳定热带信风让每一次拉杆加压起跳都极其通透。雪道上的立刃走刃，在这里变成了水面上激荡的白浪。
+    <!-- 斯里兰卡主体正文 -->
+    <main class="story-card">
+        <span class="badge">📍 SRI LANKA · KALPITIYA</span>
+        <h2 class="story-title">印度洋信风与镜面泻湖：在 Dream Spot 撕裂重力</h2>
+        
+        <div class="story-content">
+            <p>
+                滑了二十年的单板，雪山教给我最深刻的一件事就是<strong>在不稳定的介质中寻找极速的平衡</strong>。但直到站在斯里兰卡 Kalpitiya 这片被全世界风冲骑手奉为圣地的海滩，我才真正把沉淀了二十年的板刃记忆，彻底释放在这片狂暴又温柔的印度洋水域。
             </p>
-            <div class="gear-highlight">
-                🪁 主力搭配：9m / 10m 充气筝 + 双向板 (TT) · 极限巡航
-            </div>
-        </div>
-
-        <!-- 节点二：2026 觉醒之旅 -->
-        <div class="timeline-card">
-            <span class="timeline-tag tag-phase">🔥 2026年 4月 · 全力投入</span>
-            <h3 class="timeline-title">博鳌与平潭 · 重启风冲热血</h3>
-            <p class="timeline-body">
-                决定不再把风冲当作偶然一试的游戏，4月开始系统性深度练习。
-                首站<strong>海南博鳌</strong>（亚洲湾与玉带滩），在温暖的海风与开阔洋面找回对风窗力量和把手操控的绝对手感；紧接着直奔<strong>福建平潭</strong>（坛南湾与龙凤头），迎接著名的强风与狂暴浪区，全面打磨大风下的抗顶风走线与切浪脱扣意识。
+            <p>
+                穿过绵延的沙洲，眼前就是纯粹为极限而生的 <strong>Dream Spot</strong>。一面是印度洋翻滚咆哮的汹涌白浪，另一面则是被天然沙坝隔绝出如明镜般平整的泻湖水面。西南季风以极其稳定且蛮横的姿态掠过水面，风速毫无杂质地灌满气囊伞翼。
             </p>
-            <div class="gear-highlight">
-                🌊 浪点切换：博鳌巡航适应 ➔ 平潭大风浪区攻坚
-            </div>
-        </div>
-
-        <!-- 节点三：5年前的初次触风 -->
-        <div class="timeline-card">
-            <span class="timeline-tag tag-flash">⚡ 5年前 (约2021) · 降维初探</span>
-            <h3 class="timeline-title">初次摸筝 · 当天直接起滑上板</h3>
-            <p class="timeline-body">
-                五年前第一次接触风筝冲浪。许多人需要挣扎数天的控伞上水起滑，因为20年深厚单板滑雪功底带来的超强平衡感与对重心转换的绝对敏感，在熟悉了放线和动力冲程后，<strong>当天直接起滑上板成功出水</strong>。风冲的种子自此彻底埋下。
+            <p>
+                深吸一口气，拉杆，降压，切水。单板走刃深压刻滑的重心转换几乎在零点几秒内就唤醒了肌肉的直觉。双向板的板刃在镜面一样的水中撕开一道泛着白沫的狭长弧线，没有拖泥带水的抗力，只有纯粹的风力拉扯着整个身体贴着水面高速飞驰。
             </p>
-            <div class="gear-highlight">
-                🏂 核心底气：单板肌肉记忆与立刃走线，零阻碍迁移到水上
-            </div>
-        </div>
-
-        <!-- 节点四：20年单板岁月 -->
-        <div class="timeline-card">
-            <span class="timeline-tag tag-snow">🏔️ 2004 — 至今 · 根基底色</span>
-            <h3 class="timeline-title">二十载雪龄 · 滑遍全球崇山峻岭</h3>
-            <p class="timeline-body">
-                主修单板，整整滑了20年的雪。足迹遍布全世界无数顶级粉雪与陡峭野雪大山。习惯了在零下二十度的严寒里对抗重力、高速刻滑、征服深粉雪和树林陡坡。正是这二十年在陡坡与高速中磨炼出的心率控制和控板本能，让我今天面对狂风与巨浪时，心中只有纯粹的专注与兴奋。
+            <p>
+                看准起跳时机的一瞬间，控筝越过头顶，猛力压板起跳——重力在这一刻彻底失效。没有雪山冰裂缝的恐惧，只有整个人被托举在碧蓝海天之间的通透与轻盈。二十年穿梭在全球雪山寻找粉雪，而今天，在印度洋的信风里，我找到了另一场永不融化的起飞。
             </p>
-            <div class="gear-highlight">
-                ❄️ 极限基因：从阿尔卑斯、北海道到北美大山，雪为骨，风为翼
-            </div>
         </div>
 
-    </div>
-
-    <!-- 气象雷达快速跳转 -->
-    <div class="section-title" style="margin-top: 10px;">🌐 追风雷达</div>
-    <div class="radar-grid">
-        <a href="https://www.windy.com" target="_blank" class="radar-item">
-            <span class="emoji">💨</span>
-            <span class="name">Windy</span>
-        </a>
-        <a href="https://www.windguru.cz" target="_blank" class="radar-item">
-            <span class="emoji">🌊</span>
-            <span class="name">Windguru</span>
-        </a>
-        <a href="https://www.windfinder.com" target="_blank" class="radar-item">
-            <span class="emoji">🎯</span>
-            <span class="name">Finder</span>
-        </a>
-        <a href="https://www.iksurfmag.com" target="_blank" class="radar-item">
-            <span class="emoji">🏄‍♂️</span>
-            <span class="name">IKSURF</span>
-        </a>
-    </div>
-
-    <!-- 下水打卡按钮 -->
-    <div class="log-btn" onclick="promptQuickLog()">
-        🤙 随手记录斯里兰卡今日出海
-    </div>
-
-    <div id="quickLogsContainer" style="display:flex; flex-direction:column; gap:8px;"></div>
+        <div class="story-footer">
+            <span>Kalpitiya Lagoon · 航行中</span>
+            <span>Rider On Board 🤙</span>
+        </div>
+    </main>
 </div>
 
 <script>
-    // 1. 核心浪点定义
-    const spots = [
-        { name: "斯里兰卡", sub: "Kalpitiya", lat: 8.232, lon: 79.761 },
-        { name: "平潭", sub: "福建", lat: 25.503, lon: 119.791 },
-        { name: "博鳌", sub: "海南", lat: 19.145, lon: 110.589 },
-        { name: "阿那亚", sub: "秦皇岛", lat: 39.654, lon: 119.336 }
-    ];
-
-    function getWindDir(deg) {
-        const d = ['北', '东北', '东', '东南', '南', '西南', '西', '西北'];
-        return d[Math.round(deg / 45) % 8] + '风';
-    }
-
-    // 2. 实时风况抓取
-    async function fetchLiveWeather() {
-        const container = document.getElementById('spotsChips');
-        container.innerHTML = '<div style="grid-column: span 4; text-align:center; font-size:11px; color:#94a3b8; padding:6px;">正在拉取最新风速...</div>';
-
-        try {
-            const promises = spots.map(async s => {
-                const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${s.lat}&longitude=${s.lon}&current=wind_speed_10m,wind_direction_10m&wind_speed_unit=kn`);
-                const data = await res.json();
-                return {
-                    ...s,
-                    speed: Math.round(data.current.wind_speed_10m),
-                    dir: data.current.wind_direction_10m
-                };
-            });
-            const results = await Promise.all(promises);
-            container.innerHTML = '';
-            results.forEach(item => {
-                const chip = document.createElement('div');
-                chip.className = 'spot-chip';
-                chip.innerHTML = `
-                    <div class="name">${item.name}</div>
-                    <div class="wind">${item.speed} <small>kts</small></div>
-                    <div class="dir">${getWindDir(item.dir)}</div>
-                `;
-                container.appendChild(chip);
-            });
-        } catch (e) {
-            container.innerHTML = '<div style="grid-column: span 4; text-align:center; font-size:11px; color:#ef4444; padding:6px;">雷达连接稍有延迟，请稍后刷新</div>';
-        }
-    }
-
-    // 3. 背景音乐控制（方式 A：同目录 bgm.mp3）
     const audio = document.getElementById('bgmAudio');
     const disc = document.getElementById('discIcon');
     const statusLabel = document.getElementById('musicStatus');
@@ -578,9 +234,9 @@
             audio.play().then(() => {
                 disc.innerHTML = "⏸";
                 disc.classList.add('playing');
-                statusLabel.innerText = "正在播放";
+                statusLabel.innerText = "音乐播放中";
             }).catch(e => {
-                alert("播放提示：请确保 bgm.mp3 与本网页位于同一目录。");
+                alert("请确保同目录下存放了名为 bgm.mp3 的音频文件");
             });
         } else {
             audio.pause();
@@ -589,36 +245,6 @@
             statusLabel.innerText = "已暂停";
         }
     }
-
-    // 4. 简易出海记录
-    function promptQuickLog() {
-        const spot = prompt("输入当前下水地点（例如：斯里兰卡 Dream Spot）:", "斯里兰卡 Dream Spot");
-        if (!spot) return;
-        const gear = prompt("使用的风筝和板号（例如：9m + 双向板）:", "9m + TT板");
-        if (!gear) return;
-
-        const date = new Date().toLocaleDateString('zh-CN', { month: 'short', day: 'numeric' });
-        const list = JSON.parse(localStorage.getItem('my_kite_story_logs') || '[]');
-        list.unshift({ date, spot, gear });
-        localStorage.setItem('my_kite_story_logs', JSON.stringify(list));
-        renderQuickLogs();
-    }
-
-    function renderQuickLogs() {
-        const list = JSON.parse(localStorage.getItem('my_kite_story_logs') || '[]');
-        const container = document.getElementById('quickLogsContainer');
-        container.innerHTML = '';
-        list.slice(0, 3).forEach(item => {
-            const row = document.createElement('div');
-            row.style.cssText = "background:#fff; border-radius:12px; padding:10px 14px; font-size:12px; display:flex; justify-content:space-between; border:1px solid #e2e8f0;";
-            row.innerHTML = `<span><strong>${item.spot}</strong> · ${item.gear}</span><span style="color:#94a3b8;">${item.date}</span>`;
-            container.appendChild(row);
-        });
-    }
-
-    // 初始执行
-    fetchLiveWeather();
-    renderQuickLogs();
 </script>
 
 </body>

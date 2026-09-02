@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>JJ 投资 - 专业交易终端</title>
+  <title>JJ 投资 - 全球交易终端</title>
   <style>
     :root {
       --bg-color: #F5F5F7;
@@ -27,7 +27,7 @@
       -webkit-font-smoothing: antialiased;
     }
 
-    .container { max-width: 1200px; margin: 0 auto; }
+    .container { max-width: 1240px; margin: 0 auto; }
     
     /* 顶部导航 */
     .nav-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
@@ -37,7 +37,7 @@
     /* 用户/视图切换器 */
     .user-selector {
       display: flex; background: rgba(0, 0, 0, 0.06); padding: 4px; border-radius: 10px;
-      width: 320px;
+      width: 100%; max-width: 650px;
     }
     .user-tab {
       flex: 1; text-align: center; padding: 8px 0; border-radius: 8px;
@@ -67,7 +67,7 @@
     .btn:hover { background: #0077ED; }
     .btn:disabled { background: #E5E5EA; color: #86868B; cursor: not-allowed; }
 
-    /* 主体两栏布局 (行情 + 交易) */
+    /* 主体两栏布局 */
     .main-content { display: grid; grid-template-columns: 380px 1fr; gap: 24px; }
     .panel-title { font-size: 18px; font-weight: 600; margin-bottom: 16px; letter-spacing: -0.3px; display: flex; justify-content: space-between; align-items: center; }
 
@@ -140,6 +140,9 @@
     .overview-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
     .overview-card { background: #FFF; border-radius: 16px; padding: 24px; box-shadow: var(--panel-shadow); }
 
+    .link-btn { cursor: pointer; color: var(--apple-blue); font-size: 12px; margin-left: 8px; user-select: none; }
+    .link-btn:hover { text-decoration: underline; }
+
     @media (max-width: 900px) {
       .main-content { grid-template-columns: 1fr; }
       .dashboard { flex-direction: column; text-align: center; gap: 20px; }
@@ -153,25 +156,43 @@
     <div class="nav-header">
       <div class="brand">JJ <span>投资</span></div>
       <div class="user-selector" id="user-selector">
-        <div class="user-tab" onclick="switchView('总览')">资产总览</div>
-        <div class="user-tab active" onclick="switchView('阿桂')">阿桂 账户</div>
-        <div class="user-tab" onclick="switchView('UMI')">UMI 账户</div>
+        <div class="user-tab active" onclick="switchView('总览')">资产总览</div>
+        <div class="user-tab" onclick="switchView('JJ')">JJ</div>
+        <div class="user-tab" onclick="switchView('奶奶')">奶奶</div>
+        <div class="user-tab" onclick="switchView('阿桂')">阿桂</div>
+        <div class="user-tab" onclick="switchView('UMI')">UMI</div>
+      </div>
+    </div>
+
+    <!-- 综合总览视图 -->
+    <div id="overview-view">
+      <div class="dashboard" style="justify-content: center; text-align: center; flex-direction: column;">
+        <h2 style="margin-bottom: 8px; font-size: 20px; color: var(--text-muted);">全局资产管理规模 (AUM / USD)</h2>
+        <div class="balance-display" id="global-total-assets" style="font-size: 48px;">$0.00</div>
+        <p style="font-size: 14px; margin-top: 8px; font-weight: 600;">系统内累计净收益: <span id="global-total-profit">+$0.00</span></p>
+      </div>
+      <div class="overview-grid" id="overview-grid-container">
+        <!-- JS 动态渲染 4 个子面板 -->
       </div>
     </div>
 
     <!-- 个人账户视图 -->
-    <div id="individual-view">
+    <div id="individual-view" style="display: none;">
       <div class="dashboard">
         <div class="account-info">
-          <h1><span id="current-user-name">阿桂</span> 的交易账户</h1>
-          <p>账户本金: $1000.00 (美元结算) | 已成功提现至现实: $<span id="total-withdrawn">0.00</span></p>
+          <h1>[<span id="current-user-name">阿桂</span>] 独立投资组合</h1>
+          <p>
+            初始核准本金: $<span id="acc-principal">1000.00</span> (USD) 
+            <span class="link-btn" onclick="adjustPrincipal()">[调整本金]</span> 
+            | 历史出金: $<span id="total-withdrawn">0.00</span>
+          </p>
           <div class="balance-display" id="total-value">$1000.00</div>
-          <p style="font-size: 14px; font-weight: 600;">可用现金 (购买力): $<span id="cash-balance" style="color: var(--apple-blue);">1000.00</span></p>
+          <p style="font-size: 14px; font-weight: 600;">可用购买力 (现金): $<span id="cash-balance" style="color: var(--apple-blue);">1000.00</span></p>
         </div>
         <div style="text-align: right; min-width: 200px;">
-          <p style="font-size: 13px; margin-bottom: 4px; color: var(--text-muted);">账面净收益 (含股票浮盈)</p>
+          <p style="font-size: 13px; margin-bottom: 4px; color: var(--text-muted);">未结/已结净收益 (Net PnL)</p>
           <h2 id="realtime-profit" class="profit-positive" style="margin-bottom: 8px; font-size: 28px;">+$0.00</h2>
-          <button class="btn" id="withdraw-btn" onclick="withdrawProfit()">提现利润至现实账户</button>
+          <button class="btn" id="withdraw-btn" onclick="withdrawProfit()">利润出金 (Withdraw)</button>
           <div style="font-size: 11px; color: var(--text-muted); margin-top: 6px;">(若资金在股票中，需先卖出兑换为现金)</div>
         </div>
       </div>
@@ -209,11 +230,11 @@
           </div>
 
           <div class="portfolio-list">
-            <div class="panel-title">持仓明细 (卖出将转为现金购买力)</div>
+            <div class="panel-title">持仓明细 (Position)</div>
             <div class="table-header">
               <div>标的</div>
               <div style="text-align: right;">当前价</div>
-              <div style="text-align: right;">浮动盈亏</div>
+              <div style="text-align: right;">浮动盈亏(USD)</div>
               <div style="text-align: right; padding-right: 4px;">操作</div>
             </div>
             <div id="portfolio-list"></div>
@@ -222,69 +243,77 @@
       </div>
     </div>
 
-    <!-- 综合总览视图 -->
-    <div id="overview-view" style="display: none;">
-      <div class="dashboard" style="justify-content: center; text-align: center; flex-direction: column;">
-        <h2 style="margin-bottom: 8px; font-size: 20px; color: var(--text-muted);">家庭总资产 (美元)</h2>
-        <div class="balance-display" id="global-total-assets" style="font-size: 48px;">$2000.00</div>
-        <p style="font-size: 14px; margin-top: 8px; font-weight: 600;">家庭总利润: <span id="global-total-profit">+$0.00</span></p>
-      </div>
-      <div class="overview-grid">
-        <div class="overview-card" id="overview-agui"></div>
-        <div class="overview-card" id="overview-umi"></div>
-      </div>
-    </div>
   </div>
 
   <script>
     // 系统核心配置
-    const USERS = ['阿桂', 'UMI'];
+    const USERS = ['JJ', '奶奶', '阿桂', 'UMI'];
     const CURRENCIES = { US: '$', HK: 'HK$', CN: '¥' };
-    const FX_RATES = { US: 1.0, HK: 7.8, CN: 7.2 }; // 1美元折合多少本币
+    const FX_RATES = { US: 1.0, HK: 7.8, CN: 7.2 }; 
     
-    // 三大市场基础证券库
+    // 注入 JJ 截图的真实标的及基础核心股
     const GLOBAL_STOCKS = [
+      // JJ 真实持仓
+      { symbol: '688226', name: '威腾电气', market: 'CN', basePrice: 28.540 },
+      { symbol: '000711', name: '京蓝科技', market: 'CN', basePrice: 6.480 },
+      { symbol: '300302', name: '同有科技', market: 'CN', basePrice: 29.290 },
+      
+      // 其他核心证券
       { symbol: 'AAPL', name: '苹果公司', market: 'US', basePrice: 173.50 },
       { symbol: 'MSFT', name: '微软', market: 'US', basePrice: 406.20 },
       { symbol: 'NVDA', name: '英伟达', market: 'US', basePrice: 881.50 },
       { symbol: 'TSLA', name: '特斯拉', market: 'US', basePrice: 195.80 },
-      { symbol: 'BRK.B', name: '伯克希尔', market: 'US', basePrice: 408.10 },
-      { symbol: 'JPM', name: '摩根大通', market: 'US', basePrice: 191.40 },
       { symbol: '0700.HK', name: '腾讯控股', market: 'HK', basePrice: 388.50 },
       { symbol: '9988.HK', name: '阿里巴巴', market: 'HK', basePrice: 72.20 },
-      { symbol: '3690.HK', name: '美团', market: 'HK', basePrice: 115.60 },
-      { symbol: '1810.HK', name: '小米集团', market: 'HK', basePrice: 18.30 },
       { symbol: '600519', name: '贵州茅台', market: 'CN', basePrice: 1630.00 },
-      { symbol: '300750', name: '宁德时代', market: 'CN', basePrice: 196.50 },
-      { symbol: '002594', name: '比亚迪 (A股)', market: 'CN', basePrice: 232.40 },
-      { symbol: '601398', name: '工商银行', market: 'CN', basePrice: 5.40 },
-      { symbol: '601318', name: '中国平安', market: 'CN', basePrice: 46.20 }
+      { symbol: '300750', name: '宁德时代', market: 'CN', basePrice: 196.50 }
     ];
 
     let currentPrices = {};
-    let activeView = '阿桂'; // 默认视图
+    let activeView = '总览'; // 默认视图
     let selectedStockSymbol = ''; 
     let currentMarketTab = 'ALL';
 
-    // 数据初始化 (升级了DB名称，强制重置旧数据)
-    let accounts = JSON.parse(localStorage.getItem('jj_invest_db_v1'));
+    // 数据库初始化，强制注入 JJ 的真实数据（按汇率折算）
+    let accounts = JSON.parse(localStorage.getItem('jj_invest_db_pro_v1'));
     if (!accounts) {
       accounts = {};
-      USERS.forEach(user => { accounts[user] = { cash: 1000.00, withdrawn: 0.00, portfolio: {} }; });
+      USERS.forEach(user => { 
+        if (user === 'JJ') {
+          // 真实数据还原:
+          // 威腾: 7304 * 45.571 / 7.2 = 46229.42 USD
+          // 京蓝: 132600 * 5.013 / 7.2 = 92322.75 USD
+          // 同有: 8100 * 54.711 / 7.2 = 61549.88 USD
+          // 现金: 3238.23 / 7.2 = 449.75 USD
+          accounts[user] = { 
+            principal: 200551.80, 
+            cash: 449.75, 
+            withdrawn: 0.00, 
+            portfolio: {
+              '688226': { shares: 7304, costUSD: 46229.42, market: 'CN' },
+              '000711': { shares: 132600, costUSD: 92322.75, market: 'CN' },
+              '300302': { shares: 8100, costUSD: 61549.88, market: 'CN' }
+            } 
+          };
+        } else if (user === '奶奶') {
+          accounts[user] = { principal: 50000.00, cash: 50000.00, withdrawn: 0.00, portfolio: {} };
+        } else {
+          accounts[user] = { principal: 1000.00, cash: 1000.00, withdrawn: 0.00, portfolio: {} };
+        }
+      });
     }
 
     function initSystem() {
       GLOBAL_STOCKS.forEach(stock => {
         if (!currentPrices[stock.symbol]) currentPrices[stock.symbol] = stock.basePrice;
       });
-      // 加载自定义股票的历史价格
       for (const u in accounts) {
         for (const sym in accounts[u].portfolio) {
           if (!currentPrices[sym]) currentPrices[sym] = generateMockPrice(sym);
         }
       }
       renderMarketList();
-      switchView('阿桂');
+      switchView('总览');
     }
 
     function generateMockPrice(symbol) {
@@ -293,7 +322,6 @@
       return (hash % 200) + 15; 
     }
 
-    // 智能解析市场与代码
     function parseSymbolInfo(raw) {
       let s = raw.toUpperCase().trim();
       if (/^\d{4}$/.test(s)) return { symbol: `${s}.HK`, market: 'HK' };
@@ -303,7 +331,6 @@
       return { symbol: s, market: 'US' };
     }
 
-    // 视图切换 (总览 vs 个人)
     function switchView(viewName) {
       activeView = viewName;
       document.querySelectorAll('.user-tab').forEach(tab => {
@@ -319,6 +346,24 @@
         document.getElementById('individual-view').style.display = 'block';
         document.getElementById('current-user-name').innerText = viewName;
         renderPortfolio();
+      }
+    }
+
+    function adjustPrincipal() {
+      const acc = accounts[activeView];
+      const newPrincipal = prompt(`当前初始核准本金为 $${acc.principal.toFixed(2)} USD。\n请输入调整后的本金总额 (将会自动补齐或扣除购买力):`, acc.principal);
+      
+      if (newPrincipal !== null) {
+        const parsed = parseFloat(newPrincipal);
+        if (!isNaN(parsed) && parsed > 0) {
+          const diff = parsed - acc.principal;
+          acc.principal = parsed;
+          acc.cash += diff; // 资金补齐/抽离
+          saveData();
+          renderPortfolio();
+        } else {
+          alert('⚠️ 请输入有效的数字金额！');
+        }
       }
     }
 
@@ -362,7 +407,7 @@
 
     function selectStock(symbol) {
       selectedStockSymbol = symbol;
-      const stock = GLOBAL_STOCKS.find(s => s.symbol === symbol) || { name: '自选股票', market: parseSymbolInfo(symbol).market };
+      const stock = GLOBAL_STOCKS.find(s => s.symbol === symbol) || { name: '自选证券', market: parseSymbolInfo(symbol).market };
       
       document.querySelectorAll('.stock-row').forEach(row => row.classList.remove('selected'));
       const activeRow = document.getElementById(`row-${symbol}`);
@@ -403,12 +448,10 @@
       const shares = parseInt(document.getElementById('trade-qty').value) || 0;
       const market = parseSymbolInfo(selectedStockSymbol).market;
       const localPrice = currentPrices[selectedStockSymbol];
-      // 将本币按汇率折算为美元成本
       const usdCost = (shares * localPrice) / FX_RATES[market];
       document.getElementById('est-cost-display').innerHTML = `折合消耗美元: <span>$${usdCost.toFixed(2)}</span>`;
     }
 
-    // 买入：本币计价，消耗美元
     function executeBuy() {
       if (!selectedStockSymbol) return alert('请先选择或输入交易标的！');
       const shares = parseInt(document.getElementById('trade-qty').value);
@@ -420,7 +463,7 @@
       const account = accounts[activeView];
 
       if (account.cash < usdCost) {
-        return alert(`⚠️ 购买力不足！\n标的单价: ${CURRENCIES[market]}${localPrice.toFixed(2)}\n折合美元消耗: $${usdCost.toFixed(2)}\n当前可用: $${account.cash.toFixed(2)}`);
+        return alert(`⚠️ 购买力不足！\n折合美元消耗: $${usdCost.toFixed(2)}\n当前可用: $${account.cash.toFixed(2)}`);
       }
 
       account.cash -= usdCost;
@@ -434,11 +477,10 @@
       renderPortfolio();
       
       const btn = document.querySelector('.trade-actions button');
-      btn.innerText = '买入成功'; btn.style.background = 'var(--apple-green)';
+      btn.innerText = '成交'; btn.style.background = 'var(--apple-green)';
       setTimeout(() => { btn.innerText = '确认买入'; btn.style.background = 'var(--apple-blue)'; }, 1000);
     }
 
-    // 卖出：释放出美元购买力
     function sellStock(symbol) {
       const sharesToSell = parseInt(document.getElementById(`sell-qty-${symbol}`).value);
       const account = accounts[activeView];
@@ -448,7 +490,6 @@
       if (sharesToSell > stockData.shares) return alert(`⚠️ 卖出数不能超过持仓 (${stockData.shares} 股)！`);
 
       const localPrice = currentPrices[symbol];
-      // 卖出得到的本币，按汇率折算为美元回到账户
       const usdRevenue = (sharesToSell * localPrice) / FX_RATES[stockData.market];
       const costPerShareUSD = stockData.costUSD / stockData.shares;
 
@@ -462,7 +503,6 @@
       renderPortfolio();
     }
 
-    // 核心价格引擎
     function tickPrices() {
       Object.keys(currentPrices).forEach(symbol => {
         const base = currentPrices[symbol];
@@ -520,10 +560,12 @@
       document.getElementById('portfolio-list').innerHTML = html || `<p style="color: var(--text-muted); text-align: center; padding: 30px;">暂无持仓数据</p>`;
 
       const totalAssets = account.cash + stockValueUSD;
-      const netProfit = (totalAssets + account.withdrawn) - 1000.00;
+      // 净利润 = 现存资产 + 历史提现 - 个人设定的初始本金
+      const netProfit = (totalAssets + account.withdrawn) - account.principal;
 
       document.getElementById('total-value').innerText = `$${totalAssets.toFixed(2)}`;
       document.getElementById('cash-balance').innerText = account.cash.toFixed(2);
+      document.getElementById('acc-principal').innerText = account.principal.toFixed(2);
       document.getElementById('total-withdrawn').innerText = account.withdrawn.toFixed(2);
       
       const profitEl = document.getElementById('realtime-profit');
@@ -533,35 +575,34 @@
       const withdrawBtn = document.getElementById('withdraw-btn');
       if (netProfit > 0.01 && account.cash >= netProfit) {
         withdrawBtn.disabled = false;
-        withdrawBtn.innerText = `提现利润至现实 ($${netProfit.toFixed(2)})`;
+        withdrawBtn.innerText = `利润出金 ($${netProfit.toFixed(2)})`;
       } else {
         withdrawBtn.disabled = true;
-        withdrawBtn.innerText = '暂无可提现金额';
+        withdrawBtn.innerText = '暂无可出金额度';
       }
     }
 
-    // 提现逻辑 (仅扣除现金和利润，不影响本金)
     function withdrawProfit() {
       const account = accounts[activeView];
       let stockVal = 0;
       for (const [sym, d] of Object.entries(account.portfolio)) {
         if (d.shares > 0) stockVal += (d.shares * currentPrices[sym]) / FX_RATES[d.market];
       }
-      const netProfit = (account.cash + stockVal + account.withdrawn) - 1000.00;
+      const netProfit = (account.cash + stockVal + account.withdrawn) - account.principal;
 
       if (netProfit > 0 && account.cash >= netProfit) {
         account.cash -= netProfit;
         account.withdrawn += netProfit;
-        alert(`🎉 成功结算！\n${activeView} 已成功将 $${netProfit.toFixed(2)} 利润提现至现实账户！\n系统内仍保留 $1000 基础运转本金。`);
+        alert(`🎉 出金成功！\n系统已将净利润 $${netProfit.toFixed(2)} 提取。\n账户仍保留 $${account.principal.toFixed(2)} 核准本金用于交易。`);
         saveData();
         renderPortfolio();
       }
     }
 
-    // 渲染总览面板
     function renderOverview() {
       let globalAssets = 0;
       let globalProfit = 0;
+      let gridHTML = '';
 
       USERS.forEach(user => {
         const acc = accounts[user];
@@ -570,44 +611,47 @@
           if (d.shares > 0) stockVal += (d.shares * currentPrices[sym]) / FX_RATES[d.market];
         }
         const totalAsst = acc.cash + stockVal;
-        const profit = (totalAsst + acc.withdrawn) - 1000.00;
+        const profit = (totalAsst + acc.withdrawn) - acc.principal;
         
         globalAssets += totalAsst;
         globalProfit += profit;
 
-        const el = document.getElementById(`overview-${user === '阿桂' ? 'agui' : 'umi'}`);
-        if(el) {
-          el.innerHTML = `
-            <div style="font-size: 20px; font-weight: 700; margin-bottom: 16px; border-bottom: 1px solid #EEE; padding-bottom: 12px;">${user} 的资金盘口</div>
+        gridHTML += `
+          <div class="overview-card">
+            <div style="font-size: 20px; font-weight: 700; margin-bottom: 16px; border-bottom: 1px solid #EEE; padding-bottom: 12px; display:flex; justify-content:space-between;">
+              <span>[${user}] 投资组合</span>
+              <span style="font-size:12px; color:var(--text-muted); font-weight:normal; margin-top:6px;">本金: $${acc.principal.toFixed(0)}</span>
+            </div>
             <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
               <span style="color: var(--text-muted);">总资产估值</span>
               <span style="font-weight: 600;">$${totalAsst.toFixed(2)}</span>
             </div>
             <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-              <span style="color: var(--text-muted);">资金利用率 (持仓占比)</span>
-              <span style="font-weight: 600;">${((stockVal / totalAsst) * 100).toFixed(1)}%</span>
+              <span style="color: var(--text-muted);">可用现金 / 持仓价值</span>
+              <span style="font-weight: 600; font-size:13px;">$${acc.cash.toFixed(0)} / $${stockVal.toFixed(0)}</span>
             </div>
             <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-              <span style="color: var(--text-muted);">已提现金额</span>
-              <span style="font-weight: 600;">$${acc.withdrawn.toFixed(2)}</span>
+              <span style="color: var(--text-muted);">资金仓位 (利用率)</span>
+              <span style="font-weight: 600;">${totalAsst > 0 ? ((stockVal / totalAsst) * 100).toFixed(1) : 0}%</span>
             </div>
             <div style="display: flex; justify-content: space-between; margin-top: 16px; padding-top: 16px; border-top: 1px dashed #EEE;">
-              <span style="color: var(--text-muted);">净收益表现</span>
+              <span style="color: var(--text-muted);">累计净收益</span>
               <span style="font-weight: 700; font-size: 18px;" class="${profit >= 0 ? 'profit-positive' : 'profit-negative'}">
                 ${profit >= 0 ? '+' : ''}$${profit.toFixed(2)}
               </span>
             </div>
-          `;
-        }
+          </div>
+        `;
       });
 
+      document.getElementById('overview-grid-container').innerHTML = gridHTML;
       document.getElementById('global-total-assets').innerText = `$${globalAssets.toFixed(2)}`;
       const pEl = document.getElementById('global-total-profit');
       pEl.innerText = `${globalProfit >= 0 ? '+' : ''}$${globalProfit.toFixed(2)}`;
       pEl.className = globalProfit >= 0 ? 'profit-positive' : 'profit-negative';
     }
 
-    function saveData() { localStorage.setItem('jj_invest_db_v1', JSON.stringify(accounts)); }
+    function saveData() { localStorage.setItem('jj_invest_db_pro_v1', JSON.stringify(accounts)); }
 
     initSystem();
     setInterval(tickPrices, 3000);

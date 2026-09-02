@@ -3,140 +3,93 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>JJ 投资 - 全球实时交易终端</title>
+  <title>JJ 投资 - 云端同步交易终端</title>
   <style>
     :root {
-      --bg-color: #F5F5F7;
-      --card-bg: #FFFFFF;
-      --text-main: #1D1D1F;
-      --text-muted: #86868B;
-      --apple-blue: #0071E3;
-      --apple-green: #34C759;
-      --apple-red: #FF3B30;
-      --border-color: rgba(0, 0, 0, 0.08);
-      --panel-shadow: 0 2px 16px rgba(0, 0, 0, 0.04);
+      --bg-color: #F5F5F7; --card-bg: #FFFFFF; --text-main: #1D1D1F; --text-muted: #86868B;
+      --apple-blue: #0071E3; --apple-green: #34C759; --apple-red: #FF3B30;
+      --border-color: rgba(0, 0, 0, 0.08); --panel-shadow: 0 2px 16px rgba(0, 0, 0, 0.04);
     }
-
     * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
-      background-color: var(--bg-color);
-      color: var(--text-main);
-      padding: 20px 16px 40px;
-      -webkit-font-smoothing: antialiased;
-    }
-
+    body { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif; background-color: var(--bg-color); color: var(--text-main); padding: 20px 16px 40px; -webkit-font-smoothing: antialiased; }
     .container { max-width: 1200px; margin: 0 auto; }
     
+    /* 顶部与状态灯 */
     .nav-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
     .brand { font-size: 22px; font-weight: 700; letter-spacing: -0.5px; }
     .brand span { color: var(--apple-blue); }
-    .live-indicator { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; color: var(--apple-green); }
+    .status-panel { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
+    .live-indicator, .cloud-indicator { display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 600; }
+    .live-indicator { color: var(--apple-green); }
+    .cloud-indicator { color: var(--apple-blue); }
     .live-dot { width: 8px; height: 8px; background-color: var(--apple-green); border-radius: 50%; animation: pulse 1.5s infinite; }
+    .cloud-dot { width: 8px; height: 8px; background-color: var(--apple-blue); border-radius: 50%; }
     @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(52, 199, 89, 0.4); } 70% { box-shadow: 0 0 0 6px rgba(52, 199, 89, 0); } 100% { box-shadow: 0 0 0 0 rgba(52, 199, 89, 0); } }
 
+    /* 用户切换 */
     .user-selector-wrapper { margin-bottom: 20px; overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 4px; }
     .user-selector-wrapper::-webkit-scrollbar { display: none; }
     .user-selector { display: inline-flex; background: rgba(0, 0, 0, 0.06); padding: 4px; border-radius: 10px; min-width: 380px; width: 100%; }
-    .user-tab {
-      flex: 1; text-align: center; padding: 8px 12px; border-radius: 8px;
-      cursor: pointer; font-size: 14px; font-weight: 600; color: var(--text-muted);
-      transition: all 0.2s ease; white-space: nowrap;
-    }
+    .user-tab { flex: 1; text-align: center; padding: 8px 12px; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600; color: var(--text-muted); transition: all 0.2s ease; white-space: nowrap; }
     .user-tab.active { background: #FFFFFF; color: var(--text-main); box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
 
-    .dashboard {
-      background: var(--card-bg); border-radius: 16px; padding: 20px; margin-bottom: 20px;
-      box-shadow: var(--panel-shadow); display: flex; flex-direction: column; gap: 16px;
-    }
+    /* 概览面板 */
+    .dashboard { background: var(--card-bg); border-radius: 16px; padding: 20px; margin-bottom: 20px; box-shadow: var(--panel-shadow); display: flex; flex-direction: column; gap: 16px; }
     .dashboard-top { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 16px; }
     .account-info h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.5px; margin-bottom: 4px; }
     .account-info p { color: var(--text-muted); font-size: 12px; margin-bottom: 8px; }
     .balance-display { font-size: 32px; font-weight: 700; font-family: "SF Pro Display", sans-serif; margin-bottom: 2px; }
-    
     .profit-positive { color: var(--apple-green); }
     .profit-negative { color: var(--apple-red); }
-    
-    .btn {
-      background: var(--apple-blue); color: white; border: none; padding: 12px; width: 100%;
-      border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer; transition: 0.2s;
-    }
+    .btn { background: var(--apple-blue); color: white; border: none; padding: 12px; width: 100%; border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer; transition: 0.2s; }
     .btn:hover { background: #0077ED; }
     .btn:disabled { background: #E5E5EA; color: #86868B; cursor: not-allowed; }
 
+    /* 布局与行情 */
     .main-content { display: grid; grid-template-columns: 1fr; gap: 20px; }
     @media (min-width: 900px) { .main-content { grid-template-columns: 380px 1fr; } }
-    
     .panel-title { font-size: 17px; font-weight: 700; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; }
-
     .market-section { background: var(--card-bg); border-radius: 16px; padding: 20px; box-shadow: var(--panel-shadow); }
     .market-tabs { display: flex; gap: 8px; margin-bottom: 12px; overflow-x: auto; padding-bottom: 4px; -webkit-overflow-scrolling: touch; }
     .market-tabs::-webkit-scrollbar { display: none; }
-    .m-tab {
-      padding: 6px 14px; border-radius: 8px; background: var(--bg-color); font-size: 12px; font-weight: 600;
-      color: var(--text-muted); cursor: pointer; white-space: nowrap; transition: 0.2s;
-    }
+    .m-tab { padding: 6px 14px; border-radius: 8px; background: var(--bg-color); font-size: 12px; font-weight: 600; color: var(--text-muted); cursor: pointer; white-space: nowrap; transition: 0.2s; }
     .m-tab.active { background: #1D1D1F; color: #FFF; }
-    
-    .search-box {
-      width: 100%; padding: 12px 14px; border-radius: 10px; border: 1px solid var(--border-color);
-      background: var(--bg-color); font-size: 14px; margin-bottom: 12px; outline: none; transition: 0.2s;
-    }
+    .search-box { width: 100%; padding: 12px 14px; border-radius: 10px; border: 1px solid var(--border-color); background: var(--bg-color); font-size: 14px; margin-bottom: 12px; outline: none; transition: 0.2s; }
     .search-box:focus { border-color: var(--apple-blue); background: #FFF; }
-
     .stock-list { max-height: 350px; overflow-y: auto; padding-right: 4px; }
-    .stock-row {
-      display: flex; justify-content: space-between; align-items: center;
-      padding: 12px 10px; border-bottom: 1px solid var(--bg-color); cursor: pointer; border-radius: 8px;
-    }
+    .stock-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 10px; border-bottom: 1px solid var(--bg-color); cursor: pointer; border-radius: 8px; }
     .stock-row.selected { background: rgba(0, 113, 227, 0.08); }
     .stock-row .symbol { font-size: 15px; font-weight: 700; }
     .stock-row .company { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
     .stock-row .price { font-size: 15px; font-weight: 600; font-family: "SF Pro Display"; transition: color 0.3s; }
 
-    .trading-desk {
-      background: var(--card-bg); border-radius: 16px; padding: 20px; box-shadow: var(--panel-shadow);
-      border: 1px solid var(--apple-blue); margin-bottom: 20px;
-    }
+    /* 交易终端 */
+    .trading-desk { background: var(--card-bg); border-radius: 16px; padding: 20px; box-shadow: var(--panel-shadow); border: 1px solid var(--apple-blue); margin-bottom: 20px; }
     .trade-input-group { display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px; }
     @media (min-width: 600px) { .trade-input-group { flex-direction: row; align-items: stretch; } }
-    
-    .custom-symbol-input {
-      flex: 1; font-size: 20px; font-weight: 700; padding: 12px; border-radius: 10px; border: 1px solid var(--border-color);
-      text-transform: uppercase; outline: none; background: var(--bg-color); text-align: center;
-    }
-    
+    .custom-symbol-input { flex: 1; font-size: 20px; font-weight: 700; padding: 12px; border-radius: 10px; border: 1px solid var(--border-color); text-transform: uppercase; outline: none; background: var(--bg-color); text-align: center; }
     .quote-display { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; background: var(--bg-color); padding: 12px; border-radius: 10px; }
     .quote-price { font-size: 26px; font-weight: 700; color: #1D1D1F; font-family: "SF Pro Display"; }
     .quote-name { font-size: 13px; color: var(--text-muted); margin-top: 4px;}
-    
     .trade-actions { display: flex; flex-direction: column; gap: 12px; background: rgba(0, 113, 227, 0.05); padding: 16px; border-radius: 10px; }
     .trade-actions-row { display: flex; gap: 12px; align-items: center; }
-    .trade-actions input {
-      flex: 1; padding: 12px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 16px; text-align: center; outline: none;
-    }
+    .trade-actions input { flex: 1; padding: 12px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 16px; text-align: center; outline: none; }
     .est-cost { font-size: 13px; color: var(--text-muted); text-align: center; }
     .est-cost span { font-weight: 600; color: #1D1D1F; }
 
+    /* 持仓卡片 */
     .portfolio-list { background: transparent; }
-    .port-card {
-      background: var(--card-bg); border-radius: 16px; padding: 16px; margin-bottom: 16px;
-      box-shadow: var(--panel-shadow); border: 1px solid var(--border-color);
-    }
+    .port-card { background: var(--card-bg); border-radius: 16px; padding: 16px; margin-bottom: 16px; box-shadow: var(--panel-shadow); border: 1px solid var(--border-color); }
     .port-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
     .port-title { display: flex; flex-direction: column; }
     .port-name { font-size: 16px; font-weight: 700; color: var(--text-main); }
     .port-symbol { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
     .port-price { font-size: 18px; font-weight: 700; font-family: "SF Pro Display"; }
-    
     .port-stats { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; padding: 12px 0; border-top: 1px solid var(--bg-color); border-bottom: 1px solid var(--bg-color); margin-bottom: 12px; }
     .stat-box { display: flex; flex-direction: column; gap: 4px; }
     .stat-label { font-size: 11px; color: var(--text-muted); }
     .stat-val { font-size: 14px; font-weight: 600; color: var(--text-main); font-family: "SF Pro Display"; }
-    
     .port-pnl { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; font-size: 14px; font-weight: 600; }
-    
     .port-actions { display: flex; gap: 10px; }
     .port-actions input { flex: 1; padding: 10px; border: 1px solid var(--border-color); border-radius: 8px; text-align: center; font-size: 14px; outline: none; }
     .port-actions button { flex: 1; background: rgba(255, 59, 48, 0.1); color: var(--apple-red); border: none; border-radius: 8px; font-weight: 600; font-size: 14px; cursor: pointer; transition: 0.2s; }
@@ -145,17 +98,27 @@
     .overview-grid { display: grid; grid-template-columns: 1fr; gap: 16px; }
     @media (min-width: 768px) { .overview-grid { grid-template-columns: 1fr 1fr; } }
     .overview-card { background: var(--card-bg); border-radius: 16px; padding: 20px; box-shadow: var(--panel-shadow); }
-
     .link-btn { cursor: pointer; color: var(--apple-blue); font-size: 12px; user-select: none; padding: 4px 8px; background: rgba(0, 113, 227, 0.1); border-radius: 6px; }
+    
+    #loading-overlay { position: fixed; top:0; left:0; width:100vw; height:100vh; background:var(--bg-color); display:flex; justify-content:center; align-items:center; z-index: 9999; flex-direction: column; gap: 20px; }
+    .spinner { width: 40px; height: 40px; border: 4px solid var(--border-color); border-top-color: var(--apple-blue); border-radius: 50%; animation: spin 1s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
   </style>
 </head>
 <body>
 
-  <div class="container">
+  <!-- 初始化加载层 -->
+  <div id="loading-overlay">
+    <div class="spinner"></div>
+    <div style="font-weight: 600; color: var(--text-muted);">正在连接云端数据库...</div>
+  </div>
+
+  <div class="container" style="display: none;" id="main-app">
     <div class="nav-header">
       <div class="brand">JJ <span>投资</span></div>
-      <div class="live-indicator">
-        <div class="live-dot"></div> 真实行情连接中
+      <div class="status-panel">
+        <div class="live-indicator"><div class="live-dot"></div> 实时行情连接中</div>
+        <div class="cloud-indicator" id="cloud-status"><div class="cloud-dot"></div> 云端数据已同步</div>
       </div>
     </div>
     
@@ -187,14 +150,9 @@
         <div class="dashboard-top">
           <div class="account-info">
             <h1><span id="current-user-name">阿桂</span> 投资组合</h1>
-            <div class="balance-display" id="total-value">$2000.00</div>
-            <p style="font-size: 13px; font-weight: 600; margin-top: 4px;">
-              可用购买力 (USD): <span id="cash-balance" style="color: var(--apple-blue);">2000.00</span>
-            </p>
-            <p style="margin-top: 8px; display: flex; align-items: center; gap: 8px;">
-              本金: $<span id="acc-principal">2000.00</span> 
-              <span class="link-btn" onclick="adjustPrincipal()">调整本金</span>
-            </p>
+            <div class="balance-display" id="total-value">$0.00</div>
+            <p style="font-size: 13px; font-weight: 600; margin-top: 4px;">可用购买力 (USD): <span id="cash-balance" style="color: var(--apple-blue);">0.00</span></p>
+            <p style="margin-top: 8px; display: flex; align-items: center; gap: 8px;">本金: $<span id="acc-principal">0.00</span> <span class="link-btn" onclick="adjustPrincipal()">调整本金</span></p>
           </div>
           <div style="text-align: right;">
             <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 2px;">未结/已结净收益</p>
@@ -206,12 +164,11 @@
       </div>
 
       <div class="main-content">
-        <!-- 交易与持仓 -->
         <div class="right-section">
           <div class="trading-desk">
             <div class="panel-title">专业交易终端</div>
             <div class="trade-input-group">
-              <input type="text" id="desk-symbol-input" class="custom-symbol-input" placeholder="输入代码 (如 NVDA)" oninput="handleManualInput()">
+              <input type="text" id="desk-symbol-input" class="custom-symbol-input" placeholder="输入代码" oninput="handleManualInput()">
               <div class="quote-display">
                 <div class="quote-price" id="desk-price">--</div>
                 <div class="quote-name" id="desk-company">等待输入...</div>
@@ -219,7 +176,7 @@
             </div>
             <div class="trade-actions">
               <div class="trade-actions-row">
-                <input type="number" id="trade-qty" min="1" value="1" placeholder="买入数量" oninput="calculateEstCost()">
+                <input type="number" id="trade-qty" min="1" value="1" placeholder="数量" oninput="calculateEstCost()">
                 <button class="btn" style="flex: 2; margin-top: 0;" onclick="executeBuy()">确认买入</button>
               </div>
               <div class="est-cost" id="est-cost-display">折合消耗 (USD): <span>$0.00</span></div>
@@ -232,7 +189,6 @@
           </div>
         </div>
 
-        <!-- 行情参考 -->
         <div class="market-section">
           <div class="panel-title">市场参考 (实时同步)</div>
           <div class="market-tabs">
@@ -249,11 +205,11 @@
   </div>
 
   <script>
+    const API_URL = 'api.php'; // 私有云数据库接口
     const USERS = ['JJ', '奶奶', '阿桂', 'UMI'];
     const CURRENCIES = { US: '$', HK: 'HK$', CN: '¥' };
     const FX_RATES = { US: 1.0, HK: 7.8, CN: 7.2 }; 
     
-    // 初始化列表 (系统会以后台拉取的最新价格覆盖 BasePrice)
     const GLOBAL_STOCKS = [
       { symbol: '688226', name: '威腾电气', market: 'CN', basePrice: 28.54 },
       { symbol: '000711', name: '京蓝科技', market: 'CN', basePrice: 6.48 },
@@ -274,44 +230,81 @@
     let activeView = '总览'; 
     let selectedStockSymbol = ''; 
     let currentMarketTab = 'ALL';
+    let accounts = null; // 数据从云端加载
 
-    // 数据库 v7：结构不变
-    let accounts = JSON.parse(localStorage.getItem('jj_invest_db_pro_v7'));
-    if (!accounts) {
-      accounts = {};
-      USERS.forEach(user => { 
-        if (user === 'JJ') {
-          accounts[user] = { 
-            principal: 10000.00, cash: 12.68, withdrawn: 0.00, 
-            portfolio: {
-              '688226': { shares: 289, costUSD: 1829.17, market: 'CN' },
-              '000711': { shares: 5241, costUSD: 3649.05, market: 'CN' },
-              '300302': { shares: 320, costUSD: 2431.60, market: 'CN' },
-              'DIDIY':  { shares: 86,  costUSD: 502.50,  market: 'US' },
-              'NIO':    { shares: 250, costUSD: 1575.00, market: 'US' }
-            } 
-          };
-        } else if (user === '奶奶') {
-          accounts[user] = { principal: 10000.00, cash: 10000.00, withdrawn: 0.00, portfolio: {} };
+    // --- 云端架构初始化 ---
+    async function initCloudSystem() {
+      try {
+        const response = await fetch(API_URL);
+        const data = await response.json();
+        
+        if (data && Object.keys(data).length > 0) {
+          accounts = data;
         } else {
-          accounts[user] = { principal: 2000.00, cash: 2000.00, withdrawn: 0.00, portfolio: {} };
+          // 如果服务器没有数据，初始化标准库
+          accounts = {};
+          USERS.forEach(user => { 
+            if (user === 'JJ') {
+              accounts[user] = { 
+                principal: 10000.00, cash: 12.68, withdrawn: 0.00, 
+                portfolio: {
+                  '688226': { shares: 289, costUSD: 1829.17, market: 'CN' },
+                  '000711': { shares: 5241, costUSD: 3649.05, market: 'CN' },
+                  '300302': { shares: 320, costUSD: 2431.60, market: 'CN' },
+                  'DIDIY':  { shares: 86,  costUSD: 502.50,  market: 'US' },
+                  'NIO':    { shares: 250, costUSD: 1575.00, market: 'US' }
+                } 
+              };
+            } else if (user === '奶奶') {
+              accounts[user] = { principal: 10000.00, cash: 10000.00, withdrawn: 0.00, portfolio: {} };
+            } else {
+              accounts[user] = { principal: 2000.00, cash: 2000.00, withdrawn: 0.00, portfolio: {} };
+            }
+          });
+          await saveToCloud(); // 立即备份初始框架到云端
         }
-      });
-    }
 
-    function initSystem() {
-      GLOBAL_STOCKS.forEach(stock => { currentPrices[stock.symbol] = stock.basePrice; });
-      for (const u in accounts) {
-        for (const sym in accounts[u].portfolio) {
-          if (!currentPrices[sym]) currentPrices[sym] = 100.00; // 默认防爆值
+        // 隐藏 Loading，显示主界面
+        document.getElementById('loading-overlay').style.display = 'none';
+        document.getElementById('main-app').style.display = 'block';
+
+        GLOBAL_STOCKS.forEach(stock => { currentPrices[stock.symbol] = stock.basePrice; });
+        for (const u in accounts) {
+          for (const sym in accounts[u].portfolio) {
+            if (!currentPrices[sym]) currentPrices[sym] = 100.00;
+          }
         }
+        
+        renderMarketList();
+        switchView('总览');
+        fetchRealPrices(); 
+        setInterval(fetchRealPrices, 5000); // 启动实时行情拉取
+
+      } catch (error) {
+        alert("⚠️ 无法连接到云端数据库。请确保 api.php 已经部署在服务器上！");
+        document.getElementById('loading-overlay').innerHTML = "<div style='color:red;'>数据库连接失败，请检查配置。</div>";
       }
-      renderMarketList();
-      switchView('总览');
-      fetchRealPrices(); // 启动第一次拉取
     }
 
-    // --- 核心：新浪财经 API 抓取引擎 ---
+    // --- 保存数据到私有云 ---
+    async function saveToCloud() {
+      const statusEl = document.getElementById('cloud-status');
+      statusEl.innerHTML = `<div class="cloud-dot" style="background:var(--apple-red)"></div> 云端同步中...`;
+      
+      try {
+        await fetch(API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(accounts)
+        });
+        statusEl.innerHTML = `<div class="cloud-dot"></div> 云端数据已同步`;
+      } catch (error) {
+        statusEl.innerHTML = `<div class="cloud-dot" style="background:var(--apple-red)"></div> 同步失败，请重试`;
+        alert("⚠️ 数据同步云端失败，请检查网络！");
+      }
+    }
+
+    // --- 新浪财经 API 抓取引擎 ---
     function getSinaSymbol(symbol) {
       if (symbol.includes('.HK')) {
         let code = symbol.replace('.HK', '');
@@ -330,17 +323,14 @@
       if (!dataStr) return null;
       const elements = dataStr.split(',');
       if (elements.length < 3) return null;
-      
       let price = 0;
       if (sinaSymbol.startsWith('hk')) price = parseFloat(elements[6]);
       else if (sinaSymbol.startsWith('sh') || sinaSymbol.startsWith('sz')) price = parseFloat(elements[3]);
       else if (sinaSymbol.startsWith('gb_')) price = parseFloat(elements[1]);
-      
       return price > 0 ? price : null;
     }
 
     function fetchRealPrices() {
-      // 收集所有需要抓取的代码
       const symbolsToFetch = new Set(GLOBAL_STOCKS.map(s => s.symbol));
       for (const u in accounts) {
         for (const sym in accounts[u].portfolio) symbolsToFetch.add(sym);
@@ -350,29 +340,24 @@
       const queryList = Array.from(symbolsToFetch).map(getSinaSymbol).join(',');
       if(!queryList) return;
       
-      // JSONP 动态拉取
       const script = document.createElement('script');
       script.src = `https://hq.sinajs.cn/list=${queryList}`;
       script.onload = () => {
         Array.from(symbolsToFetch).forEach(sym => {
           const sinaSym = getSinaSymbol(sym);
           const realPrice = parseSinaData(sym, sinaSym);
-          if (realPrice) {
-            // 如果价格变动，给个小闪烁动画
-            if (currentPrices[sym] !== realPrice) {
-              currentPrices[sym] = realPrice;
-              const el = document.getElementById(`price-${sym}`);
-              if(el) { el.style.color = 'var(--apple-green)'; setTimeout(()=> el.style.color = '', 1000); }
-            }
+          if (realPrice && currentPrices[sym] !== realPrice) {
+            currentPrices[sym] = realPrice;
+            const el = document.getElementById(`price-${sym}`);
+            if(el) { el.style.color = 'var(--apple-green)'; setTimeout(()=> el.style.color = '', 1000); }
           }
         });
         updateUIDiscreetly(); 
       };
       document.head.appendChild(script);
-      setTimeout(() => script.remove(), 2000); // 阅后即焚
+      setTimeout(() => script.remove(), 2000); 
     }
 
-    // 静默更新 UI，不打断用户输入
     function updateUIDiscreetly() {
       Object.keys(currentPrices).forEach(sym => {
         const el = document.getElementById(`price-${sym}`);
@@ -385,15 +370,11 @@
         if (pEl) pEl.innerText = `${CURRENCIES[market]}${currentPrices[selectedStockSymbol].toFixed(2)}`;
         calculateEstCost();
       }
-      
-      // 保护机制：如果用户正在输入框里打字（尤其是卖出框），则跳过本次列表重绘，保护焦点
       if (document.activeElement && document.activeElement.tagName === 'INPUT') return;
-      
-      if (activeView === '总览') renderOverview();
-      else renderPortfolio();
+      if (activeView === '总览') renderOverview(); else renderPortfolio();
     }
-    // ---------------------------------
 
+    // --- UI 与业务逻辑 ---
     function getStockName(symbol) {
       const s = GLOBAL_STOCKS.find(x => x.symbol === symbol);
       return s ? s.name : '自选证券';
@@ -413,7 +394,6 @@
       document.querySelectorAll('.user-tab').forEach(tab => {
         tab.classList.toggle('active', tab.innerText.includes(viewName));
       });
-
       if (viewName === '总览') {
         document.getElementById('individual-view').style.display = 'none';
         document.getElementById('overview-view').style.display = 'block';
@@ -426,17 +406,17 @@
       }
     }
 
-    function adjustPrincipal() {
+    async function adjustPrincipal() {
       const acc = accounts[activeView];
-      const newPrincipal = prompt(`当前初始核准本金为 $${acc.principal.toFixed(2)} USD。\n请输入调整后的本金总额 (将会自动补齐或扣除可用现金):`, acc.principal);
+      const newPrincipal = prompt(`当前本金: $${acc.principal.toFixed(2)} USD。\n调整后将自动补齐或扣除可用现金:`, acc.principal);
       if (newPrincipal !== null) {
         const parsed = parseFloat(newPrincipal);
         if (!isNaN(parsed) && parsed > 0) {
           acc.cash += (parsed - acc.principal);
           acc.principal = parsed;
-          saveData();
           renderPortfolio();
-        } else { alert('⚠️ 请输入有效的数字金额！'); }
+          await saveToCloud(); // 保存到云端
+        } else { alert('⚠️ 输入无效！'); }
       }
     }
 
@@ -482,11 +462,9 @@
       selectedStockSymbol = symbol;
       const stockName = getStockName(symbol);
       const market = parseSymbolInfo(symbol).market;
-      
       document.querySelectorAll('.stock-row').forEach(row => row.classList.remove('selected'));
       const activeRow = document.getElementById(`row-${symbol}`);
       if (activeRow) activeRow.classList.add('selected');
-
       document.getElementById('desk-symbol-input').value = symbol;
       document.getElementById('desk-company').innerText = `${stockName} (${market})`;
       document.getElementById('desk-price').innerText = `${CURRENCIES[market]}${currentPrices[symbol].toFixed(2)}`;
@@ -503,18 +481,16 @@
         document.getElementById('est-cost-display').innerHTML = `折合消耗 (USD): <span>$0.00</span>`;
         return;
       }
-
       const parsed = parseSymbolInfo(rawInput);
       selectedStockSymbol = parsed.symbol;
       const found = GLOBAL_STOCKS.find(s => s.symbol === selectedStockSymbol || s.symbol.startsWith(rawInput.toUpperCase()));
-      
       if (found) { selectStock(found.symbol); } 
       else {
         document.getElementById('desk-company').innerText = `自选证券 (${parsed.market})`;
         if (!currentPrices[selectedStockSymbol]) currentPrices[selectedStockSymbol] = 100.00;
         document.getElementById('desk-price').innerText = `${CURRENCIES[parsed.market]}${currentPrices[selectedStockSymbol].toFixed(2)}`;
         calculateEstCost();
-        fetchRealPrices(); // 立即去拉取这个陌生股票的价格
+        fetchRealPrices();
       }
     }
 
@@ -526,50 +502,46 @@
       document.getElementById('est-cost-display').innerHTML = `折合消耗 (USD): <span>$${usdCost.toFixed(2)}</span>`;
     }
 
-    function executeBuy() {
-      if (!selectedStockSymbol) return alert('请先选择或输入交易标的！');
+    async function executeBuy() {
+      if (!selectedStockSymbol) return alert('请先选择标的！');
       const shares = parseInt(document.getElementById('trade-qty').value);
       if (isNaN(shares) || shares <= 0) return alert('数量无效！');
-
       const market = parseSymbolInfo(selectedStockSymbol).market;
       const usdCost = (shares * currentPrices[selectedStockSymbol]) / FX_RATES[market];
       const account = accounts[activeView];
 
-      if (account.cash < usdCost) return alert(`⚠️ 购买力不足！\n折合需要: $${usdCost.toFixed(2)}\n当前可用: $${account.cash.toFixed(2)}`);
+      if (account.cash < usdCost) return alert(`⚠️ 购买力不足！需: $${usdCost.toFixed(2)}\n可用: $${account.cash.toFixed(2)}`);
 
       account.cash -= usdCost;
       if (!account.portfolio[selectedStockSymbol]) account.portfolio[selectedStockSymbol] = { shares: 0, costUSD: 0, market: market };
-      
       account.portfolio[selectedStockSymbol].shares += shares;
       account.portfolio[selectedStockSymbol].costUSD += usdCost;
       
-      saveData();
       renderPortfolio();
+      await saveToCloud(); // 立即同步到云端
       
       const btn = document.querySelector('.trade-actions button');
       btn.innerText = '成交'; btn.style.background = 'var(--apple-green)';
       setTimeout(() => { btn.innerText = '确认买入'; btn.style.background = 'var(--apple-blue)'; }, 1000);
     }
 
-    function sellStock(symbol) {
+    async function sellStock(symbol) {
       const sharesToSell = parseInt(document.getElementById(`sell-qty-${symbol}`).value);
       const account = accounts[activeView];
       const stockData = account.portfolio[symbol];
-
       if (isNaN(sharesToSell) || sharesToSell <= 0) return alert('数量无效！');
-      if (sharesToSell > stockData.shares) return alert(`⚠️ 卖出数不能超过持仓 (${stockData.shares} 股)！`);
+      if (sharesToSell > stockData.shares) return alert(`⚠️ 超过持仓限制！`);
 
       const usdRevenue = (sharesToSell * currentPrices[symbol]) / FX_RATES[stockData.market];
       const costPerShareUSD = stockData.costUSD / stockData.shares;
-
       stockData.shares -= sharesToSell;
       stockData.costUSD -= (costPerShareUSD * sharesToSell);
       account.cash += usdRevenue;
 
       if (stockData.shares === 0) delete account.portfolio[symbol];
-
-      saveData();
+      
       renderPortfolio();
+      await saveToCloud(); // 同步到云端
     }
 
     function renderPortfolio() {
@@ -584,14 +556,12 @@
           const currentValUSD = (data.shares * localPrice) / FX_RATES[data.market];
           const profitUSD = currentValUSD - data.costUSD;
           const profitPercent = data.costUSD > 0 ? ((profitUSD / data.costUSD) * 100) : 0;
-          
           const profitSign = profitUSD >= 0 ? '+' : '';
           const profitClass = profitUSD >= 0 ? 'profit-positive' : 'profit-negative';
           const curSym = CURRENCIES[data.market];
           const costPerShareLocal = (data.costUSD / data.shares) * FX_RATES[data.market];
           
           stockValueUSD += currentValUSD;
-          
           html += `
             <div class="port-card">
               <div class="port-header">
@@ -604,8 +574,7 @@
                 <div class="stat-box"><span class="stat-label">总成本(USD)</span><span class="stat-val">$${data.costUSD.toFixed(2)}</span></div>
               </div>
               <div class="port-pnl ${profitClass}">
-                <span>浮动盈亏</span>
-                <span>${profitSign}$${profitUSD.toFixed(2)} (${profitSign}${profitPercent.toFixed(2)}%)</span>
+                <span>浮动盈亏</span><span>${profitSign}$${profitUSD.toFixed(2)} (${profitSign}${profitPercent.toFixed(2)}%)</span>
               </div>
               <div class="port-actions">
                 <input type="number" id="sell-qty-${symbol}" min="1" max="${data.shares}" value="${data.shares}">
@@ -616,11 +585,10 @@
         }
       }
 
-      document.getElementById('portfolio-list').innerHTML = html || `<div style="text-align:center; padding: 40px 20px; color: var(--text-muted); background: var(--card-bg); border-radius: 12px; border: 1px dashed var(--border-color);">暂无持仓记录，请在交易台买入</div>`;
+      document.getElementById('portfolio-list').innerHTML = html || `<div style="text-align:center; padding: 40px 20px; color: var(--text-muted); background: var(--card-bg); border-radius: 12px; border: 1px dashed var(--border-color);">暂无持仓</div>`;
 
       const totalAssets = account.cash + stockValueUSD;
       const netProfit = (totalAssets + account.withdrawn) - account.principal;
-
       document.getElementById('total-value').innerText = `$${totalAssets.toFixed(2)}`;
       document.getElementById('cash-balance').innerText = account.cash.toFixed(2);
       document.getElementById('acc-principal').innerText = account.principal.toFixed(2);
@@ -632,15 +600,13 @@
       
       const withdrawBtn = document.getElementById('withdraw-btn');
       if (netProfit > 0.01 && account.cash >= netProfit) {
-        withdrawBtn.disabled = false;
-        withdrawBtn.innerText = `利润出金 ($${netProfit.toFixed(2)})`;
+        withdrawBtn.disabled = false; withdrawBtn.innerText = `利润出金 ($${netProfit.toFixed(2)})`;
       } else {
-        withdrawBtn.disabled = true;
-        withdrawBtn.innerText = '暂无可出金额度';
+        withdrawBtn.disabled = true; withdrawBtn.innerText = '暂无可出金额度';
       }
     }
 
-    function withdrawProfit() {
+    async function withdrawProfit() {
       const account = accounts[activeView];
       let stockVal = 0;
       for (const [sym, d] of Object.entries(account.portfolio)) {
@@ -651,17 +617,15 @@
       if (netProfit > 0 && account.cash >= netProfit) {
         account.cash -= netProfit;
         account.withdrawn += netProfit;
-        alert(`🎉 出金成功！\n已将净利润 $${netProfit.toFixed(2)} 提取。\n账户仍保留 $${account.principal.toFixed(2)} 核心本金。`);
-        saveData();
+        alert(`🎉 出金成功！\n系统已提取 $${netProfit.toFixed(2)}。`);
         renderPortfolio();
+        await saveToCloud();
       }
     }
 
     function renderOverview() {
-      let globalAssets = 0;
-      let globalProfit = 0;
-      let gridHTML = '';
-
+      if(!accounts) return;
+      let globalAssets = 0; let globalProfit = 0; let gridHTML = '';
       USERS.forEach(user => {
         const acc = accounts[user];
         let stockVal = 0;
@@ -670,32 +634,18 @@
         }
         const totalAsst = acc.cash + stockVal;
         const profit = (totalAsst + acc.withdrawn) - acc.principal;
-        
-        globalAssets += totalAsst;
-        globalProfit += profit;
+        globalAssets += totalAsst; globalProfit += profit;
 
         gridHTML += `
           <div class="overview-card">
             <div style="font-size: 18px; font-weight: 700; margin-bottom: 12px; border-bottom: 1px solid var(--bg-color); padding-bottom: 10px; display:flex; justify-content:space-between; align-items:center;">
-              <span>[${user}] 投资组合</span>
-              <span style="font-size:12px; color:var(--text-muted); font-weight:normal;">本金: $${acc.principal.toFixed(0)}</span>
+              <span>[${user}] 投资组合</span><span style="font-size:12px; color:var(--text-muted); font-weight:normal;">本金: $${acc.principal.toFixed(0)}</span>
             </div>
-            <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 14px;">
-              <span style="color: var(--text-muted);">总资产估值</span><span style="font-weight: 600;">$${totalAsst.toFixed(2)}</span>
-            </div>
-            <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 14px;">
-              <span style="color: var(--text-muted);">现金 / 仓位价值</span><span style="font-weight: 600; font-size: 13px;">$${acc.cash.toFixed(0)} / $${stockVal.toFixed(0)}</span>
-            </div>
-            <div style="display: flex; justify-content: space-between; margin-top: 12px; padding-top: 12px; border-top: 1px dashed var(--bg-color);">
-              <span style="color: var(--text-muted); font-size: 14px;">累计净收益</span>
-              <span style="font-weight: 700; font-size: 16px;" class="${profit >= 0 ? 'profit-positive' : 'profit-negative'}">
-                ${profit >= 0 ? '+' : ''}$${profit.toFixed(2)}
-              </span>
-            </div>
-          </div>
-        `;
+            <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 14px;"><span style="color: var(--text-muted);">总资产估值</span><span style="font-weight: 600;">$${totalAsst.toFixed(2)}</span></div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 14px;"><span style="color: var(--text-muted);">现金 / 仓位</span><span style="font-weight: 600; font-size: 13px;">$${acc.cash.toFixed(0)} / $${stockVal.toFixed(0)}</span></div>
+            <div style="display: flex; justify-content: space-between; margin-top: 12px; padding-top: 12px; border-top: 1px dashed var(--bg-color);"><span style="color: var(--text-muted); font-size: 14px;">累计净收益</span><span style="font-weight: 700; font-size: 16px;" class="${profit >= 0 ? 'profit-positive' : 'profit-negative'}">${profit >= 0 ? '+' : ''}$${profit.toFixed(2)}</span></div>
+          </div>`;
       });
-
       document.getElementById('overview-grid-container').innerHTML = gridHTML;
       document.getElementById('global-total-assets').innerText = `$${globalAssets.toFixed(2)}`;
       const pEl = document.getElementById('global-total-profit');
@@ -703,11 +653,8 @@
       pEl.className = globalProfit >= 0 ? 'profit-positive' : 'profit-negative';
     }
 
-    function saveData() { localStorage.setItem('jj_invest_db_pro_v7', JSON.stringify(accounts)); }
-
-    initSystem();
-    // 启动全局真实网络数据拉取，每 5 秒刷新一次
-    setInterval(fetchRealPrices, 5000);
+    // 启动云端架构
+    initCloudSystem();
   </script>
 </body>
 </html>

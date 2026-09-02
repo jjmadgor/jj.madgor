@@ -2,11 +2,10 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <!-- 专属适配 iPhone 17 Pro Max / 全面屏 iOS 设备：视口、灵动岛安全区与防误触 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>Kite Life | 风筝冲浪日志与风况</title>
+    <title>Kite Life | 实时风况监控与出海日记</title>
     <style>
         :root {
             --primary-ocean: #0077b6;
@@ -44,13 +43,12 @@
 
         .container {
             width: 100%;
-            max-width: 440px; /* 精准适配 iPhone 17 Pro Max 握持与浏览宽度 */
+            max-width: 440px;
             display: flex;
             flex-direction: column;
             gap: 16px;
         }
 
-        /* 顶部栏与随身听胶囊 */
         header {
             display: flex;
             justify-content: space-between;
@@ -74,7 +72,7 @@
             font-weight: 500;
         }
 
-        /* 极简 BGM 播放器胶囊（方式 A） */
+        /* 随身听胶囊 */
         .music-pill {
             display: inline-flex;
             align-items: center;
@@ -120,7 +118,7 @@
             color: var(--primary-ocean);
         }
 
-        /* 毛玻璃质感卡片 */
+        /* 卡片公用样式 */
         .card {
             background: var(--card-bg);
             backdrop-filter: blur(20px);
@@ -131,17 +129,105 @@
             box-shadow: var(--shadow-soft);
         }
 
+        .card-header-flex {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 14px;
+        }
+
         .card-title {
             font-size: 16px;
             font-weight: 700;
             color: var(--primary-ocean);
-            margin-bottom: 14px;
             display: flex;
             align-items: center;
             gap: 6px;
         }
 
-        /* 触控大尺寸优化 (防误触) */
+        .refresh-btn {
+            background: none;
+            border: none;
+            color: var(--ocean-light);
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* 浪点实时卡片排版 */
+        .spots-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .spot-card {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 14px 16px;
+            border: 1px solid #eef3f8;
+            box-shadow: 0 3px 10px rgba(0, 119, 182, 0.04);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .spot-info h3 {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 4px;
+        }
+
+        .spot-sub {
+            font-size: 12px;
+            color: var(--text-sub);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .arrow-compass {
+            display: inline-block;
+            font-size: 14px;
+            transform-origin: center;
+            transition: transform 0.4s ease;
+        }
+
+        .spot-metrics {
+            text-align: right;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 4px;
+        }
+
+        .wind-speed-val {
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--primary-ocean);
+        }
+
+        .wind-speed-val small {
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .spot-tag {
+            padding: 3px 8px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .tag-good { background: #dcfce7; color: #166534; }       /* 适合出水 */
+        .tag-epic { background: #ffedd5; color: #c2410c; }       /* 狂风大跳 */
+        .tag-light { background: #f1f5f9; color: #64748b; }      /* 微风待机 */
+
+        /* 表单与按钮 */
         .input-row {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -184,20 +270,10 @@
             transition: transform 0.1s ease;
         }
 
-        .btn-action:active {
-            transform: scale(0.98);
-        }
+        .btn-action:active { transform: scale(0.98); }
+        .btn-blue { background: linear-gradient(135deg, #00b4d8 0%, #0077b6 100%); }
+        .btn-orange { background: linear-gradient(135deg, #ff8c72 0%, #ff6b6b 100%); box-shadow: 0 4px 14px rgba(255, 107, 107, 0.25); }
 
-        .btn-blue {
-            background: linear-gradient(135deg, #00b4d8 0%, #0077b6 100%);
-        }
-
-        .btn-orange {
-            background: linear-gradient(135deg, #ff8c72 0%, #ff6b6b 100%);
-            box-shadow: 0 4px 14px rgba(255, 107, 107, 0.25);
-        }
-
-        /* 推荐面板 */
         .result-panel {
             margin-top: 14px;
             background: #f0fdfa;
@@ -217,7 +293,7 @@
             font-weight: 700;
         }
 
-        /* 快速外链磁贴 */
+        /* 外部风况入口 */
         .radar-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -238,17 +314,9 @@
             gap: 4px;
         }
 
-        .radar-item .emoji {
-            font-size: 20px;
-        }
+        .radar-item .emoji { font-size: 20px; }
+        .radar-item .name { font-size: 11px; font-weight: 700; color: var(--text-sub); }
 
-        .radar-item .name {
-            font-size: 11px;
-            font-weight: 700;
-            color: var(--text-sub);
-        }
-
-        /* 历史 Session 记录项 */
         .session-item {
             background: #ffffff;
             border-radius: 14px;
@@ -258,34 +326,10 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
         }
 
-        .session-left {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
-
-        .session-spot {
-            font-size: 15px;
-            font-weight: 700;
-            color: var(--text-main);
-        }
-
-        .session-gear {
-            font-size: 13px;
-            color: var(--text-sub);
-        }
-
-        .session-right {
-            text-align: right;
-            display: flex;
-            flex-direction: column;
-            align-items: flex-end;
-            gap: 5px;
-        }
-
+        .session-spot { font-size: 15px; font-weight: 700; color: var(--text-main); }
+        .session-gear { font-size: 13px; color: var(--text-sub); }
         .wind-badge {
             background: rgba(0, 180, 216, 0.12);
             color: var(--primary-ocean);
@@ -294,36 +338,42 @@
             padding: 3px 9px;
             border-radius: 20px;
         }
-
-        .session-date {
-            font-size: 11px;
-            color: #94a3b8;
-        }
+        .session-date { font-size: 11px; color: #94a3b8; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <!-- 顶部状态栏与随身听控制胶囊 -->
     <header>
         <div class="brand-title">
             <h1>🪁 Kite Life</h1>
-            <span>海风日记 · 专享版</span>
+            <span>浪点实况与日记</span>
         </div>
         
-        <!-- 点击即可随时播放/暂停同目录下的 bgm.mp3 -->
         <div class="music-pill" onclick="toggleBGM()">
             <div class="disc-icon" id="discIcon">▶</div>
             <span class="music-label" id="musicStatus">播放海风 🎵</span>
         </div>
     </header>
 
-    <!-- 方式 A：直接绑定同级目录下的 bgm.mp3 循环播放 -->
+    <!-- 背景音乐：同目录下的 bgm.mp3 -->
     <audio id="bgmAudio" loop preload="auto">
         <source src="bgm.mp3" type="audio/mpeg">
     </audio>
 
-    <!-- 常用风况入口 -->
+    <!-- 专属四大浪点：实时风况监控看板 -->
+    <div class="card">
+        <div class="card-header-flex">
+            <div class="card-title">📡 专属浪点实时风况</div>
+            <button class="refresh-btn" onclick="fetchLiveWeather()">🔄 刷新实况</button>
+        </div>
+        <div class="spots-grid" id="spotsContainer">
+            <!-- 动态生成 4 个浪点的气象实况 -->
+            <div style="text-align:center; padding:20px; color:#94a3b8; font-size:13px;">正在连接气象雷达获取风况...</div>
+        </div>
+    </div>
+
+    <!-- 气象雷达链接 -->
     <div class="radar-grid">
         <a href="https://www.windy.com" target="_blank" class="radar-item">
             <span class="emoji">💨</span>
@@ -347,13 +397,13 @@
     <div class="card">
         <div class="card-title">☀️ 今日起飞计算器</div>
         <div class="input-row">
-            <input type="number" id="windInput" placeholder="风速 (Knots/节)" value="19">
+            <input type="number" id="windInput" placeholder="风速 (Knots/节)" value="18">
             <input type="number" id="weightInput" placeholder="体重 (kg)" value="75">
         </div>
         <button class="btn-action btn-blue" onclick="calculateKite()">⚡ 智能匹配伞号与板型</button>
         
         <div class="result-panel" id="resultCard">
-            正在根据风力和体重计算出海搭配...
+            输入风速与体重为你推荐出水装备。
         </div>
     </div>
 
@@ -362,25 +412,99 @@
         <div class="card-title">🌊 浪花档案 (下水打卡)</div>
         <div class="input-row">
             <input type="date" id="logDate">
-            <input type="text" id="logSpot" placeholder="浪点 (例: 平潭/博鳌/后海)">
+            <input type="text" id="logSpot" placeholder="浪点 (如: Kalpitiya)">
         </div>
         <div class="input-row">
-            <input type="text" id="logWind" placeholder="风况 (例: 18-22节 东北风)">
-            <input type="text" id="logGear" placeholder="装备 (例: 10m气囊+TT板)">
+            <input type="text" id="logWind" placeholder="风况 (如: 22节 侧岸)">
+            <input type="text" id="logGear" placeholder="装备 (如: 9m + TT板)">
         </div>
         <button class="btn-action btn-orange" onclick="saveRecord()">🤙 打卡保存本次 Session</button>
 
-        <div style="margin-top: 16px;" id="recordList">
-            <!-- 动态下水记录展示 -->
-        </div>
+        <div style="margin-top: 16px;" id="recordList"></div>
     </div>
 </div>
 
 <script>
-    // 1. 初始化当前日期
-    document.getElementById('logDate').valueAsDate = new Date();
+    // 1. 指定你的 4 个浪点坐标与信息
+    const kiteSpots = [
+        { name: "海南 · 博鳌", sub: "亚洲湾/玉带滩", lat: 19.145, lon: 110.589 },
+        { name: "福建 · 平潭", sub: "龙凤头/坛南湾", lat: 25.503, lon: 119.791 },
+        { name: "斯里兰卡 · Kalpitiya", sub: "Dream Spot 泻湖", lat: 8.232, lon: 79.761 },
+        { name: "秦皇岛 · 阿那亚", sub: "黄金海岸", lat: 39.654, lon: 119.336 }
+    ];
 
-    // 2. 方式 A：控制同目录下的 bgm.mp3
+    // 风向角转罗盘方位名
+    function getWindDirectionText(degree) {
+        const directions = ['北风', '东北风', '东风', '东南风', '南风', '西南风', '西风', '西北风'];
+        const index = Math.round(degree / 45) % 8;
+        return directions[index];
+    }
+
+    // 批量拉取实时天气 API (Open-Meteo 免密钥开放接口，自动返回 Knots)
+    async function fetchLiveWeather() {
+        const container = document.getElementById('spotsContainer');
+        container.innerHTML = '<div style="text-align:center; padding:15px; color:#94a3b8; font-size:13px;">正在刷新 4 地实时风况...</div>';
+
+        try {
+            const spotPromises = kiteSpots.map(async (spot) => {
+                const url = `https://api.open-meteo.com/v1/forecast?latitude=${spot.lat}&longitude=${spot.lon}&current=wind_speed_10m,wind_direction_10m,wind_gusts_10m&wind_speed_unit=kn`;
+                const res = await fetch(url);
+                const data = await res.json();
+                return {
+                    ...spot,
+                    speed: Math.round(data.current.wind_speed_10m),
+                    gust: Math.round(data.current.wind_gusts_10m),
+                    direction: data.current.wind_direction_10m
+                };
+            });
+
+            const results = await Promise.all(spotPromises);
+            renderSpots(results);
+        } catch (error) {
+            container.innerHTML = '<div style="text-align:center; padding:15px; color:#ef4444; font-size:13px;">实时风况更新失败，请检查网络后重试。</div>';
+        }
+    }
+
+    // 渲染浪点卡片
+    function renderSpots(spots) {
+        const container = document.getElementById('spotsContainer');
+        container.innerHTML = '';
+
+        spots.forEach(s => {
+            let tagClass = 'tag-light';
+            let tagText = '微风待机';
+
+            if (s.speed >= 12 && s.speed < 25) {
+                tagClass = 'tag-good';
+                tagText = '黄金出海 🚀';
+            } else if (s.speed >= 25) {
+                tagClass = 'tag-epic';
+                tagText = '狂风大跳 ⚡';
+            }
+
+            const card = document.createElement('div');
+            card.className = 'spot-card';
+            card.innerHTML = `
+                <div class="spot-info">
+                    <h3>${s.name}</h3>
+                    <div class="spot-sub">
+                        <span>${s.sub}</span>
+                        <span>·</span>
+                        <span class="arrow-compass" style="transform: rotate(${s.direction}deg);">⬇</span>
+                        <span>${getWindDirectionText(s.direction)} (${s.direction}°)</span>
+                    </div>
+                </div>
+                <div class="spot-metrics">
+                    <div class="wind-speed-val">${s.speed} <small>Kts</small></div>
+                    <div style="font-size:11px; color:var(--text-sub);">阵风 ${s.gust} Kts</div>
+                    <span class="spot-tag ${tagClass}">${tagText}</span>
+                </div>
+            `;
+            container.appendChild(card);
+        });
+    }
+
+    // 2. 方式 A：无缝播放同目录下的 bgm.mp3
     const audio = document.getElementById('bgmAudio');
     const disc = document.getElementById('discIcon');
     const statusLabel = document.getElementById('musicStatus');
@@ -392,7 +516,7 @@
                 disc.classList.add('playing');
                 statusLabel.innerText = "音乐播放中";
             }).catch(error => {
-                alert("播放失败：请确保音频文件名为 bgm.mp3，并且和 kite.html 放在服务器的同一目录下！");
+                alert("播放失败：请确保已将歌曲命名为 bgm.mp3，并与本网页放在同级目录！");
             });
         } else {
             audio.pause();
@@ -402,7 +526,7 @@
         }
     }
 
-    // 3. 智能推算风筝面积与板号
+    // 3. 起飞算法
     function calculateKite() {
         const knots = parseFloat(document.getElementById('windInput').value);
         const weight = parseFloat(document.getElementById('weightInput').value);
@@ -414,11 +538,11 @@
         }
 
         if (knots < 10) {
-            output.innerHTML = "🪶 <strong>微风工况 (<10节)：</strong> 建议出动 <span class='kite-tag'>15㎡+ 充气筝</span> 或直接玩水翼 (Hydrofoil)。";
+            output.innerHTML = "🪶 <strong>微风 (<10节)：</strong> 建议出动 <span class='kite-tag'>15㎡+ 充气筝</span> 或直接玩水翼 (Hydrofoil)。";
             return;
         }
         if (knots > 35) {
-            output.innerHTML = "⚠️ <strong>狂风暴走 (>35节)：</strong> 仅建议大乱跳高手使用 <span class='kite-tag'>6-7㎡ 强风筝</span>，下水务必系好安全脱扣！";
+            output.innerHTML = "⚠️ <strong>强风预警 (>35节)：</strong> 建议使用 <span class='kite-tag'>6-7㎡ 强风筝</span>，注意安全！";
             return;
         }
 
@@ -428,11 +552,11 @@
         output.innerHTML = `
             <strong>主推尺寸：</strong> <span class="kite-tag">${kiteSize} ㎡ 充气筝</span><br>
             <strong>双向板 (TT)：</strong> 建议 <strong>${ttBoard} cm</strong> 左右<br>
-            <strong>折合风速：</strong> 约 ${(knots * 0.514).toFixed(1)} m/s，非常适合大跳练习与巡航！
+            <strong>折合风速：</strong> 约 ${(knots * 0.514).toFixed(1)} m/s
         `;
     }
 
-    // 4. Session 记录保存到浏览器本地
+    // 4. 下水 Session 日志
     function renderRecords() {
         const list = JSON.parse(localStorage.getItem('kite_sessions_mobile_a') || '[]');
         const container = document.getElementById('recordList');
@@ -447,13 +571,13 @@
             const div = document.createElement('div');
             div.className = 'session-item';
             div.innerHTML = `
-                <div class="session-left">
-                    <span class="session-spot">${item.spot}</span>
-                    <span class="session-gear">${item.gear}</span>
+                <div>
+                    <div class="session-spot">${item.spot}</div>
+                    <div class="session-gear">${item.gear}</div>
                 </div>
-                <div class="session-right">
+                <div style="text-align:right;">
                     <span class="wind-badge">${item.wind}</span>
-                    <span class="session-date">${item.date}</span>
+                    <div class="session-date">${item.date}</div>
                 </div>
             `;
             container.appendChild(div);
@@ -472,7 +596,7 @@
         }
 
         const list = JSON.parse(localStorage.getItem('kite_sessions_mobile_a') || '[]');
-        list.unshift({ date, spot, wind: wind || '风力适中', gear });
+        list.unshift({ date, spot, wind: wind || '风力良好', gear });
         localStorage.setItem('kite_sessions_mobile_a', JSON.stringify(list));
 
         document.getElementById('logSpot').value = '';
@@ -482,9 +606,11 @@
         renderRecords();
     }
 
-    // 初次运行自动渲染
+    // 初始化运行
+    document.getElementById('logDate').valueAsDate = new Date();
     calculateKite();
     renderRecords();
+    fetchLiveWeather();
 </script>
 
 </body>

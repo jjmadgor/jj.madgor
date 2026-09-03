@@ -11,16 +11,30 @@
       --border-color: rgba(0, 0, 0, 0.08); --panel-shadow: 0 2px 16px rgba(0, 0, 0, 0.04);
     }
     * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-    body { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif; background-color: var(--bg-color); color: var(--text-main); padding: 20px 16px 40px; -webkit-font-smoothing: antialiased; }
-    .container { max-width: 1200px; margin: 0 auto; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif; background-color: var(--bg-color); color: var(--text-main); -webkit-font-smoothing: antialiased; }
     
+    /* 密码锁屏界面 */
+    #lock-screen {
+      position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+      background: var(--bg-color); z-index: 10000;
+      display: flex; flex-direction: column; justify-content: center; align-items: center;
+    }
+    .lock-box { background: var(--card-bg); padding: 40px 30px; border-radius: 20px; box-shadow: var(--panel-shadow); text-align: center; width: 90%; max-width: 360px; }
+    .lock-box h2 { margin-bottom: 8px; font-size: 22px; color: var(--text-main); letter-spacing: -0.5px; }
+    .lock-box p { color: var(--text-muted); font-size: 14px; margin-bottom: 24px; }
+    #pin-input { font-size: 28px; font-weight: 700; text-align: center; padding: 12px; width: 100%; border-radius: 12px; border: 1px solid var(--border-color); margin-bottom: 20px; outline: none; background: var(--bg-color); letter-spacing: 4px; }
+    #pin-input:focus { border-color: var(--apple-blue); background: #FFF; }
+    #pin-error { color: var(--apple-red); font-size: 13px; font-weight: 600; margin-top: 12px; display: none; }
+
+    /* 应用内样式 */
+    .container { max-width: 1200px; margin: 0 auto; padding: 20px 16px 40px; }
     .nav-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
     .brand { font-size: 22px; font-weight: 700; letter-spacing: -0.5px; }
     .brand span { color: var(--apple-blue); }
     .status-panel { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
     .live-indicator, .cloud-indicator { display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 600; }
     .live-indicator { color: var(--apple-green); }
-    .cloud-indicator { color: var(--apple-blue); }
+    .cloud-indicator { color: var(--apple-blue); cursor: pointer; padding: 4px 8px; background: rgba(0,113,227,0.1); border-radius: 6px;}
     .live-dot { width: 8px; height: 8px; background-color: var(--apple-green); border-radius: 50%; animation: pulse 1.5s infinite; }
     .cloud-dot { width: 8px; height: 8px; background-color: var(--apple-blue); border-radius: 50%; }
     @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(52, 199, 89, 0.4); } 70% { box-shadow: 0 0 0 6px rgba(52, 199, 89, 0); } 100% { box-shadow: 0 0 0 0 rgba(52, 199, 89, 0); } }
@@ -53,7 +67,7 @@
     .m-tab.active { background: #1D1D1F; color: #FFF; }
     .search-box { width: 100%; padding: 12px 14px; border-radius: 10px; border: 1px solid var(--border-color); background: var(--bg-color); font-size: 14px; margin-bottom: 12px; outline: none; transition: 0.2s; }
     .search-box:focus { border-color: var(--apple-blue); background: #FFF; }
-    .stock-list { max-height: 350px; overflow-y: auto; padding-right: 4px; }
+    .stock-list { max-height: 400px; overflow-y: auto; padding-right: 4px; }
     .stock-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 10px; border-bottom: 1px solid var(--bg-color); cursor: pointer; border-radius: 8px; transition: background 0.2s; }
     .stock-row.selected { background: rgba(0, 113, 227, 0.08); }
     .stock-row .symbol { font-size: 15px; font-weight: 700; }
@@ -102,9 +116,20 @@
 </head>
 <body>
 
-  <div id="loading-overlay">
+  <!-- 安全锁屏界面 -->
+  <div id="lock-screen">
+    <div class="lock-box">
+      <h2>身份验证</h2>
+      <p>请输入家庭独立资管系统的访问密码</p>
+      <input type="password" id="pin-input" placeholder="••••" maxlength="4" onkeypress="if(event.key==='Enter') verifyPin()">
+      <button class="btn" onclick="verifyPin()">解 锁</button>
+      <div id="pin-error">密码错误，请重试</div>
+    </div>
+  </div>
+
+  <div id="loading-overlay" style="display: none;">
     <div class="spinner"></div>
-    <div style="font-weight: 600; color: var(--text-muted);">正在接通云端实盘通道...</div>
+    <div style="font-weight: 600; color: var(--text-muted);">正在接通云端系统与实时行情...</div>
   </div>
 
   <div class="container" style="display: none;" id="main-app">
@@ -126,17 +151,22 @@
       </div>
     </div>
 
+    <!-- 综合总览视图 -->
     <div id="overview-view">
       <div class="dashboard" style="align-items: center; text-align: center;">
         <p style="font-size: 14px; color: var(--text-muted); margin-bottom: -10px;">全局资产管理规模 (AUM / USD)</p>
         <div class="balance-display" id="global-total-assets" style="font-size: 42px;">$0.00</div>
-        <div style="font-size: 14px; font-weight: 600; padding: 8px 16px; background: var(--bg-color); border-radius: 20px;">
+        <div style="font-size: 13px; font-weight: 600; padding: 6px 14px; background: rgba(0,0,0,0.04); border-radius: 10px; margin-top: 4px; color: var(--text-muted);">
+          实时汇率: 1 USD = ¥<span id="display-fx-cn">7.20</span> | HK$<span id="display-fx-hk">7.80</span>
+        </div>
+        <div style="font-size: 14px; font-weight: 600; padding: 8px 16px; background: var(--bg-color); border-radius: 20px; margin-top: 8px;">
           累计总收益: <span id="global-total-profit">+$0.00</span>
         </div>
       </div>
       <div class="overview-grid" id="overview-grid-container"></div>
     </div>
 
+    <!-- 个人账户视图 -->
     <div id="individual-view" style="display: none;">
       <div class="dashboard">
         <div class="dashboard-top">
@@ -160,7 +190,7 @@
           <div class="trading-desk">
             <div class="panel-title">专业交易终端</div>
             <div class="trade-input-group">
-              <input type="text" id="desk-symbol-input" class="custom-symbol-input" placeholder="输入代码 (如 NIO)" oninput="handleManualInput()">
+              <input type="text" id="desk-symbol-input" class="custom-symbol-input" placeholder="输入代码" oninput="handleManualInput()">
               <div class="quote-display">
                 <div class="quote-price" id="desk-price">--</div>
                 <div class="quote-name" id="desk-company">等待输入...</div>
@@ -176,7 +206,7 @@
           </div>
 
           <div class="portfolio-list">
-            <div class="panel-title" style="margin-bottom: 8px; padding-left: 4px;">持仓明细 (自动同步实盘)</div>
+            <div class="panel-title" style="margin-bottom: 8px; padding-left: 4px;">持仓明细</div>
             <div id="portfolio-list"></div>
           </div>
         </div>
@@ -197,14 +227,17 @@
   </div>
 
   <script>
+    const AUTH_PIN = '0103';
     const API_URL = 'api.php'; 
     const USERS = ['JJ', '奶奶', '阿桂', 'UMI'];
     const CURRENCIES = { US: '$', HK: 'HK$', CN: '¥' };
-    const FX_RATES = { US: 1.0, HK: 7.8, CN: 7.2 }; 
+    
+    // 全局动态真实汇率变量 (默认给个底座，会被网络拉取覆盖)
+    let FX_RATES = { US: 1.0, HK: 7.80, CN: 7.20 }; 
     
     const GLOBAL_STOCKS = [
       { symbol: '688226', name: '威腾电气', market: 'CN', basePrice: 28.54 },
-      { symbol: '000711', name: '京蓝科技', market: 'CN', basePrice: 6.48 },
+      { symbol: '000711', name: '京蓝科技', market: 'CN', basePrice: 6.15 },
       { symbol: '300302', name: '同有科技', market: 'CN', basePrice: 29.29 },
       { symbol: 'DIDIY', name: '滴滴 (DiDi)', market: 'US', basePrice: 3.72 },
       { symbol: 'NIO', name: '蔚来 (NIO)', market: 'US', basePrice: 4.01 },
@@ -222,30 +255,52 @@
     let activeView = '总览'; 
     let selectedStockSymbol = ''; 
     let currentMarketTab = 'ALL';
-    let accounts = null; 
+    let db = { accounts: {}, fxRates: null, fxLastUpdate: 0 }; 
     let isUserTyping = false; 
 
-    // 输入保护：防止打字时刷新打断
-    document.addEventListener('focusin', (e) => { if(e.target.tagName === 'INPUT') isUserTyping = true; });
+    // --- 安全验证逻辑 ---
+    window.onload = () => {
+      if (localStorage.getItem('jj_auth_pin') === AUTH_PIN) {
+        document.getElementById('lock-screen').style.display = 'none';
+        document.getElementById('loading-overlay').style.display = 'flex';
+        initCloudSystem();
+      }
+    };
+
+    function verifyPin() {
+      const pin = document.getElementById('pin-input').value;
+      if (pin === AUTH_PIN) {
+        localStorage.setItem('jj_auth_pin', AUTH_PIN);
+        document.getElementById('lock-screen').style.display = 'none';
+        document.getElementById('loading-overlay').style.display = 'flex';
+        initCloudSystem();
+      } else {
+        document.getElementById('pin-error').style.display = 'block';
+        document.getElementById('pin-input').value = '';
+      }
+    }
+
+    // --- 输入防打断 ---
+    document.addEventListener('focusin', (e) => { if(e.target.tagName === 'INPUT' && e.target.id !== 'pin-input') isUserTyping = true; });
     document.addEventListener('focusout', (e) => { 
-      if(e.target.tagName === 'INPUT') { 
-        isUserTyping = false; 
-        updateUIDiscreetly(); 
+      if(e.target.tagName === 'INPUT' && e.target.id !== 'pin-input') { 
+        isUserTyping = false; updateUIDiscreetly(); 
       } 
     });
 
+    // --- 启动云端架构与汇率引擎 ---
     async function initCloudSystem() {
       try {
         const response = await fetch(API_URL);
         const data = await response.json();
         
-        if (data && data.JJ) {
-          accounts = data;
+        if (data && data.accounts && data.accounts.JJ) {
+          db = data;
         } else {
-          accounts = {};
+          db.accounts = {};
           USERS.forEach(user => { 
             if (user === 'JJ') {
-              accounts[user] = { 
+              db.accounts[user] = { 
                 principal: 10000.00, cash: 12.68, withdrawn: 0.00, 
                 portfolio: {
                   '688226': { shares: 289, costUSD: 1829.17, market: 'CN' },
@@ -256,20 +311,31 @@
                 } 
               };
             } else if (user === '奶奶') {
-              accounts[user] = { principal: 10000.00, cash: 10000.00, withdrawn: 0.00, portfolio: {} };
+              db.accounts[user] = { principal: 10000.00, cash: 10000.00, withdrawn: 0.00, portfolio: {} };
             } else {
-              accounts[user] = { principal: 2000.00, cash: 2000.00, withdrawn: 0.00, portfolio: {} };
+              db.accounts[user] = { principal: 2000.00, cash: 2000.00, withdrawn: 0.00, portfolio: {} };
             }
           });
           await saveToCloud();
         }
 
+        // 外汇汇率每4小时更新一次逻辑
+        if (!db.fxRates || Date.now() - (db.fxLastUpdate || 0) > 4 * 60 * 60 * 1000) {
+           await fetchExchangeRates();
+        } else {
+           FX_RATES.CN = db.fxRates.CN || 7.20;
+           FX_RATES.HK = db.fxRates.HK || 7.80;
+        }
+        
+        document.getElementById('display-fx-cn').innerText = FX_RATES.CN.toFixed(4);
+        document.getElementById('display-fx-hk').innerText = FX_RATES.HK.toFixed(4);
+
         document.getElementById('loading-overlay').style.display = 'none';
         document.getElementById('main-app').style.display = 'block';
 
         GLOBAL_STOCKS.forEach(stock => { currentPrices[stock.symbol] = stock.basePrice; });
-        for (const u in accounts) {
-          for (const sym in accounts[u].portfolio) {
+        for (const u in db.accounts) {
+          for (const sym in db.accounts[u].portfolio) {
             if (!currentPrices[sym]) currentPrices[sym] = 10.00;
           }
         }
@@ -277,13 +343,28 @@
         renderMarketList();
         switchView('总览');
 
-        // 启动最新架构的数据直连 (向私有云拿，不再向新浪拿)
         fetchRealPrices(); 
-        setInterval(fetchRealPrices, 4000); // 4秒刷新
+        setInterval(fetchRealPrices, 4000); 
 
       } catch (error) {
-        alert("⚠️ 无法连接云端！请确保第一步的 api.php 已经保存到你的 GitHub 并且宝塔自动部署成功！");
-        document.getElementById('loading-overlay').innerHTML = "<div style='color:red;'>数据库连接失败，请检查 api.php 是否已部署。</div>";
+        alert("⚠️ 无法连接云端！请确保 api.php 已经部署在服务器。");
+        document.getElementById('loading-overlay').innerHTML = "<div style='color:red;'>数据库连接失败，请检查。</div>";
+      }
+    }
+
+    async function fetchExchangeRates() {
+      try {
+        const res = await fetch(`${API_URL}?action=fx`);
+        const result = await res.json();
+        if (result.status === 'success' && result.rates) {
+          FX_RATES.CN = result.rates.CN;
+          FX_RATES.HK = result.rates.HK;
+          db.fxRates = { CN: FX_RATES.CN, HK: FX_RATES.HK };
+          db.fxLastUpdate = Date.now();
+          await saveToCloud();
+        }
+      } catch(e) {
+         console.log("汇率拉取失败，使用底座汇率");
       }
     }
 
@@ -291,7 +372,7 @@
       const statusEl = document.getElementById('cloud-status');
       statusEl.innerHTML = `<div class="cloud-dot" style="background:orange"></div> 同步中...`;
       try {
-        await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(accounts) });
+        await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(db) });
         statusEl.innerHTML = `<div class="cloud-dot"></div> 云端已同步`;
       } catch (error) {
         statusEl.innerHTML = `<div class="cloud-dot" style="background:var(--apple-red)"></div> 同步失败`;
@@ -299,7 +380,7 @@
     }
 
     // ==========================================
-    // 终极代理引擎：向自己的云服务器要数据，完全免疫浏览器屏蔽
+    // 代理引擎：向私有云要数据，绝对防屏蔽
     // ==========================================
     function getTencentSymbol(symbol) {
       let s = symbol.toUpperCase().trim();
@@ -308,16 +389,14 @@
         while(code.length < 5) code = '0' + code;
         return 'hk' + code;
       }
-      if (/^\d{6}$/.test(s)) {
-        return (s.startsWith('6') || s.startsWith('5')) ? 'sh' + s : 'sz' + s;
-      }
-      return 'us' + s; // 兼容 usDIDIY
+      if (/^\d{6}$/.test(s)) return (s.startsWith('6') || s.startsWith('5')) ? 'sh' + s : 'sz' + s;
+      return 'us' + s;
     }
 
     async function fetchRealPrices() {
       const symbolsToFetch = new Set(GLOBAL_STOCKS.map(s => s.symbol));
-      for (const u in accounts) {
-        for (const sym in accounts[u].portfolio) symbolsToFetch.add(sym);
+      for (const u in db.accounts) {
+        for (const sym in db.accounts[u].portfolio) symbolsToFetch.add(sym);
       }
       if (selectedStockSymbol) symbolsToFetch.add(selectedStockSymbol);
       
@@ -325,7 +404,6 @@
       if(!queryList) return;
       
       try {
-        // 请求你自己的私有云接口
         const response = await fetch(`${API_URL}?action=quote&symbols=${queryList}`);
         const result = await response.json();
         
@@ -338,7 +416,6 @@
                 if (realPrice && currentPrices[sym] !== realPrice) {
                     currentPrices[sym] = realPrice;
                     hasPriceChanged = true;
-                    // 给跳动的价格加上小动画
                     const el = document.getElementById(`price-${sym}`);
                     if(el) { el.style.color = 'var(--apple-green)'; setTimeout(()=> el.style.color = '', 1000); }
                 }
@@ -346,12 +423,12 @@
             if (hasPriceChanged) updateUIDiscreetly();
         }
       } catch (e) {
-        console.error("代理拉取失败，请确认 api.php 已经更新");
+        console.error("行情拉取异常");
       }
     }
 
     function updateUIDiscreetly() {
-      if (isUserTyping) return; // 输入防打断保护
+      if (isUserTyping) return; 
       
       renderMarketList();
       if (activeView === '总览') renderOverview(); else renderPortfolio();
@@ -396,7 +473,7 @@
     }
 
     async function adjustPrincipal() {
-      const acc = accounts[activeView];
+      const acc = db.accounts[activeView];
       const newPrincipal = prompt(`当前本金: $${acc.principal.toFixed(2)} USD。\n调整后将自动补齐或扣除可用现金:`, acc.principal);
       if (newPrincipal !== null) {
         const parsed = parseFloat(newPrincipal);
@@ -411,10 +488,9 @@
 
     function renderMarketList() {
       const listEl = document.getElementById('stock-list');
-      
       const allSymbols = new Set(GLOBAL_STOCKS.map(s => s.symbol));
-      for (const u in accounts) {
-        for (const sym in accounts[u].portfolio) allSymbols.add(sym);
+      for (const u in db.accounts) {
+        for (const sym in db.accounts[u].portfolio) allSymbols.add(sym);
       }
       
       let html = '';
@@ -512,7 +588,7 @@
       if (isNaN(shares) || shares <= 0) return alert('数量无效！');
       const market = parseSymbolInfo(selectedStockSymbol).market;
       const usdCost = (shares * currentPrices[selectedStockSymbol]) / FX_RATES[market];
-      const account = accounts[activeView];
+      const account = db.accounts[activeView];
 
       if (account.cash < usdCost) return alert(`⚠️ 购买力不足！需: $${usdCost.toFixed(2)}\n可用: $${account.cash.toFixed(2)}`);
 
@@ -531,7 +607,7 @@
 
     async function sellStock(symbol) {
       const sharesToSell = parseInt(document.getElementById(`sell-qty-${symbol}`).value);
-      const account = accounts[activeView];
+      const account = db.accounts[activeView];
       const stockData = account.portfolio[symbol];
       if (isNaN(sharesToSell) || sharesToSell <= 0) return alert('数量无效！');
       if (sharesToSell > stockData.shares) return alert(`⚠️ 超过持仓限制！`);
@@ -549,7 +625,7 @@
     }
 
     function renderPortfolio() {
-      const account = accounts[activeView];
+      const account = db.accounts[activeView];
       let stockValueUSD = 0;
       let html = '';
       
@@ -563,6 +639,8 @@
           const profitSign = profitUSD >= 0 ? '+' : '';
           const profitClass = profitUSD >= 0 ? 'profit-positive' : 'profit-negative';
           const curSym = CURRENCIES[data.market];
+          
+          // 成本单价(本币) = (美元成本 / 股数) * 当前实际汇率
           const costPerShareLocal = (data.costUSD / data.shares) * FX_RATES[data.market];
           
           stockValueUSD += currentValUSD;
@@ -589,7 +667,7 @@
         }
       }
 
-      document.getElementById('portfolio-list').innerHTML = html || `<div style="text-align:center; padding: 40px 20px; color: var(--text-muted); background: var(--card-bg); border-radius: 12px; border: 1px dashed var(--border-color);">暂无持仓</div>`;
+      document.getElementById('portfolio-list').innerHTML = html || `<div style="text-align:center; padding: 40px 20px; color: var(--text-muted); background: var(--card-bg); border-radius: 12px; border: 1px dashed var(--border-color);">暂无持仓记录</div>`;
 
       const totalAssets = account.cash + stockValueUSD;
       const netProfit = (totalAssets + account.withdrawn) - account.principal;
@@ -611,7 +689,7 @@
     }
 
     async function withdrawProfit() {
-      const account = accounts[activeView];
+      const account = db.accounts[activeView];
       let stockVal = 0;
       for (const [sym, d] of Object.entries(account.portfolio)) {
         if (d.shares > 0) stockVal += (d.shares * currentPrices[sym]) / FX_RATES[d.market];
@@ -628,10 +706,10 @@
     }
 
     function renderOverview() {
-      if(!accounts) return;
+      if(!db.accounts) return;
       let globalAssets = 0; let globalProfit = 0; let gridHTML = '';
       USERS.forEach(user => {
-        const acc = accounts[user];
+        const acc = db.accounts[user];
         let stockVal = 0;
         for (const [sym, d] of Object.entries(acc.portfolio)) {
           if (d.shares > 0) stockVal += (d.shares * currentPrices[sym]) / FX_RATES[d.market];

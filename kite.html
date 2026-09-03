@@ -364,6 +364,7 @@
         </div>
     </header>
 
+    <!-- 背景音乐：保留在根目录下 -->
     <audio id="bgmAudio" loop preload="auto">
         <source src="who%20tell%20me.m4a" type="audio/mp4">
         <source src="who tell me.m4a" type="audio/mp4">
@@ -382,9 +383,10 @@
             <p>窗外掠过的灯火忽明忽暗，把所有的疲惫与心绪，都悄无声息地揉碎在南亚的海风里。</p>
         </div>
 
+        <!-- 8月31日 视频：放入 media/ 文件夹 -->
         <div class="video-wrapper">
             <video controls playsinline preload="metadata">
-                <source src="Drive.mp4" type="video/mp4">
+                <source src="media/Drive.mp4" type="video/mp4">
                 您的浏览器不支持视频播放。
             </video>
         </div>
@@ -409,10 +411,11 @@
             一段过往，一抹愁
         </div>
 
+        <!-- 半夜照片：放入 images/ 文件夹 -->
         <div class="photo-grid-3">
-            <img src="狗.JPG" alt="狗" class="gallery-img" loading="lazy">
-            <img src="moon.JPG" alt="月" class="gallery-img" loading="lazy">
-            <img src="drink.JPG" alt="酒" class="gallery-img" loading="lazy">
+            <img src="images/狗.JPG" alt="狗" class="gallery-img" loading="lazy">
+            <img src="images/moon.JPG" alt="月" class="gallery-img" loading="lazy">
+            <img src="images/drink.JPG" alt="酒" class="gallery-img" loading="lazy">
         </div>
 
         <div class="log-footer">
@@ -428,9 +431,10 @@
             <span class="timeline-location">Dream Spot 泻湖</span>
         </div>
 
+        <!-- 9月1日 照片：放入 images/ 文件夹 -->
         <div class="photo-grid-2">
-            <img src="water.JPG" alt="Water" class="gallery-img" loading="lazy">
-            <img src="cat.JPG" alt="Cat" class="gallery-img" loading="lazy">
+            <img src="images/water.JPG" alt="Water" class="gallery-img" loading="lazy">
+            <img src="images/cat.JPG" alt="Cat" class="gallery-img" loading="lazy">
         </div>
 
         <div class="woo-block">
@@ -612,18 +616,18 @@
             <span class="timeline-location">Windy Waves Beach</span>
         </div>
 
-        <!-- 餐厅大门招牌 -->
-        <img src="dinner_sign.jpg" alt="Windy Waves Beach Restaurant" class="photo-featured" loading="lazy">
+        <!-- 餐厅大门招牌：放入 images/ 文件夹 -->
+        <img src="images/dinner_sign.jpg" alt="Windy Waves Beach Restaurant" class="photo-featured" loading="lazy">
 
         <div class="midnight-poetry">
             一个人，一片海<br>
             一盘美食，一杯烈酒
         </div>
 
-        <!-- 自拍与一号桌烤鱼海鲜大餐 -->
+        <!-- 自拍与一号桌烤鱼海鲜大餐：放入 images/ 文件夹 -->
         <div class="photo-grid-2">
-            <img src="dinner_me.jpg" alt="Selfie at Beach Hut" class="gallery-img" loading="lazy">
-            <img src="dinner_food.jpg" alt="Table 1 Seafood Dinner" class="gallery-img" loading="lazy">
+            <img src="images/dinner_me.jpg" alt="Selfie at Beach Hut" class="gallery-img" loading="lazy">
+            <img src="images/dinner_food.jpg" alt="Table 1 Seafood Dinner" class="gallery-img" loading="lazy">
         </div>
 
         <div class="log-footer">
@@ -653,7 +657,7 @@
     function toggleBGM() {
         if (audio.paused) {
             audio.play().then(() => updateMusicUI(true)).catch(() => {
-                alert("播放提示：请确认 who tell me.m4a 文件名正确且已上传至同一目录。");
+                alert("播放提示：请确认 who tell me.m4a 文件名正确且存放在主目录下。");
             });
         } else {
             audio.pause();

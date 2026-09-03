@@ -15,6 +15,7 @@
             --woo-blue: #0099ff;
             --duotone-orange: #ff5500;
             --duotone-dlab: #10b981;
+            --danger-red: #e11d48;
             --text-main: #1c2d42;
             --text-sub: #4b6584;
             --safe-bottom: env(safe-area-inset-bottom, 20px);
@@ -271,6 +272,11 @@
             padding: 3px 8px;
             border-radius: 6px;
             letter-spacing: 0.5px;
+        }
+
+        .woo-badge.danger {
+            color: var(--danger-red);
+            background: rgba(225, 29, 72, 0.08);
         }
 
         .gear-pill {
@@ -750,29 +756,103 @@
         </div>
     </section>
 
-    <!-- 篇章五：9月3日 Dream Spot 视频记录 -->
+    <!-- 篇章五：9月3日 惊险一日 -->
     <section class="log-card">
         <div class="timeline-header">
-            <div class="timeline-date">🗓️ 9月3日 · 那片海</div>
+            <div class="timeline-date">🗓️ 9月3日 · 那片海与坠落</div>
             <span class="timeline-location">Dream Spot</span>
         </div>
 
         <div class="story-text">
             <p>Dream Spot 这就是你常滑的那片海吧。</p>
+            <p>今天风筝在空中爆炸了，我听见砰地一声，解体了，直接送医，哈哈。</p>
         </div>
+
+        <div class="midnight-poetry" style="border-left-color: var(--danger-red); background: rgba(225, 29, 72, 0.05); color: #9f1239;">
+            Broken kite like my broken heart。
+        </div>
+
+        <!-- 破损风筝照片 -->
+        <img src="images/Broken%20kite.JPG" alt="Broken Kite" class="photo-featured" style="margin-top: 8px;" loading="lazy">
 
         <!-- 9月3日 视频：media/ 文件夹 -->
         <div class="video-wrapper">
             <video controls playsinline preload="metadata">
+                <source src="media/Broken%20kite.mp4" type="video/mp4">
                 <source src="media/Dream%20Spot.mp4" type="video/mp4">
-                <source src="media/Dream Spot.mp4" type="video/mp4">
                 您的浏览器不支持视频播放。
             </video>
         </div>
 
+        <div class="woo-block" style="margin-top: 12px;">
+            <div class="woo-header">
+                <span class="woo-badge danger">⚠️ WOO 惊险记录</span>
+                <span class="gear-pill dlab">9m Duotone Rebel D/LAB 2025</span>
+            </div>
+
+            <div class="woo-highlight-row">
+                <div class="woo-highlight-item">
+                    <div class="val">▲ 3.8 m</div>
+                    <div class="lbl">Highest Jump</div>
+                </div>
+                <div class="woo-highlight-item">
+                    <div class="val">32.5 m</div>
+                    <div class="lbl">Longest Distance</div>
+                </div>
+                <div class="woo-highlight-item">
+                    <div class="val">4h 32m</div>
+                    <div class="lbl">Session Duration</div>
+                </div>
+            </div>
+
+            <div class="woo-stats-grid">
+                <div class="stat-cell">
+                    <div class="num">3.0 s</div>
+                    <div class="txt">Max Airtime</div>
+                </div>
+                <div class="stat-cell">
+                    <div class="num">6.6 G</div>
+                    <div class="txt">Max Landing</div>
+                </div>
+                <div class="stat-cell">
+                    <div class="num">47 次</div>
+                    <div class="txt">Total Jumps</div>
+                </div>
+                <div class="stat-cell">
+                    <div class="num">1m 32s</div>
+                    <div class="txt">Total Airtime</div>
+                </div>
+                <div class="stat-cell">
+                    <div class="num">98.7 m</div>
+                    <div class="txt">Total Height</div>
+                </div>
+                <div class="stat-cell">
+                    <div class="num">37.14 km</div>
+                    <div class="txt">Total Distance</div>
+                </div>
+                <div class="stat-cell">
+                    <div class="num">43.0 kph</div>
+                    <div class="txt">Max Speed</div>
+                </div>
+                <div class="stat-cell">
+                    <div class="num">28.8 kph</div>
+                    <div class="txt">500m Speed</div>
+                </div>
+                <div class="stat-cell">
+                    <div class="num">15.92 km</div>
+                    <div class="txt">Distance 1hr</div>
+                </div>
+            </div>
+
+            <div class="jump-milestone">
+                <span>🎯 Day High: #22 Jump</span>
+                <span>3.8 m · 3.0 s Air · 3.9G Land (1h 33m)</span>
+            </div>
+        </div>
+
         <div class="log-footer">
-            <span>Dream Spot, Sri Lanka</span>
-            <span>Day 4 · Chasing Memories 🌊</span>
+            <span>Dream Spot, Sri Lanka · 11:00 Launch</span>
+            <span>Day 4 · Danger & Heartbreak 🌪️</span>
         </div>
     </section>
 </div>
@@ -836,3 +916,4 @@
 
 </body>
 </html>
+```[cite: 1]

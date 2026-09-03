@@ -45,6 +45,7 @@
     .main-content { display: grid; grid-template-columns: 1fr; gap: 20px; }
     @media (min-width: 900px) { .main-content { grid-template-columns: 380px 1fr; } }
     .panel-title { font-size: 17px; font-weight: 700; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; }
+    
     .market-section { background: var(--card-bg); border-radius: 16px; padding: 20px; box-shadow: var(--panel-shadow); }
     .market-tabs { display: flex; gap: 8px; margin-bottom: 12px; overflow-x: auto; padding-bottom: 4px; -webkit-overflow-scrolling: touch; }
     .market-tabs::-webkit-scrollbar { display: none; }
@@ -103,14 +104,14 @@
 
   <div id="loading-overlay">
     <div class="spinner"></div>
-    <div style="font-weight: 600; color: var(--text-muted);">正在连接云端账本与实盘数据...</div>
+    <div style="font-weight: 600; color: var(--text-muted);">正在接通云端实盘通道...</div>
   </div>
 
   <div class="container" style="display: none;" id="main-app">
     <div class="nav-header">
       <div class="brand">JJ <span>投资</span></div>
       <div class="status-panel">
-        <div class="live-indicator"><div class="live-dot"></div> <span id="market-status">实盘直连中</span></div>
+        <div class="live-indicator"><div class="live-dot"></div> <span id="market-status">私有云实盘直连中</span></div>
         <div class="cloud-indicator" id="cloud-status"><div class="cloud-dot"></div> 云端已同步</div>
       </div>
     </div>
@@ -125,19 +126,17 @@
       </div>
     </div>
 
-    <!-- 综合总览视图 -->
     <div id="overview-view">
       <div class="dashboard" style="align-items: center; text-align: center;">
         <p style="font-size: 14px; color: var(--text-muted); margin-bottom: -10px;">全局资产管理规模 (AUM / USD)</p>
         <div class="balance-display" id="global-total-assets" style="font-size: 42px;">$0.00</div>
         <div style="font-size: 14px; font-weight: 600; padding: 8px 16px; background: var(--bg-color); border-radius: 20px;">
-          系统内累计净收益: <span id="global-total-profit">+$0.00</span>
+          累计总收益: <span id="global-total-profit">+$0.00</span>
         </div>
       </div>
       <div class="overview-grid" id="overview-grid-container"></div>
     </div>
 
-    <!-- 个人账户视图 -->
     <div id="individual-view" style="display: none;">
       <div class="dashboard">
         <div class="dashboard-top">
@@ -153,7 +152,7 @@
             <p style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">历史出金: $<span id="total-withdrawn">0.00</span></p>
           </div>
         </div>
-        <button class="btn" id="withdraw-btn" onclick="withdrawProfit()">利润出金 (需先卖出股票兑现)</button>
+        <button class="btn" id="withdraw-btn" onclick="withdrawProfit()">利润出金 (需先卖出股票)</button>
       </div>
 
       <div class="main-content">
@@ -183,7 +182,7 @@
         </div>
 
         <div class="market-section">
-          <div class="panel-title">市场参考 (实时网络报价)</div>
+          <div class="panel-title">市场参考</div>
           <div class="market-tabs">
             <div class="m-tab active" onclick="switchMarketCategory('ALL')">全部</div>
             <div class="m-tab" onclick="switchMarketCategory('US')">美股</div>
@@ -198,15 +197,14 @@
   </div>
 
   <script>
-    const API_URL = 'api.php'; // 私有云数据库
+    const API_URL = 'api.php'; 
     const USERS = ['JJ', '奶奶', '阿桂', 'UMI'];
     const CURRENCIES = { US: '$', HK: 'HK$', CN: '¥' };
     const FX_RATES = { US: 1.0, HK: 7.8, CN: 7.2 }; 
     
-    // 初始化基准库（修复为你提供的最新真实数据底价，防止第一次没网时太离谱）
     const GLOBAL_STOCKS = [
       { symbol: '688226', name: '威腾电气', market: 'CN', basePrice: 28.54 },
-      { symbol: '000711', name: '京蓝科技', market: 'CN', basePrice: 6.15 },
+      { symbol: '000711', name: '京蓝科技', market: 'CN', basePrice: 6.48 },
       { symbol: '300302', name: '同有科技', market: 'CN', basePrice: 29.29 },
       { symbol: 'DIDIY', name: '滴滴 (DiDi)', market: 'US', basePrice: 3.72 },
       { symbol: 'NIO', name: '蔚来 (NIO)', market: 'US', basePrice: 4.01 },
@@ -220,32 +218,30 @@
       { symbol: '300750', name: '宁德时代', market: 'CN', basePrice: 196.50 }
     ];
 
-    let currentPrices = {}; // 完全由真实接口提供的数据
+    let currentPrices = {}; 
     let activeView = '总览'; 
     let selectedStockSymbol = ''; 
     let currentMarketTab = 'ALL';
-    let accounts = null; // 你的私有云账户数据
-    let isUserTyping = false; // 焦点锁定黑科技，防止刷新打断输入
+    let accounts = null; 
+    let isUserTyping = false; 
 
-    // --- 输入防打断保护逻辑 ---
+    // 输入保护：防止打字时刷新打断
     document.addEventListener('focusin', (e) => { if(e.target.tagName === 'INPUT') isUserTyping = true; });
     document.addEventListener('focusout', (e) => { 
       if(e.target.tagName === 'INPUT') { 
         isUserTyping = false; 
-        updateUIDiscreetly(); // 用户输完瞬间，立即刷新 UI
+        updateUIDiscreetly(); 
       } 
     });
 
-    // --- 启动云端架构 ---
     async function initCloudSystem() {
       try {
         const response = await fetch(API_URL);
         const data = await response.json();
         
-        if (data && Object.keys(data).length > 0) {
+        if (data && data.JJ) {
           accounts = data;
         } else {
-          // 如果服务器没数据，初始化标准架构 (严格按照 10k 和 2k 额度)
           accounts = {};
           USERS.forEach(user => { 
             if (user === 'JJ') {
@@ -271,24 +267,23 @@
         document.getElementById('loading-overlay').style.display = 'none';
         document.getElementById('main-app').style.display = 'block';
 
-        // 默认载入基础价格防空白
         GLOBAL_STOCKS.forEach(stock => { currentPrices[stock.symbol] = stock.basePrice; });
         for (const u in accounts) {
           for (const sym in accounts[u].portfolio) {
-            if (!currentPrices[sym]) currentPrices[sym] = 100.00;
+            if (!currentPrices[sym]) currentPrices[sym] = 10.00;
           }
         }
         
         renderMarketList();
         switchView('总览');
 
-        // 启动真正的新浪财经 JSONP 实时直连引擎，每 5 秒拉取一次真实价格
+        // 启动最新架构的数据直连 (向私有云拿，不再向新浪拿)
         fetchRealPrices(); 
-        setInterval(fetchRealPrices, 5000); 
+        setInterval(fetchRealPrices, 4000); // 4秒刷新
 
       } catch (error) {
-        alert("⚠️ 无法连接到云端数据库。请确保 api.php 已经部署在宝塔服务器上！");
-        document.getElementById('loading-overlay').innerHTML = "<div style='color:red;'>数据库连接失败，请检查宝塔配置。</div>";
+        alert("⚠️ 无法连接云端！请确保第一步的 api.php 已经保存到你的 GitHub 并且宝塔自动部署成功！");
+        document.getElementById('loading-overlay').innerHTML = "<div style='color:red;'>数据库连接失败，请检查 api.php 是否已部署。</div>";
       }
     }
 
@@ -304,97 +299,63 @@
     }
 
     // ==========================================
-    // 核心黑科技：跨域直连新浪财经真实接口引擎
+    // 终极代理引擎：向自己的云服务器要数据，完全免疫浏览器屏蔽
     // ==========================================
-    function getSinaSymbol(symbol) {
+    function getTencentSymbol(symbol) {
       let s = symbol.toUpperCase().trim();
       if (s.includes('.HK')) {
         let code = s.replace('.HK', '');
         while(code.length < 5) code = '0' + code;
-        return 'hk' + code; // 港股
+        return 'hk' + code;
       }
       if (/^\d{6}$/.test(s)) {
-        if (s.startsWith('6')) return 'sh' + s; // 上证
-        else return 'sz' + s; // 深证 (如京蓝 000711)
+        return (s.startsWith('6') || s.startsWith('5')) ? 'sh' + s : 'sz' + s;
       }
-      return 'gb_' + s.toLowerCase(); // 美股 (如滴滴 gb_didiy)
+      return 'us' + s; // 兼容 usDIDIY
     }
 
-    function parseSinaData(symbol, sinaSymbol) {
-      const dataStr = window['hq_str_' + sinaSymbol];
-      if (!dataStr) return null;
-      const elements = dataStr.split(',');
-      if (elements.length < 3) return null;
-      
-      let price = 0;
-      let yestClose = 0;
-      
-      if (sinaSymbol.startsWith('hk')) {
-        price = parseFloat(elements[6]);
-        yestClose = parseFloat(elements[3]);
-      } else if (sinaSymbol.startsWith('sh') || sinaSymbol.startsWith('sz')) {
-        price = parseFloat(elements[3]); // A股现价在索引3
-        yestClose = parseFloat(elements[2]); // 昨收价
-      } else if (sinaSymbol.startsWith('gb_')) {
-        price = parseFloat(elements[1]); // 美股现价在索引1
-        yestClose = parseFloat(elements[26]) || parseFloat(elements[1]); 
-      }
-      
-      // 如果停盘前现价为 0.00，就拿昨天的收盘价顶替，保证数据绝对不错乱
-      return (price > 0) ? price : (yestClose > 0 ? yestClose : null);
-    }
-
-    function fetchRealPrices() {
-      // 收集系统中所有出现过的股票代码，一次性全部去查
+    async function fetchRealPrices() {
       const symbolsToFetch = new Set(GLOBAL_STOCKS.map(s => s.symbol));
       for (const u in accounts) {
         for (const sym in accounts[u].portfolio) symbolsToFetch.add(sym);
       }
       if (selectedStockSymbol) symbolsToFetch.add(selectedStockSymbol);
       
-      const queryList = Array.from(symbolsToFetch).map(getSinaSymbol).join(',');
+      const queryList = Array.from(symbolsToFetch).map(getTencentSymbol).join(',');
       if(!queryList) return;
       
-      // 注入网络请求
-      const script = document.createElement('script');
-      script.charset = 'gb2312'; // 防止中文名乱码
-      script.src = `https://hq.sinajs.cn/list=${queryList}&t=${new Date().getTime()}`;
-      
-      script.onload = () => {
-        let hasPriceChanged = false;
-        Array.from(symbolsToFetch).forEach(sym => {
-          const sinaSym = getSinaSymbol(sym);
-          const realPrice = parseSinaData(sym, sinaSym);
-          
-          if (realPrice && currentPrices[sym] !== realPrice) {
-            currentPrices[sym] = realPrice;
-            hasPriceChanged = true;
-          }
-        });
+      try {
+        // 请求你自己的私有云接口
+        const response = await fetch(`${API_URL}?action=quote&symbols=${queryList}`);
+        const result = await response.json();
         
-        // 只有在价格真变了的时候，才去温柔地更新 UI
-        if (hasPriceChanged) {
-           updateUIDiscreetly();
+        if (result.status === 'success' && result.prices) {
+            let hasPriceChanged = false;
+            Array.from(symbolsToFetch).forEach(sym => {
+                const tSym = getTencentSymbol(sym);
+                const realPrice = result.prices[tSym];
+                
+                if (realPrice && currentPrices[sym] !== realPrice) {
+                    currentPrices[sym] = realPrice;
+                    hasPriceChanged = true;
+                    // 给跳动的价格加上小动画
+                    const el = document.getElementById(`price-${sym}`);
+                    if(el) { el.style.color = 'var(--apple-green)'; setTimeout(()=> el.style.color = '', 1000); }
+                }
+            });
+            if (hasPriceChanged) updateUIDiscreetly();
         }
-      };
-      
-      script.onerror = () => {
-        document.getElementById('market-status').innerText = '行情网络异常';
-        document.getElementById('market-status').style.color = 'var(--apple-red)';
-      };
-
-      document.head.appendChild(script);
-      setTimeout(() => script.remove(), 2000); // 阅后即焚，保持内存干净
+      } catch (e) {
+        console.error("代理拉取失败，请确认 api.php 已经更新");
+      }
     }
 
-    // 静默更新 UI 机制：如果在打字，绝对不刷新网页！
     function updateUIDiscreetly() {
-      if (isUserTyping) return; // 致命武器：如果用户在输入框，直接退出，绝不打扰！
+      if (isUserTyping) return; // 输入防打断保护
       
       renderMarketList();
       if (activeView === '总览') renderOverview(); else renderPortfolio();
       
-      // 单独更新交易台的价格显示
       if (selectedStockSymbol && currentPrices[selectedStockSymbol]) {
         const market = parseSymbolInfo(selectedStockSymbol).market;
         const pEl = document.getElementById('desk-price');
@@ -402,7 +363,6 @@
         calculateEstCost();
       }
     }
-    // ==========================================
 
     function getStockName(symbol) {
       const s = GLOBAL_STOCKS.find(x => x.symbol === symbol);
@@ -534,7 +494,7 @@
         if (!currentPrices[selectedStockSymbol]) currentPrices[selectedStockSymbol] = 10.00; 
         document.getElementById('desk-price').innerText = `${CURRENCIES[parsed.market]}${currentPrices[selectedStockSymbol].toFixed(2)}`;
         calculateEstCost();
-        fetchRealPrices(); // 输入陌生代码后，立刻去拉取真实价格
+        fetchRealPrices(); 
       }
     }
 

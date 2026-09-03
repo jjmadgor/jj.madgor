@@ -719,19 +719,23 @@
         </div>
     </section>
 
-    <!-- 篇章四：9月2日 夜·海边晚饭·短句 -->
+    <!-- 篇章四：9月2日 夜·海边晚饭 -->
     <section class="log-card">
         <div class="timeline-header">
             <div class="timeline-date">🌙 9月2日 · 夜</div>
-            <span class="timeline-location">Windy Waves Beach</span>
+            <span class="timeline-location">Blue Wave & Windy Waves</span>
         </div>
 
         <!-- 餐厅大门招牌：images/ 文件夹 -->
         <img src="images/dinner_sign.jpg" alt="Windy Waves Beach Restaurant" class="photo-featured" loading="lazy">
 
+        <div class="story-text">
+            <p>今天决定去你住过的地方看看Blue Wave，我觉得我都要疯了，竟然去你去过的酒店，在去了你们经常吃饭的地方吃了饭。我觉得这样下去我好不了了，越来越想念，陷在里面。Tuktuk司机及其健谈，说去年接待过你们，几男几女带着孩子们～～只是不记得你们的名字，哈哈。原来这里也有对你痴情的人哈。</p>
+        </div>
+
         <div class="midnight-poetry">
             一个人，一片海<br>
-            一盘美食，一杯烈酒
+            一杯烈酒，一盘食
         </div>
 
         <!-- 自拍与一号桌烤鱼海鲜大餐：images/ 文件夹 -->
@@ -742,7 +746,7 @@
 
         <div class="log-footer">
             <span>Table No.1 · Seaside Dinner</span>
-            <span>Wind & Self-Seeking 🥃</span>
+            <span>Wind & Memories 🥃</span>
         </div>
     </section>
 </div>
@@ -759,7 +763,6 @@
             setTimeout(() => {
                 lockOverlay.style.visibility = 'hidden';
             }, 400);
-            // 解锁成功同时自动尝试唤起背景音乐
             audio.play().then(() => updateMusicUI(true)).catch(() => {});
         } else {
             passInput.classList.add('error-shake');
@@ -770,7 +773,6 @@
         }
     }
 
-    // 支持在输入框敲回车直接解锁
     passInput.addEventListener('keydown', function(e) {
         if (e.key === 'Enter') {
             verifyPassword();

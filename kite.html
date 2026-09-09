@@ -359,20 +359,6 @@
             justify-content: space-between;
         }
 
-        .woo-raw-images {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-            gap: 8px;
-            margin-top: 6px;
-        }
-
-        .woo-raw-images img {
-            width: 100%;
-            border-radius: 10px;
-            border: 1px solid #e2e8f0;
-            object-fit: contain;
-        }
-
         .story-text {
             font-size: 15px;
             line-height: 1.85;
@@ -769,35 +755,16 @@
         </div>
     </section>
 
-    <!-- 篇章五：9月3日 早·寻迹 -->
+    <!-- 篇章五：9月3日 你的海与坠落 -->
     <section class="log-card">
         <div class="timeline-header">
-            <div class="timeline-date">🗓️ 9月3日 · 寻迹</div>
-            <span class="timeline-location">Dream Spot</span>
+            <div class="timeline-date">🗓️ 9月3日 · 你的海与坠落</div>
+            <span class="timeline-location">Dream Spot 泻湖</span>
         </div>
 
         <div class="story-text">
             <p><strong>Dream Spot</strong>，这就是你常滑的那片海吧。</p>
-        </div>
-
-        <div class="video-wrapper">
-            <video controls playsinline preload="metadata">
-                <source src="media/Dream%20Spot.mp4" type="video/mp4">
-                您的浏览器不支持视频播放。
-            </video>
-        </div>
-
-        <div class="log-footer">
-            <span>Dream Spot, Sri Lanka</span>
-            <span>Day 4 · Chasing Memories 🌊</span>
-        </div>
-    </section>
-
-    <!-- 篇章六：9月3日 下午·坠落与解体 -->
-    <section class="log-card">
-        <div class="timeline-header">
-            <div class="timeline-date">💥 9月3日 · 坠落与解体</div>
-            <span class="timeline-location">Dream Spot 泻湖</span>
+            <p>今天风筝在空中爆炸了，我听见砰地一声，解体了，直接送医，哈哈。</p>
         </div>
 
         <div class="midnight-poetry" style="border-left-color: var(--danger-red); background: rgba(225, 29, 72, 0.05); color: #9f1239;">
@@ -807,7 +774,14 @@
         <!-- 破损风筝照片：images/ 文件夹 -->
         <img src="images/Broken%20Kite.JPG" alt="Broken Kite" class="photo-featured" style="margin-top: 8px;" loading="lazy">
 
-        <!-- 破损风筝视频：media/ 文件夹 -->
+        <!-- 两个视频：media/ 文件夹 -->
+        <div class="video-wrapper">
+            <video controls playsinline preload="metadata">
+                <source src="media/Dream%20Spot.mp4" type="video/mp4">
+                您的浏览器不支持视频播放。
+            </video>
+        </div>
+
         <div class="video-wrapper">
             <video controls playsinline preload="metadata">
                 <source src="media/Broken%20Kite.mp4" type="video/mp4">
@@ -887,7 +861,7 @@
         </div>
     </section>
 
-    <!-- 篇章七：9月4日 进退维谷 -->
+    <!-- 篇章六：9月4日 进退维谷 -->
     <section class="log-card">
         <div class="timeline-header">
             <div class="timeline-date">🗓️ 9月4日 · 进退维谷</div>
@@ -958,13 +932,6 @@
                 <span>🎯 Day High: #3 Jump</span>
                 <span>4.2 m · 3.7 s Air · 3.1G Land (4m 2s)</span>
             </div>
-
-            <!-- 挂载原始截图 -->
-            <div class="woo-raw-images">
-                <img src="images/IMG_4956.PNG" loading="lazy">
-                <img src="images/IMG_4957.jpg" loading="lazy">
-                <img src="images/IMG_4958.jpg" loading="lazy">
-            </div>
         </div>
 
         <div class="story-text">
@@ -988,7 +955,7 @@
         </div>
     </section>
 
-    <!-- 篇章八：9月5日 仓皇与归途 -->
+    <!-- 篇章七：9月5日 仓皇与归途 -->
     <section class="log-card">
         <div class="timeline-header">
             <div class="timeline-date">🗓️ 9月5日 · 仓皇与归途</div>
@@ -1012,7 +979,7 @@
         </div>
     </section>
 
-    <!-- 篇章九：9月6日-7日 妥协与折磨 -->
+    <!-- 篇章八：9月6日-7日 妥协与折磨 -->
     <section class="log-card">
         <div class="timeline-header">
             <div class="timeline-date">🗓️ 9月6日-7日 · 妥协与折磨</div>
@@ -1025,15 +992,63 @@
                 <span class="gear-pill dlab">9m Duotone Rebel D/LAB 2025</span>
             </div>
 
-            <!-- 将数据清空为只展示两张核心图片，不乱编数据 -->
-            <div class="woo-raw-images" style="grid-template-columns: 1fr 1fr;">
-                <img src="images/IMG_5155.jpg" alt="Data" loading="lazy">
-                <img src="images/IMG_5156.jpg" alt="Data" loading="lazy">
+            <div class="woo-highlight-row">
+                <div class="woo-highlight-item">
+                    <div class="val">▲ 3.5 m</div>
+                    <div class="lbl">Highest Jump</div>
+                </div>
+                <div class="woo-highlight-item">
+                    <div class="val">43.8 m</div>
+                    <div class="lbl">Longest Distance</div>
+                </div>
+                <div class="woo-highlight-item">
+                    <div class="val">5h 12m</div>
+                    <div class="lbl">Session Duration</div>
+                </div>
+            </div>
+
+            <div class="woo-stats-grid">
+                <div class="stat-cell">
+                    <div class="num">- s</div>
+                    <div class="txt">Max Airtime</div>
+                </div>
+                <div class="stat-cell">
+                    <div class="num">- G</div>
+                    <div class="txt">Max Landing</div>
+                </div>
+                <div class="stat-cell">
+                    <div class="num">- 次</div>
+                    <div class="txt">Total Jumps</div>
+                </div>
+                <div class="stat-cell">
+                    <div class="num">- s</div>
+                    <div class="txt">Total Airtime</div>
+                </div>
+                <div class="stat-cell">
+                    <div class="num">- m</div>
+                    <div class="txt">Total Height</div>
+                </div>
+                <div class="stat-cell">
+                    <div class="num">88.3 km</div>
+                    <div class="txt">Total Distance</div>
+                </div>
+                <div class="stat-cell">
+                    <div class="num">40.3 kph</div>
+                    <div class="txt">Max Speed</div>
+                </div>
+                <div class="stat-cell">
+                    <div class="num">- kph</div>
+                    <div class="txt">500m Speed</div>
+                </div>
+                <div class="stat-cell">
+                    <div class="num">- km</div>
+                    <div class="txt">Distance 1hr</div>
+                </div>
             </div>
 
             <div class="jump-milestone">
-                <span>🎯 2 Sessions Total</span>
-                <span>Kappalady / Talawila</span>
+                <span>🎯 3 Sessions Total</span>
+                <span>Max Speed 40.3 kph · Kappalady / Talawila</span>
             </div>
         </div>
 
@@ -1050,7 +1065,7 @@
         </div>
     </section>
 
-    <!-- 篇章十：9月8日 你的那片海 -->
+    <!-- 篇章九：9月8日 你的那片海 -->
     <section class="log-card">
         <div class="timeline-header">
             <div class="timeline-date">🗓️ 9月8日 · 你的那片海</div>
@@ -1120,13 +1135,6 @@
             <div class="jump-milestone">
                 <span>🎯 Day High: #13 Jump</span>
                 <span>3.6 m · 3.1 s Air · 2.9G Land (3h 2m)</span>
-            </div>
-
-            <!-- 挂载原始截图 -->
-            <div class="woo-raw-images">
-                <img src="images/IMG_5152.jpg" loading="lazy">
-                <img src="images/IMG_5153.jpg" loading="lazy">
-                <img src="images/IMG_5154.jpg" loading="lazy">
             </div>
         </div>
 

@@ -205,6 +205,39 @@
             color: var(--ocean-dark);
         }
 
+        /* 翻页按钮样式 */
+        .page-nav {
+            display: flex;
+            justify-content: center;
+            margin-top: -6px;
+            margin-bottom: 6px;
+        }
+
+        .page-nav.bottom {
+            margin-top: 10px;
+            margin-bottom: 20px;
+        }
+
+        .nav-btn {
+            display: inline-flex;
+            align-items: center;
+            background: linear-gradient(135deg, var(--ocean-dark), var(--primary));
+            color: white;
+            text-decoration: none;
+            padding: 10px 24px;
+            border-radius: 30px;
+            font-size: 14px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            box-shadow: 0 8px 20px rgba(0, 119, 182, 0.2);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .nav-btn:active {
+            transform: scale(0.95);
+            box-shadow: 0 4px 10px rgba(0, 119, 182, 0.2);
+        }
+
         .log-card {
             background: rgba(255, 255, 255, 0.92);
             backdrop-filter: blur(24px);
@@ -359,6 +392,20 @@
             justify-content: space-between;
         }
 
+        .woo-raw-images {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 8px;
+            margin-top: 6px;
+        }
+
+        .woo-raw-images img {
+            width: 100%;
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+            object-fit: contain;
+        }
+
         .story-text {
             font-size: 15px;
             line-height: 1.85;
@@ -476,6 +523,11 @@
         </div>
     </header>
 
+    <!-- 顶部翻页按钮 -->
+    <div class="page-nav">
+        <a href="kite2.html" class="nav-btn">下一页 ➔</a>
+    </div>
+
     <!-- 背景音乐：保留在根目录下 -->
     <audio id="bgmAudio" loop preload="auto">
         <source src="who%20tell%20me.m4a" type="audio/mp4">
@@ -491,7 +543,7 @@
 
         <div class="story-text">
             <p>机翼刺破云层，从北京到成都，再落进科伦坡的湿夜。</p>
-            <p>出发这天，真的好想你，我决定独自一人去你去过的斯里兰卡，我想做点什么事，让我对你的思念淡一点。希望回来我就是好人了吧，就能找到我未来的方向了吧，anyway，至少把所有的烦恼都埋在这肆虐的海风里吧。</p>
+            <p>出发这天，真的好想你，我决定独自一人去你去过的斯里兰卡，我想做点什么事，让我对你的思念淡一点。希望回来我就能彻底好起来了吧，就能找到我未来的方向了吧，anyway，至少把所有的烦恼都埋在这肆虐的海风里吧。</p>
         </div>
 
         <!-- 8月31日 视频：media/ 文件夹 -->
@@ -731,6 +783,7 @@
             <span class="timeline-location">Blue Wave & Windy Waves</span>
         </div>
 
+        <!-- 餐厅大门招牌：images/ 文件夹 -->
         <img src="images/dinner_sign.jpg" alt="Windy Waves Beach Restaurant" class="photo-featured" loading="lazy">
 
         <div class="story-text">
@@ -742,6 +795,7 @@
             一杯烈酒，一盘食
         </div>
 
+        <!-- 自拍与一号桌烤鱼海鲜大餐：images/ 文件夹 -->
         <div class="photo-grid-2">
             <img src="images/dinner_me.jpg" alt="Selfie at Beach Hut" class="gallery-img" loading="lazy">
             <img src="images/dinner_food.jpg" alt="Table 1 Seafood Dinner" class="gallery-img" loading="lazy">
@@ -766,9 +820,13 @@
         </div>
 
         <div class="midnight-poetry" style="border-left-color: var(--danger-red); background: rgba(225, 29, 72, 0.05); color: #9f1239;">
-            Broken kite like my broken heart。
+            Broken kite, like my broken heart...
         </div>
 
+        <!-- 破损风筝照片：images/ 文件夹 -->
+        <img src="images/Broken%20Kite.JPG" alt="Broken Kite" class="photo-featured" style="margin-top: 8px;" loading="lazy">
+
+        <!-- 两个视频：media/ 文件夹 -->
         <div class="video-wrapper">
             <video controls playsinline preload="metadata">
                 <source src="media/Dream%20Spot.mp4" type="video/mp4">
@@ -1154,7 +1212,7 @@
         </div>
 
         <div class="story-text">
-            <p>我本想一个人的旅行，思考一下我的人生而不可得，稀里糊涂的又搞成一地鸡毛。听到一个评价挺有意思的，我是个戏剧化大师，可能是真的吧，我喜欢承受人生的各种承受，这样才能证明我还活着，还有些生气吧。</p>
+            <p>我本想一个人的旅行，思考一下我的人生而不可得，稀里糊涂的又搞成一地鸡毛。听到一个评价挺有意思的，我是个戏剧化大师，可能是真的吧，我喜欢去直面人生的各种承受，这样才能证明我还活着，还有些生气吧。</p>
             <p>不知道，转瞬的前半生，遇到你是我的福分，让我知道什么是无法抗拒的心动，什么是不顾一切的奔赴，什么是撕心裂肺的痛，什么又是沉默无语的无奈。</p>
         </div>
 
@@ -1168,6 +1226,11 @@
             <span>Day 10 · Worth it 🌅</span>
         </div>
     </section>
+
+    <!-- 底部翻页按钮 -->
+    <div class="page-nav bottom">
+        <a href="kite2.html" class="nav-btn">下一页 ➔</a>
+    </div>
 
 </div>
 

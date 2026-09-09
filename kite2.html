@@ -6,16 +6,14 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>CHASING THE WIND - PART 2</title>
+    <!-- 引入不蒜子访问量统计脚本 -->
+    <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
     <style>
         :root {
             --ocean-dark: #0a1128;
             --primary: #0077b6;
             --accent-sunset: #ff6b6b;
             --accent-yellow: #ffd166;
-            --woo-blue: #0099ff;
-            --duotone-orange: #ff5500;
-            --duotone-dlab: #10b981;
-            --danger-red: #e11d48;
             --text-main: #1c2d42;
             --text-sub: #4b6584;
             --safe-bottom: env(safe-area-inset-bottom, 20px);
@@ -315,6 +313,22 @@
             color: var(--primary);
             font-weight: 700;
         }
+
+        /* 访问量统计区块样式 */
+        .site-counter {
+            text-align: center;
+            font-size: 12px;
+            color: var(--text-sub);
+            padding: 10px 0;
+            letter-spacing: 1px;
+            opacity: 0.8;
+        }
+        .site-counter span {
+            color: var(--primary);
+            font-weight: 800;
+            font-size: 13px;
+            padding: 0 2px;
+        }
     </style>
 </head>
 <body>
@@ -384,23 +398,43 @@
         <a href="kite.html" class="nav-btn">⬅ 上一页</a>
     </div>
 
+    <!-- 专属管理员控制容器（默认隐藏） -->
+    <div id="adminCounterWrapper" style="display: none;">
+        <!-- 访问量统计模块 -->
+        <div class="site-counter" id="busuanzi_container_page_pv" style="display: none;">
+            这段记忆，已被海风吹开 <span id="busuanzi_value_page_pv"></span> 次
+        </div>
+    </div>
+
 </div>
 
 <script>
-    // 密码校验逻辑
-    const CORRECT_PIN = "0103";
+    // 密码设置
+    const GUEST_PIN = "0103"; // 你们共用的密码，不显示浏览量
+    const ADMIN_PIN = "9999"; // 你的专属密码，解锁并显示浏览量
+
     const lockOverlay = document.getElementById('lockOverlay');
     const passInput = document.getElementById('passInput');
+    const adminCounterWrapper = document.getElementById('adminCounterWrapper');
 
     function verifyPassword() {
-        if (passInput.value === CORRECT_PIN) {
+        const inputVal = passInput.value;
+        if (inputVal === GUEST_PIN || inputVal === ADMIN_PIN) {
+            // 密码正确，解除遮罩
             lockOverlay.style.opacity = '0';
             setTimeout(() => {
                 lockOverlay.style.visibility = 'hidden';
             }, 400);
+
+            // 如果输入的是你的专属密码，显示统计数据
+            if (inputVal === ADMIN_PIN) {
+                adminCounterWrapper.style.display = 'block';
+            }
+
             // 尝试自动播放背景音乐
             audio.play().then(() => updateMusicUI(true)).catch(() => {});
         } else {
+            // 密码错误，震动提示
             passInput.classList.add('error-shake');
             passInput.value = '';
             setTimeout(() => {

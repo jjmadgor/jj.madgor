@@ -359,6 +359,20 @@
             justify-content: space-between;
         }
 
+        .woo-raw-images {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 8px;
+            margin-top: 6px;
+        }
+
+        .woo-raw-images img {
+            width: 100%;
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+            object-fit: contain;
+        }
+
         .story-text {
             font-size: 15px;
             line-height: 1.85;
@@ -421,7 +435,6 @@
             border: 1px solid rgba(255, 255, 255, 0.8);
         }
 
-        /* 修复普通网格图片的高度，但为长截图提供展示可能 */
         .photo-grid-2 .gallery-img { height: 160px; }
         .photo-grid-3 .gallery-img { height: 110px; }
         
@@ -732,6 +745,7 @@
             <span class="timeline-location">Blue Wave & Windy Waves</span>
         </div>
 
+        <!-- 餐厅大门招牌：images/ 文件夹 -->
         <img src="images/dinner_sign.jpg" alt="Windy Waves Beach Restaurant" class="photo-featured" loading="lazy">
 
         <div class="story-text">
@@ -743,6 +757,7 @@
             一杯烈酒，一盘食
         </div>
 
+        <!-- 自拍与一号桌烤鱼海鲜大餐：images/ 文件夹 -->
         <div class="photo-grid-2">
             <img src="images/dinner_me.jpg" alt="Selfie at Beach Hut" class="gallery-img" loading="lazy">
             <img src="images/dinner_food.jpg" alt="Table 1 Seafood Dinner" class="gallery-img" loading="lazy">
@@ -789,8 +804,10 @@
             Broken kite like my broken heart。
         </div>
 
+        <!-- 破损风筝照片：images/ 文件夹 -->
         <img src="images/Broken%20Kite.JPG" alt="Broken Kite" class="photo-featured" style="margin-top: 8px;" loading="lazy">
 
+        <!-- 破损风筝视频：media/ 文件夹 -->
         <div class="video-wrapper">
             <video controls playsinline preload="metadata">
                 <source src="media/Broken%20Kite.mp4" type="video/mp4">
@@ -883,16 +900,70 @@
                 <span class="gear-pill dlab">10m Duotone Evo D/LAB 2027 · TT</span>
             </div>
 
-            <!-- 将之前漏掉的 9月4日 三张 WOO 长截图补全，不加裁切处理 -->
-            <div style="display: flex; flex-direction: column; gap: 8px; margin: 12px 0;">
-                <img src="images/IMG_4956.PNG" alt="WOO Jump Breakdown" style="width: 100%; border-radius: 12px; border: 1px solid #e2e8f0; background: #f8fafc;" loading="lazy">
-                <img src="images/IMG_4957.jpg" alt="WOO Stats Overview 1" style="width: 100%; border-radius: 12px; border: 1px solid #e2e8f0; background: #f8fafc;" loading="lazy">
-                <img src="images/IMG_4958.jpg" alt="WOO Stats Overview 2" style="width: 100%; border-radius: 12px; border: 1px solid #e2e8f0; background: #f8fafc;" loading="lazy">
+            <div class="woo-highlight-row">
+                <div class="woo-highlight-item">
+                    <div class="val">▲ 3.6 m</div>
+                    <div class="lbl">Highest Jump</div>
+                </div>
+                <div class="woo-highlight-item">
+                    <div class="val">28.8 m</div>
+                    <div class="lbl">Longest Distance</div>
+                </div>
+                <div class="woo-highlight-item">
+                    <div class="val">3h 57m</div>
+                    <div class="lbl">Session Duration</div>
+                </div>
+            </div>
+
+            <div class="woo-stats-grid">
+                <div class="stat-cell">
+                    <div class="num">3.4 s</div>
+                    <div class="txt">Max Airtime</div>
+                </div>
+                <div class="stat-cell">
+                    <div class="num">5.5 G</div>
+                    <div class="txt">Max Landing</div>
+                </div>
+                <div class="stat-cell">
+                    <div class="num">19 次</div>
+                    <div class="txt">Total Jumps</div>
+                </div>
+                <div class="stat-cell">
+                    <div class="num">41.1 s</div>
+                    <div class="txt">Total Airtime</div>
+                </div>
+                <div class="stat-cell">
+                    <div class="num">39.7 m</div>
+                    <div class="txt">Total Height</div>
+                </div>
+                <div class="stat-cell">
+                    <div class="num">36.87 km</div>
+                    <div class="txt">Total Distance</div>
+                </div>
+                <div class="stat-cell">
+                    <div class="num">43.4 kph</div>
+                    <div class="txt">Max Speed</div>
+                </div>
+                <div class="stat-cell">
+                    <div class="num">31.4 kph</div>
+                    <div class="txt">500m Speed</div>
+                </div>
+                <div class="stat-cell">
+                    <div class="num">16.74 km</div>
+                    <div class="txt">Distance 1hr</div>
+                </div>
             </div>
 
             <div class="jump-milestone">
                 <span>🎯 Day High: #3 Jump</span>
                 <span>4.2 m · 3.7 s Air · 3.1G Land (4m 2s)</span>
+            </div>
+
+            <!-- 挂载原始截图 -->
+            <div class="woo-raw-images">
+                <img src="images/IMG_4956.PNG" loading="lazy">
+                <img src="images/IMG_4957.jpg" loading="lazy">
+                <img src="images/IMG_4958.jpg" loading="lazy">
             </div>
         </div>
 
@@ -948,29 +1019,29 @@
             <span class="timeline-location">Kappalady Lagoon (老俱乐部)</span>
         </div>
 
-        <div class="story-text">
-            <p>昨天终究还是没走成。看着 QQ 伤心了一整天连水都没下，我到底还是狠不下心把她一个人扔在这，只好把机票又改签了，留下来陪她。</p>
-            <p>这两天在老俱乐部滑了两天。风筝在天上飞，心却一直在往下坠。又是一阵阵止不住地想你，疯狂地想。我只能一忍再忍，死死咬牙看自己能不能挺过这阵戒断反应，也许这样对大家的将来都好。</p>
-            <p>说来也真是可笑，飘在水面上看着眼前绝美的景色，脑子里冒出来的，竟然全是你跟 XX 曾经一起来这里时的幸福画面。而我，却永远无法体会和你一起在这里的感受。</p>
-            <p>越想越生气，风越大越觉得讽刺，哈哈哈……</p>
-        </div>
-
-        <div class="woo-block" style="margin-top: 4px;">
+        <div class="woo-block">
             <div class="woo-header">
                 <span class="woo-badge">⚡ WOO Sensor & Watch 汇总</span>
                 <span class="gear-pill dlab">9m Duotone Rebel D/LAB 2025</span>
             </div>
 
-            <!-- 真正恢复 9月6-7日 的那两张长截图，去除裁剪限制，并垂直堆叠 -->
-            <div style="display: flex; flex-direction: column; gap: 8px; margin: 12px 0;">
-                <img src="images/IMG_5155.jpg" alt="WOO Stats Day 7" style="width: 100%; border-radius: 12px; border: 1px solid #e2e8f0; background: #f8fafc;" loading="lazy">
-                <img src="images/IMG_5156.jpg" alt="WOO Stats Day 8" style="width: 100%; border-radius: 12px; border: 1px solid #e2e8f0; background: #f8fafc;" loading="lazy">
+            <!-- 将数据清空为只展示两张核心图片，不乱编数据 -->
+            <div class="woo-raw-images" style="grid-template-columns: 1fr 1fr;">
+                <img src="images/IMG_5155.jpg" alt="Data" loading="lazy">
+                <img src="images/IMG_5156.jpg" alt="Data" loading="lazy">
             </div>
-            
+
             <div class="jump-milestone">
-                <span>🎯 3 Sessions Total</span>
-                <span>Max Speed 40.3 kph · Kappalady / Talawila</span>
+                <span>🎯 2 Sessions Total</span>
+                <span>Kappalady / Talawila</span>
             </div>
+        </div>
+
+        <div class="story-text">
+            <p>昨天终究还是没走成。看着 QQ 伤心了一整天连水都没下，我到底还是狠不下心把她一个人扔在这，只好把机票又改签了，留下来陪她。</p>
+            <p>这两天在老俱乐部滑了两天。风筝在天上飞，心却一直在往下坠。又是一阵阵止不住地想你，疯狂地想。我只能一忍再忍，死死咬牙看自己能不能挺过这阵戒断反应，也许这样对大家的将来都好。</p>
+            <p>说来也真是可笑，飘在水面上看着眼前绝美的景色，脑子里冒出来的，竟然全是你跟 XX 曾经一起来这里时的幸福画面。而我，却永远无法体会和你一起在这里的感受。</p>
+            <p>越想越生气，哈哈哈。。。</p>
         </div>
 
         <div class="log-footer">
@@ -979,6 +1050,99 @@
         </div>
     </section>
 
+    <!-- 篇章十：9月8日 你的那片海 -->
+    <section class="log-card">
+        <div class="timeline-header">
+            <div class="timeline-date">🗓️ 9月8日 · 你的那片海</div>
+            <span class="timeline-location">Wella Island (Downwinder)</span>
+        </div>
+
+        <div class="woo-block">
+            <div class="woo-header">
+                <span class="woo-badge">⚡ WOO Sensor & Watch 实测</span>
+                <span class="gear-pill dlab">9m Duotone Rebel D/LAB 2025 · TT</span>
+            </div>
+
+            <div class="woo-highlight-row">
+                <div class="woo-highlight-item">
+                    <div class="val">▲ 3.6 m</div>
+                    <div class="lbl">Highest Jump</div>
+                </div>
+                <div class="woo-highlight-item">
+                    <div class="val">26.6 m</div>
+                    <div class="lbl">Longest Distance</div>
+                </div>
+                <div class="woo-highlight-item">
+                    <div class="val">4h 24m</div>
+                    <div class="lbl">Session Duration</div>
+                </div>
+            </div>
+
+            <div class="woo-stats-grid">
+                <div class="stat-cell">
+                    <div class="num">3.3 s</div>
+                    <div class="txt">Max Airtime</div>
+                </div>
+                <div class="stat-cell">
+                    <div class="num">6.7 G</div>
+                    <div class="txt">Max Landing</div>
+                </div>
+                <div class="stat-cell">
+                    <div class="num">28 次</div>
+                    <div class="txt">Total Jumps</div>
+                </div>
+                <div class="stat-cell">
+                    <div class="num">1m 5s</div>
+                    <div class="txt">Total Airtime</div>
+                </div>
+                <div class="stat-cell">
+                    <div class="num">62.8 m</div>
+                    <div class="txt">Total Height</div>
+                </div>
+                <div class="stat-cell">
+                    <div class="num">61.64 km</div>
+                    <div class="txt">Total Distance</div>
+                </div>
+                <div class="stat-cell">
+                    <div class="num">31.4 kph</div>
+                    <div class="txt">Max Speed</div>
+                </div>
+                <div class="stat-cell">
+                    <div class="num">21.0 kph</div>
+                    <div class="txt">500m Speed</div>
+                </div>
+                <div class="stat-cell">
+                    <div class="num">17.80 km</div>
+                    <div class="txt">Distance 1hr</div>
+                </div>
+            </div>
+
+            <div class="jump-milestone">
+                <span>🎯 Day High: #13 Jump</span>
+                <span>3.6 m · 3.1 s Air · 2.9G Land (3h 2m)</span>
+            </div>
+
+            <!-- 挂载原始截图 -->
+            <div class="woo-raw-images">
+                <img src="images/IMG_5152.jpg" loading="lazy">
+                <img src="images/IMG_5153.jpg" loading="lazy">
+                <img src="images/IMG_5154.jpg" loading="lazy">
+            </div>
+        </div>
+
+        <div class="story-text">
+            <p>这膝盖也奇怪，竟然一天比一天好，估计当时是硬伤吧。</p>
+            <p>9月8日这天有一堆外国人去 Wella，我一直在问你去年 down wind 遇险的地方，马兰说他也不清楚，我想我自己走一遭吧，去体验一下 down wind 有多危险。</p>
+            <p>过了 navy pier，到 mini Wella 的路上，我看到了你的那片海，一定是这里，浑浊的海水，巨大的浪，前后都看不到岸边。我想象你独自在水中挣扎，我想如果我在，我一定会，扔掉风筝，游到你身边，告诉你可以拔掉保险的，不用怕。。。</p>
+            <p>不过我还是觉得 down wind 超简单，简直就是散步。哈哈哈 看我今天的数据，我都滑到将近50km/h了。</p>
+            <p>今天就回了，明天终于到家了，可我又该何去何从呢，我能看到你的痛，我又何尝不是呢。。。</p>
+        </div>
+
+        <div class="log-footer">
+            <span>Downwinder to Wella</span>
+            <span>Day 9 · Going Home ✈️</span>
+        </div>
+    </section>
 </div>
 
 <script>

@@ -1,1 +1,449 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>CHASING THE WIND - PART 2</title>
+    <style>
+        :root {
+            --ocean-dark: #0a1128;
+            --primary: #0077b6;
+            --accent-sunset: #ff6b6b;
+            --accent-yellow: #ffd166;
+            --woo-blue: #0099ff;
+            --duotone-orange: #ff5500;
+            --duotone-dlab: #10b981;
+            --danger-red: #e11d48;
+            --text-main: #1c2d42;
+            --text-sub: #4b6584;
+            --safe-bottom: env(safe-area-inset-bottom, 20px);
+            --safe-top: env(safe-area-inset-top, 20px);
+        }
 
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "PingFang SC", "Hiragino Sans GB", "Segoe UI", sans-serif;
+        }
+
+        body {
+            background: linear-gradient(180deg, #d8f3dc 0%, #e0f2fe 30%, #f4f9fc 100%);
+            background-attachment: fixed;
+            color: var(--text-main);
+            min-height: 100vh;
+            padding: calc(var(--safe-top) + 20px) 18px calc(var(--safe-bottom) + 40px);
+            display: flex;
+            justify-content: center;
+        }
+
+        /* 全屏密码遮罩 */
+        #lockOverlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(10, 17, 40, 0.75);
+            backdrop-filter: blur(28px);
+            -webkit-backdrop-filter: blur(28px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 99999;
+            transition: opacity 0.4s ease, visibility 0.4s ease;
+        }
+
+        .lock-box {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 24px;
+            padding: 28px 24px;
+            width: 85%;
+            max-width: 320px;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .lock-icon {
+            font-size: 36px;
+            margin-bottom: -4px;
+        }
+
+        .lock-title {
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--ocean-dark);
+        }
+
+        .lock-hint {
+            font-size: 12px;
+            color: var(--text-sub);
+            margin-top: -6px;
+        }
+
+        .lock-input {
+            width: 100%;
+            height: 46px;
+            border: 1.5px solid #cbd5e1;
+            border-radius: 12px;
+            text-align: center;
+            font-size: 20px;
+            letter-spacing: 6px;
+            font-weight: 800;
+            outline: none;
+            color: var(--ocean-dark);
+            background: #f8fafc;
+            transition: border-color 0.2s;
+        }
+
+        .lock-input:focus {
+            border-color: var(--primary);
+            background: #fff;
+        }
+
+        .lock-btn {
+            height: 44px;
+            background: linear-gradient(135deg, var(--primary), #0284c7);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0, 119, 182, 0.25);
+            transition: transform 0.15s;
+        }
+
+        .lock-btn:active {
+            transform: scale(0.97);
+        }
+
+        .error-shake {
+            animation: shake 0.35s ease-in-out;
+            border-color: var(--accent-sunset) !important;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-8px); }
+            40%, 80% { transform: translateX(8px); }
+        }
+
+        .container {
+            width: 100%;
+            max-width: 440px;
+            display: flex;
+            flex-direction: column;
+            gap: 22px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 4px 0;
+        }
+
+        .brand h1 {
+            font-size: 24px;
+            font-weight: 900;
+            letter-spacing: -0.5px;
+            color: var(--ocean-dark);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .brand p {
+            font-size: 13px;
+            color: var(--primary);
+            font-weight: 600;
+            margin-top: 2px;
+        }
+
+        .music-pill {
+            display: inline-flex;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 30px;
+            padding: 6px 14px;
+            box-shadow: 0 4px 16px rgba(0, 119, 182, 0.12);
+            gap: 8px;
+            border: 1px solid rgba(0, 119, 182, 0.15);
+            cursor: pointer;
+            user-select: none;
+            transition: transform 0.15s ease;
+        }
+
+        .music-pill:active { transform: scale(0.96); }
+
+        .disc-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent-sunset), var(--accent-yellow));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            color: white;
+            transition: transform 0.3s ease;
+        }
+
+        .disc-icon.playing { animation: spin 3s linear infinite; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
+        .music-label {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--ocean-dark);
+        }
+
+        /* 翻页按钮样式 */
+        .page-nav {
+            display: flex;
+            justify-content: center;
+            margin-top: -6px;
+            margin-bottom: 6px;
+        }
+
+        .page-nav.bottom {
+            margin-top: 10px;
+            margin-bottom: 20px;
+        }
+
+        .nav-btn {
+            display: inline-flex;
+            align-items: center;
+            background: linear-gradient(135deg, var(--ocean-dark), var(--primary));
+            color: white;
+            text-decoration: none;
+            padding: 10px 24px;
+            border-radius: 30px;
+            font-size: 14px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            box-shadow: 0 8px 20px rgba(0, 119, 182, 0.2);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .nav-btn:active {
+            transform: scale(0.95);
+            box-shadow: 0 4px 10px rgba(0, 119, 182, 0.2);
+        }
+
+        .log-card {
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            border-radius: 24px;
+            padding: 24px 20px;
+            box-shadow: 0 16px 36px rgba(10, 17, 40, 0.06);
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .timeline-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            border-bottom: 1px dashed rgba(0, 119, 182, 0.18);
+            padding-bottom: 12px;
+        }
+
+        .timeline-date {
+            font-size: 17px;
+            font-weight: 800;
+            color: var(--ocean-dark);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .timeline-location {
+            font-size: 11px;
+            color: var(--primary);
+            font-weight: 700;
+            background: #e0f2fe;
+            padding: 3px 8px;
+            border-radius: 6px;
+        }
+
+        .story-text {
+            font-size: 15px;
+            line-height: 1.85;
+            color: var(--text-main);
+            text-align: justify;
+        }
+
+        .story-text p { margin-bottom: 12px; }
+        .story-text p:last-child { margin-bottom: 0; }
+
+        .midnight-poetry {
+            font-size: 16px;
+            line-height: 2.2;
+            color: #2c3e50;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+            padding: 6px 12px;
+            border-left: 3px solid var(--accent-sunset);
+            background: rgba(255, 107, 107, 0.05);
+            border-radius: 0 8px 8px 0;
+            margin-top: 8px;
+        }
+
+        .log-footer {
+            margin-top: 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 11px;
+            color: #8395a7;
+            padding-top: 10px;
+            border-top: 1px solid rgba(0,0,0,0.04);
+        }
+
+        .log-footer span:last-child {
+            color: var(--primary);
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body>
+
+<!-- 密码锁遮罩 -->
+<div id="lockOverlay">
+    <div class="lock-box">
+        <div class="lock-icon">🔒</div>
+        <div class="lock-title">追风日记 · 访问验证</div>
+        <div class="lock-hint">请输入访问密码</div>
+        <input type="password" id="passInput" class="lock-input" maxlength="6" inputmode="numeric" placeholder="••••" autofocus>
+        <button class="lock-btn" onclick="verifyPassword()">解锁进入</button>
+    </div>
+</div>
+
+<div class="container">
+    <!-- 顶部状态栏与播放器 -->
+    <header>
+        <div class="brand">
+            <h1>🌊 CHASING THE WIND</h1>
+            <p>第二卷 · 回归与拉扯</p>
+        </div>
+        
+        <div class="music-pill" onclick="toggleBGM()">
+            <div class="disc-icon" id="discIcon">▶</div>
+            <span class="music-label" id="musicStatus">播放海风 🎵</span>
+        </div>
+    </header>
+
+    <!-- 顶部翻页按钮 (返回第一页) -->
+    <div class="page-nav">
+        <a href="kite.html" class="nav-btn">⬅ 上一页</a>
+    </div>
+
+    <!-- 背景音乐：保留在根目录下 -->
+    <audio id="bgmAudio" loop preload="auto">
+        <source src="who%20tell%20me.m4a" type="audio/mp4">
+        <source src="who tell me.m4a" type="audio/mp4">
+    </audio>
+
+    <!-- 篇章：9月9日 简单的快乐与未解的答案 -->
+    <section class="log-card">
+        <div class="timeline-header">
+            <div class="timeline-date">🗓️ 9月9日 · 简单的快乐</div>
+            <span class="timeline-location">北京</span>
+        </div>
+
+        <div class="story-text">
+            <p>今天是我儿子的生日，我跟他吃了个饭，送给他一个耳机。</p>
+            <p>小孩子的快乐总是来得那么简单。看着他，我也想要如此简单的快乐，却求而不得。</p>
+            <p>一直想你。我今天想了一整天到底该如何，并没有个答案。最终我决定把这个网页发给你，用它来记录下一些美好——也许你认为是不美好，那就不看也罢。用它来陪伴我吧，或许对你也能有一点点帮助。</p>
+        </div>
+
+        <div class="midnight-poetry">
+            但我还是那个一直想着你、念着你的人。<br>
+            也许有一天这个日记断更了，那时候估计你早就找到了新男友，哈哈。
+        </div>
+
+        <div class="log-footer">
+            <span>Back to Beijing</span>
+            <span>Day 11 · Unanswered 🎈</span>
+        </div>
+    </section>
+
+    <!-- 底部翻页按钮 (返回第一页) -->
+    <div class="page-nav bottom">
+        <a href="kite.html" class="nav-btn">⬅ 上一页</a>
+    </div>
+
+</div>
+
+<script>
+    // 密码校验逻辑
+    const CORRECT_PIN = "0103";
+    const lockOverlay = document.getElementById('lockOverlay');
+    const passInput = document.getElementById('passInput');
+
+    function verifyPassword() {
+        if (passInput.value === CORRECT_PIN) {
+            lockOverlay.style.opacity = '0';
+            setTimeout(() => {
+                lockOverlay.style.visibility = 'hidden';
+            }, 400);
+            // 尝试自动播放背景音乐
+            audio.play().then(() => updateMusicUI(true)).catch(() => {});
+        } else {
+            passInput.classList.add('error-shake');
+            passInput.value = '';
+            setTimeout(() => {
+                passInput.classList.remove('error-shake');
+            }, 400);
+        }
+    }
+
+    // 支持回车解锁
+    passInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+            verifyPassword();
+        }
+    });
+
+    // 音乐播放控制
+    const audio = document.getElementById('bgmAudio');
+    const disc = document.getElementById('discIcon');
+    const statusLabel = document.getElementById('musicStatus');
+
+    function updateMusicUI(isPlaying) {
+        if (isPlaying) {
+            disc.innerHTML = "⏸";
+            disc.classList.add('playing');
+            statusLabel.innerText = "播放中 · Who Tell Me";
+        } else {
+            disc.innerHTML = "▶";
+            disc.classList.remove('playing');
+            statusLabel.innerText = "已暂停";
+        }
+    }
+
+    function toggleBGM() {
+        if (audio.paused) {
+            audio.play().then(() => updateMusicUI(true)).catch(() => {
+                alert("播放提示：请确认 who tell me.m4a 文件名正确且存放在主目录下。");
+            });
+        } else {
+            audio.pause();
+            updateMusicUI(false);
+        }
+    }
+</script>
+
+</body>
+</html>

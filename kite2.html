@@ -6,7 +6,8 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>CHASING THE WIND - PART 2</title>
-    <!-- 已经去除了不蒜子，改用更高级的点击触发统计 -->
+    <!-- 引入不蒜子访问量统计脚本 -->
+    <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
     <style>
         :root {
             --ocean-dark: #0a1128;
@@ -391,6 +392,32 @@
         </div>
     </section>
 
+    <!-- 篇章：9月10日 晨间碎语 -->
+    <section class="log-card">
+        <div class="timeline-header">
+            <div class="timeline-date">🗓️ 9月10日 · 晨间碎语</div>
+            <span class="timeline-location">北京 · 晨</span>
+        </div>
+
+        <div class="story-text">
+            <p>今天是周四，是你送娃的日子。如果是在平常，这个时间你大概已经推开我们那间小窝的门了吧。哈哈。</p>
+            <p>每天都在想你，我自己也是服了。以后我尽可能少说这样的话吧。</p>
+            <p>昨天把链接发给了你，也不知道你点开没有。不过我不会再发了，也不会再打搅你。其实弄这个网页的起点并不是为了给你看，仅仅是为了记录；后来，确实生出了一点想让你看到的心思；而现在，它纯粹成了我的精神支柱。我只能在这上面敲下几句，勉强舒缓一下那种巨大到难以承受的思念，期盼着我自己能彻底好起来的那一天。</p>
+            <p>还记得我们第一次分开时，我退了群，然后你在群里说了好多话。其实后来我用小号全都偷偷看到了。这本日记，就当是对那次你那些话的补偿吧。也许哪天你真的会看到这些，哈哈，不知你会作何感想。</p>
+            <p>我想，过一段时间我必须得把这网站给删了，要不然以你那二货的性格，说不定真会拿去展示给你新男朋友看，哈哈哈。只是现在，先让它陪着我，等我慢慢好起来吧。</p>
+        </div>
+
+        <div class="midnight-poetry">
+            起点是为了记录，现在却是我的精神支柱。<br>
+            这本日记，就当是对第一次分开时那些话的补偿。
+        </div>
+
+        <div class="log-footer">
+            <span>Morning Thoughts</span>
+            <span>Day 12 · Waiting to heal 🕰️</span>
+        </div>
+    </section>
+
     <!-- 底部翻页按钮 (返回第一页) -->
     <div class="page-nav bottom">
         <a href="kite.html" class="nav-btn">⬅ 上一页</a>
@@ -410,7 +437,7 @@
     const GUEST_PIN = "0103"; // 你们共用的密码
     const ADMIN_PIN = "9999"; // 你的专属密码
 
-    // 独一无二的统计数据池 Key，防止跟全世界任何人撞车
+    // 独一无二的统计数据池 Key
     const COUNTER_KEY = "chasing_wind_diary_kite2_guest_v1";
 
     const lockOverlay = document.getElementById('lockOverlay');

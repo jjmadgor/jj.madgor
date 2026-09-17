@@ -13,12 +13,7 @@
     * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     body { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif; background-color: var(--bg-color); color: var(--text-main); -webkit-font-smoothing: antialiased; }
     
-    /* 密码锁屏界面 */
-    #lock-screen {
-      position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-      background: var(--bg-color); z-index: 10000;
-      display: flex; flex-direction: column; justify-content: center; align-items: center;
-    }
+    #lock-screen { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: var(--bg-color); z-index: 10000; display: flex; flex-direction: column; justify-content: center; align-items: center; }
     .lock-box { background: var(--card-bg); padding: 40px 30px; border-radius: 20px; box-shadow: var(--panel-shadow); text-align: center; width: 90%; max-width: 360px; }
     .lock-box h2 { margin-bottom: 8px; font-size: 22px; color: var(--text-main); letter-spacing: -0.5px; }
     .lock-box p { color: var(--text-muted); font-size: 14px; margin-bottom: 24px; }
@@ -26,7 +21,6 @@
     #pin-input:focus { border-color: var(--apple-blue); background: #FFF; }
     #pin-error { color: var(--apple-red); font-size: 13px; font-weight: 600; margin-top: 12px; display: none; }
 
-    /* 应用内样式 */
     .container { max-width: 1200px; margin: 0 auto; padding: 20px 16px 40px; }
     .nav-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
     .brand { font-size: 22px; font-weight: 700; letter-spacing: -0.5px; }
@@ -52,6 +46,7 @@
     .balance-display { font-size: 32px; font-weight: 700; font-family: "SF Pro Display", sans-serif; margin-bottom: 2px; transition: color 0.3s; }
     .profit-positive { color: var(--apple-green); }
     .profit-negative { color: var(--apple-red); }
+    .profit-neutral { color: var(--text-muted); }
     .btn { background: var(--apple-blue); color: white; border: none; padding: 12px; width: 100%; border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer; transition: 0.2s; }
     .btn:hover { background: #0077ED; }
     .btn:disabled { background: #E5E5EA; color: #86868B; cursor: not-allowed; }
@@ -72,15 +67,22 @@
     .stock-row.selected { background: rgba(0, 113, 227, 0.08); }
     .stock-row .symbol { font-size: 15px; font-weight: 700; }
     .stock-row .company { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+    .stock-row .price-box { text-align: right; }
     .stock-row .price { font-size: 15px; font-weight: 600; font-family: "SF Pro Display"; transition: color 0.4s; }
+    
+    /* 涨跌幅徽章样式 */
+    .change-badge { font-size: 11px; font-weight: 700; padding: 3px 6px; border-radius: 6px; margin-top: 4px; display: inline-block; font-family: "SF Pro Display"; }
+    .badge-pos { background: rgba(52, 199, 89, 0.12); color: var(--apple-green); }
+    .badge-neg { background: rgba(255, 59, 48, 0.12); color: var(--apple-red); }
+    .badge-neu { background: rgba(142, 142, 147, 0.12); color: #8E8E93; }
 
     .trading-desk { background: var(--card-bg); border-radius: 16px; padding: 20px; box-shadow: var(--panel-shadow); border: 1px solid var(--apple-blue); }
     .trade-input-group { display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px; }
     @media (min-width: 600px) { .trade-input-group { flex-direction: row; align-items: stretch; } }
     .custom-symbol-input { flex: 1; font-size: 20px; font-weight: 700; padding: 12px; border-radius: 10px; border: 1px solid var(--border-color); text-transform: uppercase; outline: none; background: var(--bg-color); text-align: center; }
     .quote-display { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; background: var(--bg-color); padding: 12px; border-radius: 10px; }
-    .quote-price { font-size: 26px; font-weight: 700; color: #1D1D1F; font-family: "SF Pro Display"; transition: color 0.4s; }
-    .quote-name { font-size: 13px; color: var(--text-muted); margin-top: 4px;}
+    .quote-price { font-size: 26px; font-weight: 700; color: #1D1D1F; font-family: "SF Pro Display"; transition: color 0.4s; line-height: 1.1; }
+    .quote-name { font-size: 13px; color: var(--text-muted); margin-top: 4px; display: flex; align-items: center; gap: 6px;}
     .trade-actions { display: flex; flex-direction: column; gap: 12px; background: rgba(0, 113, 227, 0.05); padding: 16px; border-radius: 10px; }
     .trade-actions-row { display: flex; gap: 12px; align-items: center; }
     .trade-actions input { flex: 1; padding: 12px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 16px; text-align: center; outline: none; }
@@ -199,7 +201,7 @@
               <input type="text" id="desk-symbol-input" class="custom-symbol-input" placeholder="输入代码" oninput="handleManualInput()">
               <div class="quote-display">
                 <div class="quote-price" id="desk-price">--</div>
-                <div class="quote-name" id="desk-company">等待输入...</div>
+                <div class="quote-name"><span id="desk-company">等待输入...</span> <span id="desk-change-badge" style="display:none;" class="change-badge"></span></div>
               </div>
             </div>
             <div class="trade-actions">
@@ -214,7 +216,7 @@
         </div>
 
         <div class="market-section">
-          <div class="panel-title">全球核心资产风向标</div>
+          <div class="panel-title">全球核心资产风向标 (TOP 30)</div>
           <div class="market-tabs">
             <div class="m-tab active" onclick="switchMarketCategory('ALL')">全部</div>
             <div class="m-tab" onclick="switchMarketCategory('US')">美股</div>
@@ -236,23 +238,45 @@
     
     let FX_RATES = { US: 1.0, HK: 7.80, CN: 7.20 }; 
     
-    // 全新优化的核心观察池
+    // 全球最具代表性的 30 支标的（宽基ETF、避险资产、各市场龙头核心资产）
     const GLOBAL_STOCKS = [
-      { symbol: 'SPY', name: '标普500 ETF (宏观)', market: 'US', basePrice: 510.00 },
-      { symbol: 'QQQ', name: '纳斯达克 ETF (科技)', market: 'US', basePrice: 440.00 },
-      { symbol: 'NVDA', name: '英伟达 (算力龙头)', market: 'US', basePrice: 880.00 },
-      { symbol: 'AAPL', name: '苹果 (消费电子)', market: 'US', basePrice: 173.00 },
-      { symbol: 'TSLA', name: '特斯拉 (新能源)', market: 'US', basePrice: 195.00 },
-      { symbol: 'MSFT', name: '微软 (AI软件)', market: 'US', basePrice: 406.00 },
-      { symbol: 'NIO', name: '蔚来 (造车新势力)', market: 'US', basePrice: 4.50 },
-      { symbol: '0700.HK', name: '腾讯控股 (互联网)', market: 'HK', basePrice: 388.00 },
-      { symbol: '9988.HK', name: '阿里巴巴 (电商)', market: 'HK', basePrice: 72.00 },
-      { symbol: '3690.HK', name: '美团 (本地生活)', market: 'HK', basePrice: 100.00 },
-      { symbol: '510300', name: '沪深300 ETF (A股大盘)', market: 'CN', basePrice: 3.50 },
-      { symbol: '600519', name: '贵州茅台 (消费白马)', market: 'CN', basePrice: 1600.00 },
-      { symbol: '300750', name: '宁德时代 (动力电池)', market: 'CN', basePrice: 190.00 }
+      // 美股 ETF & 避险
+      { symbol: 'VOO', name: '标普500 ETF', market: 'US', basePrice: 470.00 },
+      { symbol: 'QQQ', name: '纳斯达克 100 ETF', market: 'US', basePrice: 440.00 },
+      { symbol: 'TLT', name: '20年期以上美债', market: 'US', basePrice: 95.00 },
+      { symbol: 'GLD', name: '黄金 ETF', market: 'US', basePrice: 200.00 },
+      // 美股 科技七巨头 & 核心股
+      { symbol: 'NVDA', name: '英伟达 (AI算力)', market: 'US', basePrice: 880.00 },
+      { symbol: 'AAPL', name: '苹果公司', market: 'US', basePrice: 173.00 },
+      { symbol: 'MSFT', name: '微软', market: 'US', basePrice: 406.00 },
+      { symbol: 'GOOGL', name: '谷歌 (Alphabet)', market: 'US', basePrice: 140.00 },
+      { symbol: 'AMZN', name: '亚马逊', market: 'US', basePrice: 175.00 },
+      { symbol: 'META', name: 'Meta (脸书)', market: 'US', basePrice: 480.00 },
+      { symbol: 'TSLA', name: '特斯拉', market: 'US', basePrice: 195.00 },
+      { symbol: 'BRK.B', name: '伯克希尔哈撒韦', market: 'US', basePrice: 400.00 },
+      { symbol: 'LLY', name: '礼来 (医药巨头)', market: 'US', basePrice: 750.00 },
+      { symbol: 'TSM', name: '台积电', market: 'US', basePrice: 140.00 },
+      { symbol: 'NIO', name: '蔚来汽车', market: 'US', basePrice: 4.50 },
+      // 港股 核心标的
+      { symbol: '2800.HK', name: '盈富基金 (恒指ETF)', market: 'HK', basePrice: 17.00 },
+      { symbol: '0700.HK', name: '腾讯控股', market: 'HK', basePrice: 388.00 },
+      { symbol: '9988.HK', name: '阿里巴巴', market: 'HK', basePrice: 72.00 },
+      { symbol: '3690.HK', name: '美团', market: 'HK', basePrice: 100.00 },
+      { symbol: '1211.HK', name: '比亚迪股份', market: 'HK', basePrice: 200.00 },
+      { symbol: '0941.HK', name: '中国移动 (高股息)', market: 'HK', basePrice: 65.00 },
+      { symbol: '0883.HK', name: '中国海洋石油', market: 'HK', basePrice: 18.00 },
+      // A股 宽基 ETF & 蓝筹
+      { symbol: '510300', name: '沪深300 ETF', market: 'CN', basePrice: 3.50 },
+      { symbol: '510500', name: '中证500 ETF', market: 'CN', basePrice: 5.20 },
+      { symbol: '159915', name: '创业板 ETF', market: 'CN', basePrice: 1.70 },
+      { symbol: '518880', name: '黄金 ETF (境内)', market: 'CN', basePrice: 4.80 },
+      { symbol: '600519', name: '贵州茅台', market: 'CN', basePrice: 1600.00 },
+      { symbol: '300750', name: '宁德时代', market: 'CN', basePrice: 190.00 },
+      { symbol: '601318', name: '中国平安', market: 'CN', basePrice: 40.00 },
+      { symbol: '600900', name: '长江电力 (高股息)', market: 'CN', basePrice: 25.00 }
     ];
 
+    // 现在 currentPrices 存储的是对象: { price: 现价, prev: 昨收 }
     let currentPrices = {}; 
     let activeView = '总览'; 
     let selectedStockSymbol = ''; 
@@ -260,7 +284,6 @@
     let db = { accounts: {}, fxRates: null, fxLastUpdate: 0 }; 
     let isUserTyping = false; 
 
-    // --- 安全验证逻辑 ---
     window.onload = () => {
       if (localStorage.getItem('jj_auth_pin') === AUTH_PIN) {
         document.getElementById('lock-screen').style.display = 'none';
@@ -282,7 +305,6 @@
       }
     }
 
-    // --- 输入防打断 ---
     document.addEventListener('focusin', (e) => { if(e.target.tagName === 'INPUT' && e.target.id !== 'pin-input') isUserTyping = true; });
     document.addEventListener('focusout', (e) => { 
       if(e.target.tagName === 'INPUT' && e.target.id !== 'pin-input') { 
@@ -290,7 +312,6 @@
       } 
     });
 
-    // --- 启动云端架构与汇率引擎 ---
     async function initCloudSystem() {
       try {
         const response = await fetch(API_URL);
@@ -300,14 +321,12 @@
           db = data;
         } else {
           db.accounts = {};
-          // 初始化时仅生成阿桂和UMI的数据
           USERS.forEach(user => { 
             db.accounts[user] = { principal: 2000.00, cash: 2000.00, withdrawn: 0.00, portfolio: {} };
           });
           await saveToCloud();
         }
 
-        // 外汇汇率每4小时更新一次逻辑
         if (!db.fxRates || Date.now() - (db.fxLastUpdate || 0) > 4 * 60 * 60 * 1000) {
            await fetchExchangeRates();
         } else {
@@ -321,12 +340,14 @@
         document.getElementById('loading-overlay').style.display = 'none';
         document.getElementById('main-app').style.display = 'block';
 
-        GLOBAL_STOCKS.forEach(stock => { currentPrices[stock.symbol] = stock.basePrice; });
+        // 初始化数据结构
+        GLOBAL_STOCKS.forEach(stock => { 
+          currentPrices[stock.symbol] = { price: stock.basePrice, prev: stock.basePrice }; 
+        });
         for (const u in db.accounts) {
-          // 如果云端库里有旧数据（JJ,奶奶），跳过不在USERS列表里的账户初始化价格
           if(!USERS.includes(u)) continue; 
           for (const sym in db.accounts[u].portfolio) {
-            if (!currentPrices[sym]) currentPrices[sym] = 10.00;
+            if (!currentPrices[sym]) currentPrices[sym] = { price: 10.00, prev: 10.00 };
           }
         }
         
@@ -353,9 +374,7 @@
           db.fxLastUpdate = Date.now();
           await saveToCloud();
         }
-      } catch(e) {
-         console.log("汇率拉取失败，使用底座汇率");
-      }
+      } catch(e) {}
     }
 
     async function saveToCloud() {
@@ -369,9 +388,6 @@
       }
     }
 
-    // ==========================================
-    // 代理引擎：向私有云要数据，绝对防屏蔽
-    // ==========================================
     function getTencentSymbol(symbol) {
       let s = symbol.toUpperCase().trim();
       if (s.includes('.HK')) {
@@ -402,10 +418,13 @@
             let hasPriceChanged = false;
             Array.from(symbolsToFetch).forEach(sym => {
                 const tSym = getTencentSymbol(sym);
-                const realPrice = result.prices[tSym];
+                const realData = result.prices[tSym]; // {price: x, prev: y}
                 
-                if (realPrice && currentPrices[sym] !== realPrice) {
-                    currentPrices[sym] = realPrice;
+                if (realData && (!currentPrices[sym] || currentPrices[sym].price !== realData.price)) {
+                    currentPrices[sym] = {
+                        price: realData.price,
+                        prev: realData.prev > 0 ? realData.prev : realData.price // 防零除报错
+                    };
                     hasPriceChanged = true;
                     const el = document.getElementById(`price-${sym}`);
                     if(el) { el.style.color = 'var(--apple-green)'; setTimeout(()=> el.style.color = '', 1000); }
@@ -413,9 +432,19 @@
             });
             if (hasPriceChanged) updateUIDiscreetly();
         }
-      } catch (e) {
-        console.error("行情拉取异常");
-      }
+      } catch (e) {}
+    }
+
+    function getChangeInfo(sym) {
+      if (!currentPrices[sym]) return { pct: 0, cls: 'badge-neu', sign: '' };
+      const { price, prev } = currentPrices[sym];
+      const diff = price - prev;
+      const pct = prev > 0 ? (diff / prev) * 100 : 0;
+      let cls = 'badge-neu'; let sign = '';
+      // 全球统一样式：涨为绿，跌为红 (符合国际接轨)
+      if (diff > 0) { cls = 'badge-pos'; sign = '+'; }
+      else if (diff < 0) { cls = 'badge-neg'; }
+      return { pct, cls, sign };
     }
 
     function updateUIDiscreetly() {
@@ -427,7 +456,16 @@
       if (selectedStockSymbol && currentPrices[selectedStockSymbol]) {
         const market = parseSymbolInfo(selectedStockSymbol).market;
         const pEl = document.getElementById('desk-price');
-        if (pEl) pEl.innerText = `${CURRENCIES[market]}${currentPrices[selectedStockSymbol].toFixed(2)}`;
+        const badgeEl = document.getElementById('desk-change-badge');
+        
+        if (pEl) pEl.innerText = `${CURRENCIES[market]}${currentPrices[selectedStockSymbol].price.toFixed(2)}`;
+        
+        const chg = getChangeInfo(selectedStockSymbol);
+        if (badgeEl) {
+            badgeEl.className = `change-badge ${chg.cls}`;
+            badgeEl.innerText = `${chg.sign}${chg.pct.toFixed(2)}%`;
+            badgeEl.style.display = 'inline-block';
+        }
         calculateEstCost();
       }
     }
@@ -477,7 +515,8 @@
         const market = parseSymbolInfo(symbol).market;
         const curSym = CURRENCIES[market];
         const isSelected = selectedStockSymbol === symbol ? 'selected' : '';
-        const price = currentPrices[symbol] || 0;
+        const price = currentPrices[symbol] ? currentPrices[symbol].price : 0;
+        const chg = getChangeInfo(symbol);
         
         html += `
           <div class="stock-row ${isSelected}" id="row-${symbol}" onclick="selectStock('${symbol}')">
@@ -485,7 +524,10 @@
               <div class="symbol">${symbol} <span style="font-size: 10px; padding: 2px 4px; background: #EEE; border-radius: 4px; margin-left: 4px;">${market}</span></div>
               <div class="company">${name}</div>
             </div>
-            <div class="price" id="price-${symbol}">${curSym}${price.toFixed(2)}</div>
+            <div class="price-box">
+                <div class="price" id="price-${symbol}">${curSym}${price.toFixed(2)}</div>
+                <div class="change-badge ${chg.cls}">${chg.sign}${chg.pct.toFixed(2)}%</div>
+            </div>
           </div>
         `;
       });
@@ -523,7 +565,16 @@
       
       document.getElementById('desk-symbol-input').value = symbol;
       document.getElementById('desk-company').innerText = `${stockName} (${market})`;
-      document.getElementById('desk-price').innerText = `${CURRENCIES[market]}${(currentPrices[symbol]||0).toFixed(2)}`;
+      
+      const price = currentPrices[symbol] ? currentPrices[symbol].price : 0;
+      document.getElementById('desk-price').innerText = `${CURRENCIES[market]}${price.toFixed(2)}`;
+      
+      const badgeEl = document.getElementById('desk-change-badge');
+      const chg = getChangeInfo(symbol);
+      badgeEl.className = `change-badge ${chg.cls}`;
+      badgeEl.innerText = `${chg.sign}${chg.pct.toFixed(2)}%`;
+      badgeEl.style.display = 'inline-block';
+
       calculateEstCost();
       if(window.innerWidth < 900) { document.querySelector('.trading-desk').scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }
     }
@@ -533,6 +584,7 @@
       if (!rawInput.trim()) {
         selectedStockSymbol = '';
         document.getElementById('desk-company').innerText = '等待输入...';
+        document.getElementById('desk-change-badge').style.display = 'none';
         document.getElementById('desk-price').innerText = '--';
         document.getElementById('est-cost-display').innerHTML = `折合消耗 (USD): <span>$0.00</span>`;
         return;
@@ -545,27 +597,28 @@
         selectStock(selectedStockSymbol); 
       } else {
         document.getElementById('desk-company').innerText = `自选证券 (${parsed.market})`;
-        if (!currentPrices[selectedStockSymbol]) currentPrices[selectedStockSymbol] = 10.00; 
-        document.getElementById('desk-price').innerText = `${CURRENCIES[parsed.market]}${currentPrices[selectedStockSymbol].toFixed(2)}`;
+        document.getElementById('desk-change-badge').style.display = 'none';
+        if (!currentPrices[selectedStockSymbol]) currentPrices[selectedStockSymbol] = { price: 10.00, prev: 10.00 }; 
+        document.getElementById('desk-price').innerText = `${CURRENCIES[parsed.market]}${currentPrices[selectedStockSymbol].price.toFixed(2)}`;
         calculateEstCost();
         fetchRealPrices(); 
       }
     }
 
     function calculateEstCost() {
-      if (!selectedStockSymbol) return;
+      if (!selectedStockSymbol || !currentPrices[selectedStockSymbol]) return;
       const shares = parseInt(document.getElementById('trade-qty').value) || 0;
       const market = parseSymbolInfo(selectedStockSymbol).market;
-      const usdCost = (shares * currentPrices[selectedStockSymbol]) / FX_RATES[market];
+      const usdCost = (shares * currentPrices[selectedStockSymbol].price) / FX_RATES[market];
       document.getElementById('est-cost-display').innerHTML = `折合消耗 (USD): <span>$${usdCost.toFixed(2)}</span>`;
     }
 
     async function executeBuy() {
-      if (!selectedStockSymbol) return alert('请先选择标的！');
+      if (!selectedStockSymbol || !currentPrices[selectedStockSymbol]) return alert('请先选择标的！');
       const shares = parseInt(document.getElementById('trade-qty').value);
       if (isNaN(shares) || shares <= 0) return alert('数量无效！');
       const market = parseSymbolInfo(selectedStockSymbol).market;
-      const usdCost = (shares * currentPrices[selectedStockSymbol]) / FX_RATES[market];
+      const usdCost = (shares * currentPrices[selectedStockSymbol].price) / FX_RATES[market];
       const account = db.accounts[activeView];
 
       if (account.cash < usdCost) return alert(`⚠️ 购买力不足！需: $${usdCost.toFixed(2)}\n可用: $${account.cash.toFixed(2)}`);
@@ -590,7 +643,7 @@
       if (isNaN(sharesToSell) || sharesToSell <= 0) return alert('数量无效！');
       if (sharesToSell > stockData.shares) return alert(`⚠️ 超过持仓限制！`);
 
-      const usdRevenue = (sharesToSell * currentPrices[symbol]) / FX_RATES[stockData.market];
+      const usdRevenue = (sharesToSell * currentPrices[symbol].price) / FX_RATES[stockData.market];
       const costPerShareUSD = stockData.costUSD / stockData.shares;
       stockData.shares -= sharesToSell;
       stockData.costUSD -= (costPerShareUSD * sharesToSell);
@@ -610,12 +663,12 @@
       for (const [symbol, data] of Object.entries(account.portfolio)) {
         if (data.shares > 0) {
           const name = getStockName(symbol);
-          const localPrice = currentPrices[symbol] || 0;
+          const localPrice = currentPrices[symbol] ? currentPrices[symbol].price : 0;
           const currentValUSD = (data.shares * localPrice) / FX_RATES[data.market];
           const profitUSD = currentValUSD - data.costUSD;
           const profitPercent = data.costUSD > 0 ? ((profitUSD / data.costUSD) * 100) : 0;
           const profitSign = profitUSD >= 0 ? '+' : '';
-          const profitClass = profitUSD >= 0 ? 'profit-positive' : 'profit-negative';
+          const profitClass = profitUSD > 0 ? 'profit-positive' : (profitUSD < 0 ? 'profit-negative' : 'profit-neutral');
           const curSym = CURRENCIES[data.market];
           
           const costPerShareLocal = (data.costUSD / data.shares) * FX_RATES[data.market];
@@ -655,7 +708,7 @@
       
       const profitEl = document.getElementById('realtime-profit');
       profitEl.innerText = `${netProfit >= 0 ? '+' : ''}$${netProfit.toFixed(2)}`;
-      profitEl.className = netProfit >= 0 ? 'profit-positive' : 'profit-negative';
+      profitEl.className = netProfit > 0 ? 'profit-positive' : (netProfit < 0 ? 'profit-negative' : 'profit-neutral');
       
       const withdrawBtn = document.getElementById('withdraw-btn');
       if (netProfit > 0.01 && account.cash >= netProfit) {
@@ -669,7 +722,7 @@
       const account = db.accounts[activeView];
       let stockVal = 0;
       for (const [sym, d] of Object.entries(account.portfolio)) {
-        if (d.shares > 0) stockVal += (d.shares * currentPrices[sym]) / FX_RATES[d.market];
+        if (d.shares > 0) stockVal += (d.shares * (currentPrices[sym] ? currentPrices[sym].price : 0)) / FX_RATES[d.market];
       }
       const netProfit = (account.cash + stockVal + account.withdrawn) - account.principal;
 
@@ -690,7 +743,7 @@
         const acc = db.accounts[user];
         let stockVal = 0;
         for (const [sym, d] of Object.entries(acc.portfolio)) {
-          if (d.shares > 0) stockVal += (d.shares * currentPrices[sym]) / FX_RATES[d.market];
+          if (d.shares > 0) stockVal += (d.shares * (currentPrices[sym] ? currentPrices[sym].price : 0)) / FX_RATES[d.market];
         }
         const totalAsst = acc.cash + stockVal;
         const profit = (totalAsst + acc.withdrawn) - acc.principal;
@@ -703,14 +756,14 @@
             </div>
             <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 14px;"><span style="color: var(--text-muted);">总资产估值</span><span style="font-weight: 600;">$${totalAsst.toFixed(2)}</span></div>
             <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 14px;"><span style="color: var(--text-muted);">现金 / 仓位</span><span style="font-weight: 600; font-size: 13px;">$${acc.cash.toFixed(0)} / $${stockVal.toFixed(0)}</span></div>
-            <div style="display: flex; justify-content: space-between; margin-top: 12px; padding-top: 12px; border-top: 1px dashed var(--bg-color);"><span style="color: var(--text-muted); font-size: 14px;">累计净收益</span><span style="font-weight: 700; font-size: 16px;" class="${profit >= 0 ? 'profit-positive' : 'profit-negative'}">${profit >= 0 ? '+' : ''}$${profit.toFixed(2)}</span></div>
+            <div style="display: flex; justify-content: space-between; margin-top: 12px; padding-top: 12px; border-top: 1px dashed var(--bg-color);"><span style="color: var(--text-muted); font-size: 14px;">累计净收益</span><span style="font-weight: 700; font-size: 16px;" class="${profit > 0 ? 'profit-positive' : (profit < 0 ? 'profit-negative' : 'profit-neutral')}">${profit >= 0 ? '+' : ''}$${profit.toFixed(2)}</span></div>
           </div>`;
       });
       document.getElementById('overview-grid-container').innerHTML = gridHTML;
       document.getElementById('global-total-assets').innerText = `$${globalAssets.toFixed(2)}`;
       const pEl = document.getElementById('global-total-profit');
       pEl.innerText = `${globalProfit >= 0 ? '+' : ''}$${globalProfit.toFixed(2)}`;
-      pEl.className = globalProfit >= 0 ? 'profit-positive' : 'profit-negative';
+      pEl.className = globalProfit > 0 ? 'profit-positive' : (globalProfit < 0 ? 'profit-negative' : 'profit-neutral');
     }
 
     initCloudSystem();

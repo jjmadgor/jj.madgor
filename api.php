@@ -4,16 +4,14 @@ header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: POST, GET');
 
 // ==========================================
-// 1. 获取全球实时外汇汇率 (每4小时前端会请求一次)
+// 1. 获取全球实时外汇汇率 
 // ==========================================
 if (isset($_GET['action']) && $_GET['action'] === 'fx') {
-    // 使用稳定的开源汇率 API
     $url = "https://open.er-api.com/v6/latest/USD";
-    $opts = ["http" => ["method" => "GET", "timeout" => 3]]; // 设置3秒超时防卡死
+    $opts = ["http" => ["method" => "GET", "timeout" => 3]]; 
     $context = stream_context_create($opts);
     $result = @file_get_contents($url, false, $context);
     
-    // 默认备用汇率底座
     $rates = ['US' => 1.0, 'CN' => 7.20, 'HK' => 7.80]; 
     if ($result) {
         $data = json_decode($result, true);
@@ -25,7 +23,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'fx') {
 }
 
 // ==========================================
-// 2. 股票实时行情代理 (腾讯财经)
+// 2. 股票实时行情代理 (新增抓取昨收价)
 // ==========================================
 if (isset($_GET['action']) && $_GET['action'] === 'quote') {
     $symbols = isset($_GET['symbols']) ? $_GET['symbols'] : '';
@@ -48,8 +46,12 @@ if (isset($_GET['action']) && $_GET['action'] === 'quote') {
             if (preg_match('/v_(.*?)="([^"]+)"/', $line, $matches)) {
                 $sym = $matches[1];
                 $data = explode('~', $matches[2]);
-                if (isset($data[3])) {
-                    $prices[$sym] = floatval($data[3]);
+                // data[3]是现价, data[4]是昨收价
+                if (isset($data[3]) && isset($data[4])) {
+                    $prices[$sym] = [
+                        'price' => floatval($data[3]),
+                        'prev'  => floatval($data[4])
+                    ];
                 }
             }
         }

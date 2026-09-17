@@ -37,7 +37,7 @@
             justify-content: center;
         }
 
-        /* 全屏密码遮罩 */
+        /* 仅管理员输入的加密遮罩 (输入9999查看统计) */
         #lockOverlay {
             position: fixed;
             top: 0;
@@ -337,14 +337,14 @@
 </head>
 <body>
 
-<!-- 密码锁遮罩 -->
-<div id="lockOverlay">
+<!-- 管理员密码验证遮罩 (如需查看浏览次数可输入9999，点右上角或直接刷新可关闭) -->
+<div id="lockOverlay" style="display: none;">
     <div class="lock-box">
         <div class="lock-icon">🔒</div>
-        <div class="lock-title">追风日记 · 访问验证</div>
-        <div class="lock-hint">请输入访问密码</div>
+        <div class="lock-title">管理员查看统计</div>
+        <div class="lock-hint">输入 9999 查看访问次数</div>
         <input type="password" id="passInput" class="lock-input" maxlength="6" inputmode="numeric" placeholder="••••" autofocus>
-        <button class="lock-btn" onclick="verifyPassword()">解锁进入</button>
+        <button class="lock-btn" onclick="verifyAdminPassword()">确认查看</button>
     </div>
 </div>
 
@@ -356,9 +356,13 @@
             <p>第二卷 · 回归与拉扯</p>
         </div>
         
-        <div class="music-pill" onclick="toggleBGM()">
-            <div class="disc-icon" id="discIcon">▶</div>
-            <span class="music-label" id="musicStatus">播放海风 🎵</span>
+        <div style="display:flex; gap:8px; align-items:center;">
+            <!-- 临时管理员入口小按钮 -->
+            <div onclick="showAdminPrompt()" style="font-size:10px; color:#94a3b8; cursor:pointer; padding:4px;">⚙️</div>
+            <div class="music-pill" onclick="toggleBGM()">
+                <div class="disc-icon" id="discIcon">▶</div>
+                <span class="music-label" id="musicStatus">播放海风 🎵</span>
+            </div>
         </div>
     </header>
 
@@ -457,75 +461,53 @@
         <a href="kite.html" class="nav-btn">⬅ 上一页</a>
     </div>
 
-    <!-- 专属管理员控制容器（默认隐藏） -->
+    <!-- 专属管理员统计显示区 -->
     <div id="adminCounterWrapper" style="display: none;">
         <div class="site-counter">
-            🎯 专属数据：她已输入密码开启本页 <span id="guest_count_value">...</span> 次
+            🎯 实时数据：本页面已被访问 <span id="guest_count_value">...</span> 次
         </div>
     </div>
 
 </div>
 
 <script>
-    // 密码设置
-    const GUEST_PIN = "0103"; // 你们共用的密码
-    const ADMIN_PIN = "9999"; // 你的专属密码
-
-    // 独一无二的统计数据池 Key
+    const ADMIN_PIN = "9999";
     const COUNTER_KEY = "chasing_wind_diary_kite2_guest_v1";
 
-    const lockOverlay = document.getElementById('lockOverlay');
-    const passInput = document.getElementById('passInput');
-    const adminCounterWrapper = document.getElementById('adminCounterWrapper');
+    // 页面一加载：任何人打开，直接自动静默发送一次 +1 访问计数
+    window.addEventListener('DOMContentLoaded', () => {
+        fetch(`https://countapi.mileshilliard.com/api/v1/hit/${COUNTER_KEY}`)
+            .catch(err => console.log("计数请求发送失败", err));
+    });
 
-    function verifyPassword() {
-        const inputVal = passInput.value;
-        if (inputVal === GUEST_PIN || inputVal === ADMIN_PIN) {
-            
-            // 密码正确，界面解锁
-            lockOverlay.style.opacity = '0';
-            setTimeout(() => {
-                lockOverlay.style.visibility = 'hidden';
-            }, 400);
-
-            // 【核心统计逻辑】
-            if (inputVal === GUEST_PIN) {
-                // 如果是她登录，向后台发送 HIT 指令，静默 +1，不显示任何东西
-                fetch(`https://countapi.mileshilliard.com/api/v1/hit/${COUNTER_KEY}`)
-                    .catch(err => console.log("统计请求发送失败", err));
-            } else if (inputVal === ADMIN_PIN) {
-                // 如果是你登录，向后台发送 GET 指令，仅仅提取数字但不增加
-                fetch(`https://countapi.mileshilliard.com/api/v1/get/${COUNTER_KEY}`)
-                    .then(res => res.json())
-                    .then(data => {
-                        // 拿到真实的数字，展示在页面底部
-                        document.getElementById('guest_count_value').innerText = data.value || 0;
-                        adminCounterWrapper.style.display = 'block';
-                    })
-                    .catch(err => {
-                        document.getElementById('guest_count_value').innerText = "加载失败";
-                        adminCounterWrapper.style.display = 'block';
-                    });
-            }
-
-            // 尝试自动播放背景音乐
-            audio.play().then(() => updateMusicUI(true)).catch(() => {});
-        } else {
-            // 密码错误，震动提示
-            passInput.classList.add('error-shake');
-            passInput.value = '';
-            setTimeout(() => {
-                passInput.classList.remove('error-shake');
-            }, 400);
-        }
+    // 点击右上角小齿轮可呼出管理员验证框
+    function showAdminPrompt() {
+        document.getElementById('lockOverlay').style.display = 'flex';
+        document.getElementById('passInput').focus();
     }
 
-    // 支持回车解锁
-    passInput.addEventListener('keydown', function(e) {
-        if (e.key === 'Enter') {
-            verifyPassword();
+    function verifyAdminPassword() {
+        const inputVal = document.getElementById('passInput').value;
+        if (inputVal === ADMIN_PIN) {
+            document.getElementById('lockOverlay').style.display = 'none';
+            // 获取并展示当前总访问量
+            fetch(`https://countapi.mileshilliard.com/api/v1/get/${COUNTER_KEY}`)
+                .then(res => res.json())
+                .then(data => {
+                    document.getElementById('guest_count_value').innerText = data.value || 0;
+                    document.getElementById('adminCounterWrapper').style.display = 'block';
+                })
+                .catch(() => {
+                    document.getElementById('guest_count_value').innerText = "加载失败";
+                    document.getElementById('adminCounterWrapper').style.display = 'block';
+                });
+        } else {
+            const inputElem = document.getElementById('passInput');
+            inputElem.classList.add('error-shake');
+            inputElem.value = '';
+            setTimeout(() => inputElem.classList.remove('error-shake'), 400);
         }
-    });
+    }
 
     // 音乐播放控制
     const audio = document.getElementById('bgmAudio');

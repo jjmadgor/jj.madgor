@@ -5,20 +5,32 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>家族资管 - 核心交易终端</title>
   <style>
+    /* 默认浅色模式变量 */
     :root {
       --bg-color: #F5F5F7; --card-bg: #FFFFFF; --text-main: #1D1D1F; --text-muted: #86868B;
       --apple-blue: #0071E3; --apple-green: #34C759; --apple-red: #FF3B30;
       --border-color: rgba(0, 0, 0, 0.08); --panel-shadow: 0 2px 16px rgba(0, 0, 0, 0.04);
+      --tab-active-bg: #FFFFFF; --input-bg: var(--bg-color);
     }
+    
+    /* 深色模式自动适配 */
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg-color: #000000; --card-bg: #1C1C1E; --text-main: #F5F5F7; --text-muted: #98989D;
+        --border-color: rgba(255, 255, 255, 0.15); --panel-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+        --tab-active-bg: #2C2C2E; --input-bg: #000000;
+      }
+    }
+
     * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-    body { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif; background-color: var(--bg-color); color: var(--text-main); -webkit-font-smoothing: antialiased; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif; background-color: var(--bg-color); color: var(--text-main); -webkit-font-smoothing: antialiased; transition: background-color 0.3s, color 0.3s; }
     
     #lock-screen { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: var(--bg-color); z-index: 10000; display: flex; flex-direction: column; justify-content: center; align-items: center; }
     .lock-box { background: var(--card-bg); padding: 40px 30px; border-radius: 20px; box-shadow: var(--panel-shadow); text-align: center; width: 90%; max-width: 360px; }
     .lock-box h2 { margin-bottom: 8px; font-size: 22px; color: var(--text-main); letter-spacing: -0.5px; }
     .lock-box p { color: var(--text-muted); font-size: 14px; margin-bottom: 24px; }
-    #pin-input { font-size: 28px; font-weight: 700; text-align: center; padding: 12px; width: 100%; border-radius: 12px; border: 1px solid var(--border-color); margin-bottom: 20px; outline: none; background: var(--bg-color); letter-spacing: 4px; }
-    #pin-input:focus { border-color: var(--apple-blue); background: #FFF; }
+    #pin-input { font-size: 28px; font-weight: 700; text-align: center; padding: 12px; width: 100%; border-radius: 12px; border: 1px solid var(--border-color); margin-bottom: 20px; outline: none; background: var(--input-bg); color: var(--text-main); letter-spacing: 4px; }
+    #pin-input:focus { border-color: var(--apple-blue); }
     #pin-error { color: var(--apple-red); font-size: 13px; font-weight: 600; margin-top: 12px; display: none; }
 
     .container { max-width: 1200px; margin: 0 auto; padding: 20px 16px 40px; }
@@ -35,9 +47,9 @@
 
     .user-selector-wrapper { margin-bottom: 20px; overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 4px; }
     .user-selector-wrapper::-webkit-scrollbar { display: none; }
-    .user-selector { display: inline-flex; background: rgba(0, 0, 0, 0.06); padding: 4px; border-radius: 10px; min-width: 300px; width: 100%; }
+    .user-selector { display: inline-flex; background: rgba(142, 142, 147, 0.12); padding: 4px; border-radius: 10px; min-width: 300px; width: 100%; }
     .user-tab { flex: 1; text-align: center; padding: 8px 12px; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600; color: var(--text-muted); transition: all 0.2s ease; white-space: nowrap; }
-    .user-tab.active { background: #FFFFFF; color: var(--text-main); box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+    .user-tab.active { background: var(--tab-active-bg); color: var(--text-main); box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
 
     .dashboard { background: var(--card-bg); border-radius: 16px; padding: 20px; margin-bottom: 20px; box-shadow: var(--panel-shadow); display: flex; flex-direction: column; gap: 16px; }
     .dashboard-top { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 16px; }
@@ -51,6 +63,8 @@
     .btn:hover { background: #0077ED; }
     .btn:disabled { background: #E5E5EA; color: #86868B; cursor: not-allowed; }
 
+    #chart-container { height: 60px; margin-top: 8px; border-top: 1px solid var(--border-color); padding-top: 16px; width: 100%; }
+
     .main-content { display: grid; grid-template-columns: 1fr; gap: 20px; }
     @media (min-width: 900px) { .main-content { grid-template-columns: 380px 1fr; } }
     .panel-title { font-size: 17px; font-weight: 700; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; }
@@ -58,36 +72,36 @@
     .market-section { background: var(--card-bg); border-radius: 16px; padding: 20px; box-shadow: var(--panel-shadow); }
     .market-tabs { display: flex; gap: 8px; margin-bottom: 12px; overflow-x: auto; padding-bottom: 4px; -webkit-overflow-scrolling: touch; }
     .market-tabs::-webkit-scrollbar { display: none; }
-    .m-tab { padding: 6px 14px; border-radius: 8px; background: var(--bg-color); font-size: 12px; font-weight: 600; color: var(--text-muted); cursor: pointer; white-space: nowrap; transition: 0.2s; }
-    .m-tab.active { background: #1D1D1F; color: #FFF; }
-    .search-box { width: 100%; padding: 12px 14px; border-radius: 10px; border: 1px solid var(--border-color); background: var(--bg-color); font-size: 14px; margin-bottom: 12px; outline: none; transition: 0.2s; }
-    .search-box:focus { border-color: var(--apple-blue); background: #FFF; }
+    .m-tab { padding: 6px 14px; border-radius: 8px; background: var(--input-bg); font-size: 12px; font-weight: 600; color: var(--text-muted); cursor: pointer; white-space: nowrap; transition: 0.2s; }
+    .m-tab.active { background: var(--text-main); color: var(--bg-color); }
+    .search-box { width: 100%; padding: 12px 14px; border-radius: 10px; border: 1px solid var(--border-color); background: var(--input-bg); color: var(--text-main); font-size: 14px; margin-bottom: 12px; outline: none; transition: 0.2s; }
+    .search-box:focus { border-color: var(--apple-blue); }
     .stock-list { max-height: 500px; overflow-y: auto; padding-right: 4px; }
-    .stock-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 10px; border-bottom: 1px solid var(--bg-color); cursor: pointer; border-radius: 8px; transition: background 0.2s; }
-    .stock-row.selected { background: rgba(0, 113, 227, 0.08); }
+    .stock-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 10px; border-bottom: 1px solid var(--border-color); cursor: pointer; border-radius: 8px; transition: background 0.2s; }
+    .stock-row:last-child { border-bottom: none; }
+    .stock-row.selected { background: rgba(0, 113, 227, 0.1); }
     .stock-row .symbol { font-size: 15px; font-weight: 700; }
     .stock-row .company { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
     .stock-row .price-box { text-align: right; }
     .stock-row .price { font-size: 15px; font-weight: 600; font-family: "SF Pro Display"; transition: color 0.4s; }
     
-    /* 涨跌幅徽章样式 */
     .change-badge { font-size: 11px; font-weight: 700; padding: 3px 6px; border-radius: 6px; margin-top: 4px; display: inline-block; font-family: "SF Pro Display"; }
-    .badge-pos { background: rgba(52, 199, 89, 0.12); color: var(--apple-green); }
-    .badge-neg { background: rgba(255, 59, 48, 0.12); color: var(--apple-red); }
-    .badge-neu { background: rgba(142, 142, 147, 0.12); color: #8E8E93; }
+    .badge-pos { background: rgba(52, 199, 89, 0.15); color: var(--apple-green); }
+    .badge-neg { background: rgba(255, 59, 48, 0.15); color: var(--apple-red); }
+    .badge-neu { background: rgba(142, 142, 147, 0.15); color: var(--text-muted); }
 
-    .trading-desk { background: var(--card-bg); border-radius: 16px; padding: 20px; box-shadow: var(--panel-shadow); border: 1px solid var(--apple-blue); }
+    .trading-desk { background: var(--card-bg); border-radius: 16px; padding: 20px; box-shadow: var(--panel-shadow); border: 1px solid var(--apple-blue); margin-bottom: 20px; }
     .trade-input-group { display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px; }
     @media (min-width: 600px) { .trade-input-group { flex-direction: row; align-items: stretch; } }
-    .custom-symbol-input { flex: 1; font-size: 20px; font-weight: 700; padding: 12px; border-radius: 10px; border: 1px solid var(--border-color); text-transform: uppercase; outline: none; background: var(--bg-color); text-align: center; }
-    .quote-display { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; background: var(--bg-color); padding: 12px; border-radius: 10px; }
-    .quote-price { font-size: 26px; font-weight: 700; color: #1D1D1F; font-family: "SF Pro Display"; transition: color 0.4s; line-height: 1.1; }
+    .custom-symbol-input { flex: 1; font-size: 20px; font-weight: 700; padding: 12px; border-radius: 10px; border: 1px solid var(--border-color); text-transform: uppercase; outline: none; background: var(--input-bg); color: var(--text-main); text-align: center; }
+    .quote-display { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; background: var(--input-bg); padding: 12px; border-radius: 10px; }
+    .quote-price { font-size: 26px; font-weight: 700; color: var(--text-main); font-family: "SF Pro Display"; transition: color 0.4s; line-height: 1.1; }
     .quote-name { font-size: 13px; color: var(--text-muted); margin-top: 4px; display: flex; align-items: center; gap: 6px;}
     .trade-actions { display: flex; flex-direction: column; gap: 12px; background: rgba(0, 113, 227, 0.05); padding: 16px; border-radius: 10px; }
     .trade-actions-row { display: flex; gap: 12px; align-items: center; }
-    .trade-actions input { flex: 1; padding: 12px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 16px; text-align: center; outline: none; }
+    .trade-actions input { flex: 1; padding: 12px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 16px; text-align: center; outline: none; background: var(--input-bg); color: var(--text-main); }
     .est-cost { font-size: 13px; color: var(--text-muted); text-align: center; }
-    .est-cost span { font-weight: 600; color: #1D1D1F; }
+    .est-cost span { font-weight: 600; color: var(--text-main); }
 
     .portfolio-list { background: transparent; margin-bottom: 24px; }
     .port-card { background: var(--card-bg); border-radius: 16px; padding: 16px; margin-bottom: 16px; box-shadow: var(--panel-shadow); border: 1px solid var(--border-color); }
@@ -96,13 +110,13 @@
     .port-name { font-size: 16px; font-weight: 700; color: var(--text-main); }
     .port-symbol { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
     .port-price { font-size: 18px; font-weight: 700; font-family: "SF Pro Display"; transition: color 0.4s; }
-    .port-stats { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; padding: 12px 0; border-top: 1px solid var(--bg-color); border-bottom: 1px solid var(--bg-color); margin-bottom: 12px; }
+    .port-stats { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; padding: 12px 0; border-top: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color); margin-bottom: 12px; }
     .stat-box { display: flex; flex-direction: column; gap: 4px; }
     .stat-label { font-size: 11px; color: var(--text-muted); }
     .stat-val { font-size: 14px; font-weight: 600; color: var(--text-main); font-family: "SF Pro Display"; }
     .port-pnl { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; font-size: 14px; font-weight: 600; }
     .port-actions { display: flex; gap: 10px; }
-    .port-actions input { flex: 1; padding: 10px; border: 1px solid var(--border-color); border-radius: 8px; text-align: center; font-size: 14px; outline: none; }
+    .port-actions input { flex: 1; padding: 10px; border: 1px solid var(--border-color); border-radius: 8px; text-align: center; font-size: 14px; outline: none; background: var(--input-bg); color: var(--text-main); }
     .port-actions button { flex: 1; background: rgba(255, 59, 48, 0.1); color: var(--apple-red); border: none; border-radius: 8px; font-weight: 600; font-size: 14px; cursor: pointer; transition: 0.2s; }
     .port-actions button:hover { background: var(--apple-red); color: white; }
 
@@ -142,7 +156,6 @@
       </div>
     </div>
     
-    <!-- 用户切换 -->
     <div class="user-selector-wrapper">
       <div class="user-selector" id="user-selector">
         <div class="user-tab active" onclick="switchView('总览')">资产总览</div>
@@ -156,7 +169,7 @@
       <div class="dashboard" style="align-items: center; text-align: center;">
         <p style="font-size: 14px; color: var(--text-muted); margin-bottom: -10px;">全局资产管理规模 (AUM / USD)</p>
         <div class="balance-display" id="global-total-assets" style="font-size: 42px;">$0.00</div>
-        <div style="font-size: 13px; font-weight: 600; padding: 6px 14px; background: rgba(0,0,0,0.04); border-radius: 10px; margin-top: 4px; color: var(--text-muted);">
+        <div style="font-size: 13px; font-weight: 600; padding: 6px 14px; background: rgba(142,142,147,0.12); border-radius: 10px; margin-top: 4px; color: var(--text-muted);">
           实时汇率: 1 USD = ¥<span id="display-fx-cn">7.20</span> | HK$<span id="display-fx-hk">7.80</span>
         </div>
         <div style="font-size: 14px; font-weight: 600; padding: 8px 16px; background: var(--bg-color); border-radius: 20px; margin-top: 8px;">
@@ -182,19 +195,20 @@
             <p style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">历史出金: $<span id="total-withdrawn">0.00</span></p>
           </div>
         </div>
-        <button class="btn" id="withdraw-btn" onclick="withdrawProfit()">利润出金 (需先卖出股票)</button>
+        <!-- 资产走势图 -->
+        <div id="chart-container"></div>
+        
+        <button class="btn" id="withdraw-btn" style="margin-top: 16px;" onclick="withdrawProfit()">利润出金 (需先卖出股票)</button>
       </div>
 
       <div class="main-content">
         <div class="right-section">
           
-          <!-- 持仓明细 移至上方 -->
           <div class="portfolio-list">
             <div class="panel-title" style="margin-bottom: 8px; padding-left: 4px;">持仓明细</div>
             <div id="portfolio-list"></div>
           </div>
 
-          <!-- 交易终端 移至下方 -->
           <div class="trading-desk">
             <div class="panel-title">专业交易终端</div>
             <div class="trade-input-group">
@@ -211,6 +225,12 @@
               </div>
               <div class="est-cost" id="est-cost-display">折合消耗 (USD): <span>$0.00</span></div>
             </div>
+          </div>
+
+          <!-- 历史交易流水面板 -->
+          <div class="market-section" style="margin-bottom: 24px;">
+            <div class="panel-title">交易流水 (最近50笔)</div>
+            <div id="history-list"></div>
           </div>
 
         </div>
@@ -238,14 +258,11 @@
     
     let FX_RATES = { US: 1.0, HK: 7.80, CN: 7.20 }; 
     
-    // 全球最具代表性的 30 支标的（宽基ETF、避险资产、各市场龙头核心资产）
     const GLOBAL_STOCKS = [
-      // 美股 ETF & 避险
       { symbol: 'VOO', name: '标普500 ETF', market: 'US', basePrice: 470.00 },
       { symbol: 'QQQ', name: '纳斯达克 100 ETF', market: 'US', basePrice: 440.00 },
       { symbol: 'TLT', name: '20年期以上美债', market: 'US', basePrice: 95.00 },
       { symbol: 'GLD', name: '黄金 ETF', market: 'US', basePrice: 200.00 },
-      // 美股 科技七巨头 & 核心股
       { symbol: 'NVDA', name: '英伟达 (AI算力)', market: 'US', basePrice: 880.00 },
       { symbol: 'AAPL', name: '苹果公司', market: 'US', basePrice: 173.00 },
       { symbol: 'MSFT', name: '微软', market: 'US', basePrice: 406.00 },
@@ -257,7 +274,6 @@
       { symbol: 'LLY', name: '礼来 (医药巨头)', market: 'US', basePrice: 750.00 },
       { symbol: 'TSM', name: '台积电', market: 'US', basePrice: 140.00 },
       { symbol: 'NIO', name: '蔚来汽车', market: 'US', basePrice: 4.50 },
-      // 港股 核心标的
       { symbol: '2800.HK', name: '盈富基金 (恒指ETF)', market: 'HK', basePrice: 17.00 },
       { symbol: '0700.HK', name: '腾讯控股', market: 'HK', basePrice: 388.00 },
       { symbol: '9988.HK', name: '阿里巴巴', market: 'HK', basePrice: 72.00 },
@@ -265,7 +281,6 @@
       { symbol: '1211.HK', name: '比亚迪股份', market: 'HK', basePrice: 200.00 },
       { symbol: '0941.HK', name: '中国移动 (高股息)', market: 'HK', basePrice: 65.00 },
       { symbol: '0883.HK', name: '中国海洋石油', market: 'HK', basePrice: 18.00 },
-      // A股 宽基 ETF & 蓝筹
       { symbol: '510300', name: '沪深300 ETF', market: 'CN', basePrice: 3.50 },
       { symbol: '510500', name: '中证500 ETF', market: 'CN', basePrice: 5.20 },
       { symbol: '159915', name: '创业板 ETF', market: 'CN', basePrice: 1.70 },
@@ -276,7 +291,6 @@
       { symbol: '600900', name: '长江电力 (高股息)', market: 'CN', basePrice: 25.00 }
     ];
 
-    // 现在 currentPrices 存储的是对象: { price: 现价, prev: 昨收 }
     let currentPrices = {}; 
     let activeView = '总览'; 
     let selectedStockSymbol = ''; 
@@ -290,6 +304,7 @@
         document.getElementById('loading-overlay').style.display = 'flex';
         initCloudSystem();
       }
+      window.addEventListener('resize', renderChart);
     };
 
     function verifyPin() {
@@ -321,11 +336,14 @@
           db = data;
         } else {
           db.accounts = {};
-          USERS.forEach(user => { 
-            db.accounts[user] = { principal: 2000.00, cash: 2000.00, withdrawn: 0.00, portfolio: {} };
-          });
-          await saveToCloud();
         }
+
+        // 注入并初始化图表与流水数据结构
+        USERS.forEach(user => { 
+          if (!db.accounts[user]) db.accounts[user] = { principal: 2000.00, cash: 2000.00, withdrawn: 0.00, portfolio: {}, history: [], chart: [] };
+          if (!db.accounts[user].history) db.accounts[user].history = [];
+          if (!db.accounts[user].chart) db.accounts[user].chart = [];
+        });
 
         if (!db.fxRates || Date.now() - (db.fxLastUpdate || 0) > 4 * 60 * 60 * 1000) {
            await fetchExchangeRates();
@@ -340,10 +358,7 @@
         document.getElementById('loading-overlay').style.display = 'none';
         document.getElementById('main-app').style.display = 'block';
 
-        // 初始化数据结构
-        GLOBAL_STOCKS.forEach(stock => { 
-          currentPrices[stock.symbol] = { price: stock.basePrice, prev: stock.basePrice }; 
-        });
+        GLOBAL_STOCKS.forEach(stock => { currentPrices[stock.symbol] = { price: stock.basePrice, prev: stock.basePrice }; });
         for (const u in db.accounts) {
           if(!USERS.includes(u)) continue; 
           for (const sym in db.accounts[u].portfolio) {
@@ -354,7 +369,9 @@
         renderMarketList();
         switchView('总览');
 
-        fetchRealPrices(); 
+        fetchRealPrices().then(() => {
+            USERS.forEach(user => recordChartSnapshot(db.accounts[user], false));
+        }); 
         setInterval(fetchRealPrices, 4000); 
 
       } catch (error) {
@@ -388,6 +405,61 @@
       }
     }
 
+    // ================== 资产走势打点引擎 ==================
+    function recordChartSnapshot(account, force = false) {
+       if(!account || !account.chart) return;
+       let stockVal = 0;
+       for (const [sym, d] of Object.entries(account.portfolio)) {
+           if (d.shares > 0) stockVal += (d.shares * (currentPrices[sym] ? currentPrices[sym].price : 0)) / FX_RATES[d.market];
+       }
+       const totalAsst = account.cash + stockVal;
+       const now = Date.now();
+       const lastPoint = account.chart.length > 0 ? account.chart[account.chart.length - 1] : null;
+
+       // 发生交易(force) 或 间隔超过1小时打一次点，绘制曲线
+       if (force || !lastPoint || (now - lastPoint.ts > 3600000)) {
+           account.chart.push({ ts: now, value: totalAsst });
+           if(account.chart.length > 100) account.chart.shift(); // 仅保留最近100个数据点
+           if(force) saveToCloud(); 
+       }
+       renderChart();
+    }
+
+    function renderChart() {
+      if (activeView === '总览') return;
+      const account = db.accounts[activeView];
+      const container = document.getElementById('chart-container');
+      if (!container) return;
+      
+      if (!account || !account.chart || account.chart.length < 2) {
+         container.innerHTML = '<div style="text-align:center; color:var(--text-muted); font-size:12px; line-height:60px; font-weight:600;">（持续运行将自动生成资产动态曲线）</div>';
+         return;
+      }
+      const dataPoints = account.chart;
+      const width = container.clientWidth || 300; 
+      const height = 60;
+      const values = dataPoints.map(d => d.value);
+      const maxVal = Math.max(...values);
+      const minVal = Math.min(...values);
+      const range = maxVal - minVal === 0 ? maxVal * 0.01 : maxVal - minVal;
+
+      let points = dataPoints.map((d, i) => {
+          const x = (i / (dataPoints.length - 1)) * width;
+          const y = height - ((d.value - minVal) / range) * height * 0.8 - height * 0.1;
+          return `${x.toFixed(1)},${y.toFixed(1)}`;
+      }).join(' ');
+
+      const isUp = values[values.length-1] >= values[0];
+      const color = isUp ? 'var(--apple-green)' : 'var(--apple-red)';
+
+      container.innerHTML = `
+        <svg width="100%" height="${height}" viewBox="0 0 ${width} ${height}" preserveAspectRatio="none" style="overflow:visible;">
+          <polyline points="${points}" fill="none" stroke="${color}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      `;
+    }
+
+    // ================== 行情引擎 ==================
     function getTencentSymbol(symbol) {
       let s = symbol.toUpperCase().trim();
       if (s.includes('.HK')) {
@@ -418,12 +490,12 @@
             let hasPriceChanged = false;
             Array.from(symbolsToFetch).forEach(sym => {
                 const tSym = getTencentSymbol(sym);
-                const realData = result.prices[tSym]; // {price: x, prev: y}
+                const realData = result.prices[tSym];
                 
                 if (realData && (!currentPrices[sym] || currentPrices[sym].price !== realData.price)) {
                     currentPrices[sym] = {
                         price: realData.price,
-                        prev: realData.prev > 0 ? realData.prev : realData.price // 防零除报错
+                        prev: realData.prev > 0 ? realData.prev : realData.price 
                     };
                     hasPriceChanged = true;
                     const el = document.getElementById(`price-${sym}`);
@@ -441,7 +513,6 @@
       const diff = price - prev;
       const pct = prev > 0 ? (diff / prev) * 100 : 0;
       let cls = 'badge-neu'; let sign = '';
-      // 全球统一样式：涨为绿，跌为红 (符合国际接轨)
       if (diff > 0) { cls = 'badge-pos'; sign = '+'; }
       else if (diff < 0) { cls = 'badge-neg'; }
       return { pct, cls, sign };
@@ -449,15 +520,17 @@
 
     function updateUIDiscreetly() {
       if (isUserTyping) return; 
-      
       renderMarketList();
-      if (activeView === '总览') renderOverview(); else renderPortfolio();
+      if (activeView === '总览') renderOverview(); 
+      else {
+          renderPortfolio();
+          renderChart();
+      }
       
       if (selectedStockSymbol && currentPrices[selectedStockSymbol]) {
         const market = parseSymbolInfo(selectedStockSymbol).market;
         const pEl = document.getElementById('desk-price');
         const badgeEl = document.getElementById('desk-change-badge');
-        
         if (pEl) pEl.innerText = `${CURRENCIES[market]}${currentPrices[selectedStockSymbol].price.toFixed(2)}`;
         
         const chg = getChangeInfo(selectedStockSymbol);
@@ -498,6 +571,8 @@
         document.getElementById('individual-view').style.display = 'block';
         document.getElementById('current-user-name').innerText = viewName;
         renderPortfolio();
+        renderChart();
+        renderHistory();
       }
     }
 
@@ -521,7 +596,7 @@
         html += `
           <div class="stock-row ${isSelected}" id="row-${symbol}" onclick="selectStock('${symbol}')">
             <div>
-              <div class="symbol">${symbol} <span style="font-size: 10px; padding: 2px 4px; background: #EEE; border-radius: 4px; margin-left: 4px;">${market}</span></div>
+              <div class="symbol">${symbol} <span style="font-size: 10px; padding: 2px 4px; background: rgba(142, 142, 147, 0.12); color: var(--text-muted); border-radius: 4px; margin-left: 4px;">${market}</span></div>
               <div class="company">${name}</div>
             </div>
             <div class="price-box">
@@ -613,12 +688,25 @@
       document.getElementById('est-cost-display').innerHTML = `折合消耗 (USD): <span>$${usdCost.toFixed(2)}</span>`;
     }
 
+    // ================== 交易与记录流水 ==================
+    function pushHistory(account, type, symbol, shares, price, valUSD, market) {
+        if(!account.history) account.history = [];
+        const entry = {
+            time: new Date().toLocaleString('zh-CN', {month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit'}),
+            type: type, symbol: symbol, name: getStockName(symbol),
+            shares: shares, price: price, valUSD: valUSD, currency: CURRENCIES[market]
+        };
+        account.history.unshift(entry);
+        if(account.history.length > 50) account.history.pop();
+    }
+
     async function executeBuy() {
       if (!selectedStockSymbol || !currentPrices[selectedStockSymbol]) return alert('请先选择标的！');
       const shares = parseInt(document.getElementById('trade-qty').value);
       if (isNaN(shares) || shares <= 0) return alert('数量无效！');
       const market = parseSymbolInfo(selectedStockSymbol).market;
-      const usdCost = (shares * currentPrices[selectedStockSymbol].price) / FX_RATES[market];
+      const price = currentPrices[selectedStockSymbol].price;
+      const usdCost = (shares * price) / FX_RATES[market];
       const account = db.accounts[activeView];
 
       if (account.cash < usdCost) return alert(`⚠️ 购买力不足！需: $${usdCost.toFixed(2)}\n可用: $${account.cash.toFixed(2)}`);
@@ -628,8 +716,11 @@
       account.portfolio[selectedStockSymbol].shares += shares;
       account.portfolio[selectedStockSymbol].costUSD += usdCost;
       
+      pushHistory(account, '买入', selectedStockSymbol, shares, price, usdCost, market);
+      
       renderPortfolio();
-      await saveToCloud();
+      renderHistory();
+      recordChartSnapshot(account, true); 
       
       const btn = document.querySelector('.trade-actions button');
       btn.innerText = '成交'; btn.style.background = 'var(--apple-green)';
@@ -643,16 +734,51 @@
       if (isNaN(sharesToSell) || sharesToSell <= 0) return alert('数量无效！');
       if (sharesToSell > stockData.shares) return alert(`⚠️ 超过持仓限制！`);
 
-      const usdRevenue = (sharesToSell * currentPrices[symbol].price) / FX_RATES[stockData.market];
+      const price = currentPrices[symbol].price;
+      const usdRevenue = (sharesToSell * price) / FX_RATES[stockData.market];
       const costPerShareUSD = stockData.costUSD / stockData.shares;
+      
       stockData.shares -= sharesToSell;
       stockData.costUSD -= (costPerShareUSD * sharesToSell);
       account.cash += usdRevenue;
 
       if (stockData.shares === 0) delete account.portfolio[symbol];
       
+      pushHistory(account, '卖出', symbol, sharesToSell, price, usdRevenue, stockData.market);
+
       renderPortfolio();
-      await saveToCloud();
+      renderHistory();
+      recordChartSnapshot(account, true);
+    }
+
+    function renderHistory() {
+      const account = db.accounts[activeView];
+      const list = document.getElementById('history-list');
+      if (!list) return;
+      if (!account || !account.history || account.history.length === 0) {
+          list.innerHTML = `<div style="text-align:center; padding: 20px; color: var(--text-muted); font-size: 13px;">暂无交易流水</div>`;
+          return;
+      }
+      let html = '';
+      account.history.forEach(h => {
+          const isBuy = h.type === '买入';
+          const color = isBuy ? 'var(--apple-blue)' : 'var(--apple-green)';
+          html += `
+          <div style="display:flex; justify-content:space-between; align-items:center; padding:12px 10px; border-bottom:1px solid var(--border-color); font-size:13px;">
+             <div>
+                <div style="font-weight:700; margin-bottom:4px; display:flex; align-items:center; gap:6px;">
+                   <span style="color:white; background:${color}; padding:2px 6px; border-radius:4px; font-size:10px;">${h.type}</span>
+                   <span>${h.name} <span style="color:var(--text-muted); font-size:11px; font-weight:normal;">(${h.symbol})</span></span>
+                </div>
+                <div style="color:var(--text-muted); font-size:11px;">${h.time}</div>
+             </div>
+             <div style="text-align:right;">
+                <div style="font-weight:600; font-family:'SF Pro Display';">${h.shares} 股 @ ${h.currency}${h.price.toFixed(2)}</div>
+                <div style="color:var(--text-muted); font-size:11px; margin-top:2px;">${isBuy?'-':'+'}$${h.valUSD.toFixed(2)} USD</div>
+             </div>
+          </div>`;
+      });
+      list.innerHTML = html;
     }
 
     function renderPortfolio() {
@@ -730,8 +856,12 @@
         account.cash -= netProfit;
         account.withdrawn += netProfit;
         alert(`🎉 出金成功！\n已提取 $${netProfit.toFixed(2)}。`);
+        
+        pushHistory(account, '出金', 'CASH', 0, 1.0, netProfit, 'US');
+        
         renderPortfolio();
-        await saveToCloud();
+        renderHistory();
+        recordChartSnapshot(account, true);
       }
     }
 
@@ -751,12 +881,12 @@
 
         gridHTML += `
           <div class="overview-card">
-            <div style="font-size: 18px; font-weight: 700; margin-bottom: 12px; border-bottom: 1px solid var(--bg-color); padding-bottom: 10px; display:flex; justify-content:space-between; align-items:center;">
+            <div style="font-size: 18px; font-weight: 700; margin-bottom: 12px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; display:flex; justify-content:space-between; align-items:center;">
               <span>[${user}] 投资组合</span><span style="font-size:12px; color:var(--text-muted); font-weight:normal;">初始本金: $${acc.principal.toFixed(0)}</span>
             </div>
             <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 14px;"><span style="color: var(--text-muted);">总资产估值</span><span style="font-weight: 600;">$${totalAsst.toFixed(2)}</span></div>
             <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 14px;"><span style="color: var(--text-muted);">现金 / 仓位</span><span style="font-weight: 600; font-size: 13px;">$${acc.cash.toFixed(0)} / $${stockVal.toFixed(0)}</span></div>
-            <div style="display: flex; justify-content: space-between; margin-top: 12px; padding-top: 12px; border-top: 1px dashed var(--bg-color);"><span style="color: var(--text-muted); font-size: 14px;">累计净收益</span><span style="font-weight: 700; font-size: 16px;" class="${profit > 0 ? 'profit-positive' : (profit < 0 ? 'profit-negative' : 'profit-neutral')}">${profit >= 0 ? '+' : ''}$${profit.toFixed(2)}</span></div>
+            <div style="display: flex; justify-content: space-between; margin-top: 12px; padding-top: 12px; border-top: 1px dashed var(--border-color);"><span style="color: var(--text-muted); font-size: 14px;">累计净收益</span><span style="font-weight: 700; font-size: 16px;" class="${profit > 0 ? 'profit-positive' : (profit < 0 ? 'profit-negative' : 'profit-neutral')}">${profit >= 0 ? '+' : ''}$${profit.toFixed(2)}</span></div>
           </div>`;
       });
       document.getElementById('overview-grid-container').innerHTML = gridHTML;

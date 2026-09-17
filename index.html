@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>JJ投资 - 核心交易终端</title>
+  <title>JJ投资 - 核心交易室</title>
   <style>
     /* 默认浅色模式变量 */
     :root {
@@ -91,7 +91,7 @@
     .badge-neu { background: rgba(142, 142, 147, 0.15); color: var(--text-muted); }
 
     .trading-desk { background: var(--card-bg); border-radius: 16px; padding: 20px; box-shadow: var(--panel-shadow); border: 1px solid var(--apple-blue); margin-bottom: 20px; }
-    .trade-input-group { display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px; }
+    .trade-input-group { display: flex; flex-direction: column; gap: 12px; margin-bottom: 12px; }
     @media (min-width: 600px) { .trade-input-group { flex-direction: row; align-items: stretch; } }
     .custom-symbol-input { flex: 1; font-size: 20px; font-weight: 700; padding: 12px; border-radius: 10px; border: 1px solid var(--border-color); text-transform: uppercase; outline: none; background: var(--input-bg); color: var(--text-main); text-align: center; }
     .quote-display { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; background: var(--input-bg); padding: 12px; border-radius: 10px; }
@@ -102,6 +102,16 @@
     .trade-actions input { flex: 1; padding: 12px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 16px; text-align: center; outline: none; background: var(--input-bg); color: var(--text-main); }
     .est-cost { font-size: 13px; color: var(--text-muted); text-align: center; }
     .est-cost span { font-weight: 600; color: var(--text-main); }
+
+    /* 快捷按钮样式 */
+    .quick-btns { display: flex; gap: 8px; width: 100%; }
+    .quick-btns span { font-size: 12px; padding: 6px 0; border-radius: 6px; background: rgba(0,113,227,0.08); color: var(--apple-blue); cursor: pointer; font-weight: 600; flex: 1; text-align: center; transition: 0.2s; }
+    .quick-btns span:hover { background: rgba(0,113,227,0.15); }
+    .quick-btns.sell-mode span { background: rgba(255,59,48,0.08); color: var(--apple-red); }
+    .quick-btns.sell-mode span:hover { background: rgba(255,59,48,0.15); }
+
+    .donut-legend-item { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--text-muted); margin-bottom: 6px;}
+    .donut-dot { width: 8px; height: 8px; border-radius: 50%; }
 
     .portfolio-list { background: transparent; margin-bottom: 24px; }
     .port-card { background: var(--card-bg); border-radius: 16px; padding: 16px; margin-bottom: 16px; box-shadow: var(--panel-shadow); border: 1px solid var(--border-color); }
@@ -115,7 +125,8 @@
     .stat-label { font-size: 11px; color: var(--text-muted); }
     .stat-val { font-size: 14px; font-weight: 600; color: var(--text-main); font-family: "SF Pro Display"; }
     .port-pnl { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; font-size: 14px; font-weight: 600; }
-    .port-actions { display: flex; gap: 10px; }
+    .port-actions { display: flex; gap: 10px; flex-direction: column; }
+    .port-actions-inputs { display: flex; gap: 10px; }
     .port-actions input { flex: 1; padding: 10px; border: 1px solid var(--border-color); border-radius: 8px; text-align: center; font-size: 14px; outline: none; background: var(--input-bg); color: var(--text-main); }
     .port-actions button { flex: 1; background: rgba(255, 59, 48, 0.1); color: var(--apple-red); border: none; border-radius: 8px; font-weight: 600; font-size: 14px; cursor: pointer; transition: 0.2s; }
     .port-actions button:hover { background: var(--apple-red); color: white; }
@@ -149,7 +160,7 @@
 
   <div class="container" style="display: none;" id="main-app">
     <div class="nav-header">
-      <div class="brand">JJ投资 <span>模拟终端</span></div>
+      <div class="brand">JJ投资 <span>核心交易室</span></div>
       <div class="status-panel">
         <div class="live-indicator"><div class="live-dot"></div> <span id="market-status">私有云实盘直连中</span></div>
         <div class="cloud-indicator" id="cloud-status"><div class="cloud-dot"></div> 云端已同步</div>
@@ -187,7 +198,9 @@
             <h1><span id="current-user-name">阿桂</span> 投资组合</h1>
             <div class="balance-display" id="total-value">$0.00</div>
             <p style="font-size: 13px; font-weight: 600; margin-top: 4px;">可用购买力 (USD): <span id="cash-balance" style="color: var(--apple-blue);">0.00</span></p>
-            <p style="margin-top: 8px; display: flex; align-items: center; gap: 8px;">初始本金: $<span id="acc-principal">0.00</span></p>
+            <p style="margin-top: 8px; font-size: 12px; color: var(--text-muted);">初始本金: $<span id="acc-principal">0.00</span></p>
+            <!-- 资产配置环形图容器 -->
+            <div id="portfolio-donut-container"></div>
           </div>
           <div style="text-align: right;">
             <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 2px;">未结/已结净收益</p>
@@ -218,7 +231,13 @@
                 <div class="quote-name"><span id="desk-company">等待输入...</span> <span id="desk-change-badge" style="display:none;" class="change-badge"></span></div>
               </div>
             </div>
+            
             <div class="trade-actions">
+              <div class="quick-btns">
+                  <span onclick="setBuyQty(0.25)">25% 仓位</span>
+                  <span onclick="setBuyQty(0.50)">50% 仓位</span>
+                  <span onclick="setBuyQty(1.00)">Max 满仓</span>
+              </div>
               <div class="trade-actions-row">
                 <input type="number" id="trade-qty" min="1" value="1" placeholder="数量" oninput="calculateEstCost()">
                 <button class="btn" style="flex: 2; margin-top: 0;" onclick="executeBuy()">确认买入</button>
@@ -260,7 +279,7 @@
     
     const GLOBAL_STOCKS = [
       { symbol: 'VOO', name: '标普500 ETF', market: 'US', basePrice: 470.00 },
-      { symbol: 'QQQ', name: '纳斯达克 100 ETF', market: 'US', basePrice: 440.00 },
+      { symbol: 'QQQM', name: '纳斯达克 100 ETF (长线)', market: 'US', basePrice: 195.00 },
       { symbol: 'TLT', name: '20年期以上美债', market: 'US', basePrice: 95.00 },
       { symbol: 'GLD', name: '黄金 ETF', market: 'US', basePrice: 200.00 },
       { symbol: 'NVDA', name: '英伟达 (AI算力)', market: 'US', basePrice: 880.00 },
@@ -338,7 +357,6 @@
           db.accounts = {};
         }
 
-        // 注入并初始化图表与流水数据结构
         USERS.forEach(user => { 
           if (!db.accounts[user]) db.accounts[user] = { principal: 2000.00, cash: 2000.00, withdrawn: 0.00, portfolio: {}, history: [], chart: [] };
           if (!db.accounts[user].history) db.accounts[user].history = [];
@@ -458,6 +476,49 @@
       `;
     }
 
+    // ================== 资产配置环形图 (Donut Chart) ==================
+    function renderDonut(account) {
+        let stockVal = 0;
+        let pieces = [];
+        const colors = ['#0071E3', '#34C759', '#FF9500', '#AF52DE', '#FF2D55', '#5856D6', '#32ADE6'];
+        let colorIdx = 0;
+        
+        for (const [sym, d] of Object.entries(account.portfolio)) {
+            if (d.shares > 0) {
+                const val = (d.shares * (currentPrices[sym] ? currentPrices[sym].price : 0)) / FX_RATES[d.market];
+                stockVal += val;
+                pieces.push({ name: sym, val: val, color: colors[colorIdx++ % colors.length] });
+            }
+        }
+        pieces.push({ name: '可用现金', val: account.cash, color: '#8E8E93' });
+        
+        const total = stockVal + account.cash;
+        if (total <= 0) return '';
+        
+        pieces.sort((a,b) => b.val - a.val);
+        
+        let svgHtml = `<svg width="80" height="80" viewBox="0 0 36 36" style="transform: rotate(-90deg);">`;
+        let offset = 0;
+        
+        let legendHtml = '<div style="display:flex; flex-direction:column; justify-content:center;">';
+        let limit = 0;
+        pieces.forEach(p => {
+            const ratio = p.val / total;
+            if(ratio <= 0.01) return; 
+            const dash = ratio * 100;
+            svgHtml += `<circle cx="18" cy="18" r="15.9" fill="transparent" stroke="${p.color}" stroke-width="4.2" stroke-dasharray="${dash} ${100 - dash}" stroke-dashoffset="-${offset}"></circle>`;
+            offset += dash;
+            if(limit < 3) { // 仅图例展示前3大资产
+                legendHtml += `<div class="donut-legend-item"><div class="donut-dot" style="background:${p.color};"></div>${getStockName(p.name)} ${(ratio*100).toFixed(0)}%</div>`;
+                limit++;
+            }
+        });
+        svgHtml += `</svg>`;
+        legendHtml += '</div>';
+        
+        return `<div style="display:flex; gap:20px; margin-top:16px; padding-top:16px; border-top:1px dashed var(--border-color);">${svgHtml}${legendHtml}</div>`;
+    }
+
     // ================== 行情引擎 ==================
     function getTencentSymbol(symbol) {
       let s = symbol.toUpperCase().trim();
@@ -543,6 +604,7 @@
     }
 
     function getStockName(symbol) {
+      if (symbol === '现金' || symbol === '可用现金') return symbol;
       const s = GLOBAL_STOCKS.find(x => x.symbol === symbol);
       return s ? s.name : '自选证券';
     }
@@ -679,6 +741,29 @@
       }
     }
 
+    // ================== 快捷仓位控制 ==================
+    function setBuyQty(pct) {
+        if (!selectedStockSymbol || !currentPrices[selectedStockSymbol]) return alert('请先选择标的！');
+        const account = db.accounts[activeView];
+        const market = parseSymbolInfo(selectedStockSymbol).market;
+        const priceUSD = currentPrices[selectedStockSymbol].price / FX_RATES[market];
+        
+        const targetCash = account.cash * pct;
+        const maxShares = Math.floor(targetCash / priceUSD);
+        
+        if(maxShares < 1 && pct > 0) return alert('⚠️ 资金不足以购买 1 股！');
+        
+        document.getElementById('trade-qty').value = maxShares;
+        calculateEstCost();
+    }
+
+    function setSellQty(sym, pct) {
+        const account = db.accounts[activeView];
+        if(!account.portfolio[sym]) return;
+        const shares = Math.max(1, Math.floor(account.portfolio[sym].shares * pct));
+        document.getElementById(`sell-qty-${sym}`).value = shares;
+    }
+
     function calculateEstCost() {
       if (!selectedStockSymbol || !currentPrices[selectedStockSymbol]) return;
       const shares = parseInt(document.getElementById('trade-qty').value) || 0;
@@ -722,7 +807,7 @@
       recordChartSnapshot(account, true); 
       
       const btn = document.querySelector('.trade-actions button');
-      btn.innerText = '成交'; btn.style.background = 'var(--apple-green)';
+      btn.innerText = '已成交'; btn.style.background = 'var(--apple-green)';
       setTimeout(() => { btn.innerText = '确认买入'; btn.style.background = 'var(--apple-blue)'; }, 1000);
     }
 
@@ -814,8 +899,15 @@
                 <span>浮动盈亏</span><span>${profitSign}$${profitUSD.toFixed(2)} (${profitSign}${profitPercent.toFixed(2)}%)</span>
               </div>
               <div class="port-actions">
-                <input type="number" id="sell-qty-${symbol}" min="1" max="${data.shares}" value="${data.shares}">
-                <button onclick="sellStock('${symbol}')">卖出平仓</button>
+                <div class="quick-btns sell-mode" style="margin-bottom:8px;">
+                    <span onclick="setSellQty('${symbol}', 0.25)">25% 仓位</span>
+                    <span onclick="setSellQty('${symbol}', 0.50)">50% 仓位</span>
+                    <span onclick="setSellQty('${symbol}', 1.0)">Max 满仓</span>
+                </div>
+                <div class="port-actions-inputs">
+                    <input type="number" id="sell-qty-${symbol}" min="1" max="${data.shares}" value="${data.shares}">
+                    <button onclick="sellStock('${symbol}')">卖出平仓</button>
+                </div>
               </div>
             </div>
           `;
@@ -835,6 +927,9 @@
       profitEl.innerText = `${netProfit >= 0 ? '+' : ''}$${netProfit.toFixed(2)}`;
       profitEl.className = netProfit > 0 ? 'profit-positive' : (netProfit < 0 ? 'profit-negative' : 'profit-neutral');
       
+      // 渲染并注入资产配置环形图
+      document.getElementById('portfolio-donut-container').innerHTML = renderDonut(account);
+
       const withdrawBtn = document.getElementById('withdraw-btn');
       if (netProfit > 0.01 && account.cash >= netProfit) {
         withdrawBtn.disabled = false; withdrawBtn.innerText = `提取利润 ($${netProfit.toFixed(2)})`;

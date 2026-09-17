@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>家族资管 - 核心交易终端</title>
+  <title>JJ投资 - 核心交易终端</title>
   <style>
     /* 默认浅色模式变量 */
     :root {
@@ -135,7 +135,7 @@
   <div id="lock-screen">
     <div class="lock-box">
       <h2>身份验证</h2>
-      <p>请输入资管系统访问密码</p>
+      <p>请输入 JJ投资 访问密码</p>
       <input type="password" id="pin-input" placeholder="••••" maxlength="4" onkeypress="if(event.key==='Enter') verifyPin()">
       <button class="btn" onclick="verifyPin()">解 锁</button>
       <div id="pin-error">密码错误，请重试</div>
@@ -149,7 +149,7 @@
 
   <div class="container" style="display: none;" id="main-app">
     <div class="nav-header">
-      <div class="brand">家族资管 <span>核心终端</span></div>
+      <div class="brand">JJ投资 <span>模拟终端</span></div>
       <div class="status-panel">
         <div class="live-indicator"><div class="live-dot"></div> <span id="market-status">私有云实盘直连中</span></div>
         <div class="cloud-indicator" id="cloud-status"><div class="cloud-dot"></div> 云端已同步</div>
@@ -192,13 +192,13 @@
           <div style="text-align: right;">
             <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 2px;">未结/已结净收益</p>
             <h2 id="realtime-profit" class="profit-positive" style="font-size: 26px;">+$0.00</h2>
-            <p style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">历史出金: $<span id="total-withdrawn">0.00</span></p>
+            <p style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">已提取利润: $<span id="total-withdrawn">0.00</span></p>
           </div>
         </div>
         <!-- 资产走势图 -->
         <div id="chart-container"></div>
         
-        <button class="btn" id="withdraw-btn" style="margin-top: 16px;" onclick="withdrawProfit()">利润出金 (需先卖出股票)</button>
+        <button class="btn" id="withdraw-btn" style="margin-top: 16px;" onclick="withdrawProfit()">提取利润 (需先卖出股票变现)</button>
       </div>
 
       <div class="main-content">
@@ -416,10 +416,9 @@
        const now = Date.now();
        const lastPoint = account.chart.length > 0 ? account.chart[account.chart.length - 1] : null;
 
-       // 发生交易(force) 或 间隔超过1小时打一次点，绘制曲线
        if (force || !lastPoint || (now - lastPoint.ts > 3600000)) {
            account.chart.push({ ts: now, value: totalAsst });
-           if(account.chart.length > 100) account.chart.shift(); // 仅保留最近100个数据点
+           if(account.chart.length > 100) account.chart.shift(); 
            if(force) saveToCloud(); 
        }
        renderChart();
@@ -838,9 +837,9 @@
       
       const withdrawBtn = document.getElementById('withdraw-btn');
       if (netProfit > 0.01 && account.cash >= netProfit) {
-        withdrawBtn.disabled = false; withdrawBtn.innerText = `利润出金 ($${netProfit.toFixed(2)})`;
+        withdrawBtn.disabled = false; withdrawBtn.innerText = `提取利润 ($${netProfit.toFixed(2)})`;
       } else {
-        withdrawBtn.disabled = true; withdrawBtn.innerText = '暂无可出金额度';
+        withdrawBtn.disabled = true; withdrawBtn.innerText = '暂无可提取利润';
       }
     }
 
@@ -855,9 +854,9 @@
       if (netProfit > 0 && account.cash >= netProfit) {
         account.cash -= netProfit;
         account.withdrawn += netProfit;
-        alert(`🎉 出金成功！\n已提取 $${netProfit.toFixed(2)}。`);
+        alert(`🎉 提取利润成功！\n已提现 $${netProfit.toFixed(2)}。`);
         
-        pushHistory(account, '出金', 'CASH', 0, 1.0, netProfit, 'US');
+        pushHistory(account, '提取利润', 'CASH', 0, 1.0, netProfit, 'US');
         
         renderPortfolio();
         renderHistory();

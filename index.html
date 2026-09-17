@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>JJ 投资 - 全球实盘同步终端</title>
+  <title>家族资管 - 核心交易终端</title>
   <style>
     :root {
       --bg-color: #F5F5F7; --card-bg: #FFFFFF; --text-main: #1D1D1F; --text-muted: #86868B;
@@ -41,7 +41,7 @@
 
     .user-selector-wrapper { margin-bottom: 20px; overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 4px; }
     .user-selector-wrapper::-webkit-scrollbar { display: none; }
-    .user-selector { display: inline-flex; background: rgba(0, 0, 0, 0.06); padding: 4px; border-radius: 10px; min-width: 380px; width: 100%; }
+    .user-selector { display: inline-flex; background: rgba(0, 0, 0, 0.06); padding: 4px; border-radius: 10px; min-width: 300px; width: 100%; }
     .user-tab { flex: 1; text-align: center; padding: 8px 12px; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600; color: var(--text-muted); transition: all 0.2s ease; white-space: nowrap; }
     .user-tab.active { background: #FFFFFF; color: var(--text-main); box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
 
@@ -67,14 +67,14 @@
     .m-tab.active { background: #1D1D1F; color: #FFF; }
     .search-box { width: 100%; padding: 12px 14px; border-radius: 10px; border: 1px solid var(--border-color); background: var(--bg-color); font-size: 14px; margin-bottom: 12px; outline: none; transition: 0.2s; }
     .search-box:focus { border-color: var(--apple-blue); background: #FFF; }
-    .stock-list { max-height: 400px; overflow-y: auto; padding-right: 4px; }
+    .stock-list { max-height: 500px; overflow-y: auto; padding-right: 4px; }
     .stock-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 10px; border-bottom: 1px solid var(--bg-color); cursor: pointer; border-radius: 8px; transition: background 0.2s; }
     .stock-row.selected { background: rgba(0, 113, 227, 0.08); }
     .stock-row .symbol { font-size: 15px; font-weight: 700; }
     .stock-row .company { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
     .stock-row .price { font-size: 15px; font-weight: 600; font-family: "SF Pro Display"; transition: color 0.4s; }
 
-    .trading-desk { background: var(--card-bg); border-radius: 16px; padding: 20px; box-shadow: var(--panel-shadow); border: 1px solid var(--apple-blue); margin-bottom: 20px; }
+    .trading-desk { background: var(--card-bg); border-radius: 16px; padding: 20px; box-shadow: var(--panel-shadow); border: 1px solid var(--apple-blue); }
     .trade-input-group { display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px; }
     @media (min-width: 600px) { .trade-input-group { flex-direction: row; align-items: stretch; } }
     .custom-symbol-input { flex: 1; font-size: 20px; font-weight: 700; padding: 12px; border-radius: 10px; border: 1px solid var(--border-color); text-transform: uppercase; outline: none; background: var(--bg-color); text-align: center; }
@@ -87,7 +87,7 @@
     .est-cost { font-size: 13px; color: var(--text-muted); text-align: center; }
     .est-cost span { font-weight: 600; color: #1D1D1F; }
 
-    .portfolio-list { background: transparent; }
+    .portfolio-list { background: transparent; margin-bottom: 24px; }
     .port-card { background: var(--card-bg); border-radius: 16px; padding: 16px; margin-bottom: 16px; box-shadow: var(--panel-shadow); border: 1px solid var(--border-color); }
     .port-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
     .port-title { display: flex; flex-direction: column; }
@@ -107,7 +107,6 @@
     .overview-grid { display: grid; grid-template-columns: 1fr; gap: 16px; }
     @media (min-width: 768px) { .overview-grid { grid-template-columns: 1fr 1fr; } }
     .overview-card { background: var(--card-bg); border-radius: 16px; padding: 20px; box-shadow: var(--panel-shadow); }
-    .link-btn { cursor: pointer; color: var(--apple-blue); font-size: 12px; user-select: none; padding: 4px 8px; background: rgba(0, 113, 227, 0.1); border-radius: 6px; }
     
     #loading-overlay { position: fixed; top:0; left:0; width:100vw; height:100vh; background:var(--bg-color); display:flex; justify-content:center; align-items:center; z-index: 9999; flex-direction: column; gap: 20px; }
     .spinner { width: 40px; height: 40px; border: 4px solid var(--border-color); border-top-color: var(--apple-blue); border-radius: 50%; animation: spin 1s linear infinite; }
@@ -120,7 +119,7 @@
   <div id="lock-screen">
     <div class="lock-box">
       <h2>身份验证</h2>
-      <p>请输入家庭独立资管系统的访问密码</p>
+      <p>请输入资管系统访问密码</p>
       <input type="password" id="pin-input" placeholder="••••" maxlength="4" onkeypress="if(event.key==='Enter') verifyPin()">
       <button class="btn" onclick="verifyPin()">解 锁</button>
       <div id="pin-error">密码错误，请重试</div>
@@ -134,18 +133,17 @@
 
   <div class="container" style="display: none;" id="main-app">
     <div class="nav-header">
-      <div class="brand">JJ <span>投资</span></div>
+      <div class="brand">家族资管 <span>核心终端</span></div>
       <div class="status-panel">
         <div class="live-indicator"><div class="live-dot"></div> <span id="market-status">私有云实盘直连中</span></div>
         <div class="cloud-indicator" id="cloud-status"><div class="cloud-dot"></div> 云端已同步</div>
       </div>
     </div>
     
+    <!-- 用户切换 -->
     <div class="user-selector-wrapper">
       <div class="user-selector" id="user-selector">
         <div class="user-tab active" onclick="switchView('总览')">资产总览</div>
-        <div class="user-tab" onclick="switchView('JJ')">JJ</div>
-        <div class="user-tab" onclick="switchView('奶奶')">奶奶</div>
         <div class="user-tab" onclick="switchView('阿桂')">阿桂</div>
         <div class="user-tab" onclick="switchView('UMI')">UMI</div>
       </div>
@@ -174,7 +172,7 @@
             <h1><span id="current-user-name">阿桂</span> 投资组合</h1>
             <div class="balance-display" id="total-value">$0.00</div>
             <p style="font-size: 13px; font-weight: 600; margin-top: 4px;">可用购买力 (USD): <span id="cash-balance" style="color: var(--apple-blue);">0.00</span></p>
-            <p style="margin-top: 8px; display: flex; align-items: center; gap: 8px;">本金: $<span id="acc-principal">0.00</span> <span class="link-btn" onclick="adjustPrincipal()">调整本金</span></p>
+            <p style="margin-top: 8px; display: flex; align-items: center; gap: 8px;">初始本金: $<span id="acc-principal">0.00</span></p>
           </div>
           <div style="text-align: right;">
             <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 2px;">未结/已结净收益</p>
@@ -187,6 +185,14 @@
 
       <div class="main-content">
         <div class="right-section">
+          
+          <!-- 持仓明细 移至上方 -->
+          <div class="portfolio-list">
+            <div class="panel-title" style="margin-bottom: 8px; padding-left: 4px;">持仓明细</div>
+            <div id="portfolio-list"></div>
+          </div>
+
+          <!-- 交易终端 移至下方 -->
           <div class="trading-desk">
             <div class="panel-title">专业交易终端</div>
             <div class="trade-input-group">
@@ -205,19 +211,15 @@
             </div>
           </div>
 
-          <div class="portfolio-list">
-            <div class="panel-title" style="margin-bottom: 8px; padding-left: 4px;">持仓明细</div>
-            <div id="portfolio-list"></div>
-          </div>
         </div>
 
         <div class="market-section">
-          <div class="panel-title">市场参考</div>
+          <div class="panel-title">全球核心资产风向标</div>
           <div class="market-tabs">
             <div class="m-tab active" onclick="switchMarketCategory('ALL')">全部</div>
             <div class="m-tab" onclick="switchMarketCategory('US')">美股</div>
             <div class="m-tab" onclick="switchMarketCategory('HK')">港股</div>
-            <div class="m-tab" onclick="switchMarketCategory('CN')">A股</div>
+            <div class="m-tab" onclick="switchMarketCategory('CN')">A股/ETF</div>
           </div>
           <input type="text" class="search-box" id="search-input" placeholder="代码/拼音搜索..." onkeyup="filterStocks()">
           <div class="stock-list" id="stock-list"></div>
@@ -229,26 +231,26 @@
   <script>
     const AUTH_PIN = '0103';
     const API_URL = 'api.php'; 
-    const USERS = ['JJ', '奶奶', '阿桂', 'UMI'];
+    const USERS = ['阿桂', 'UMI'];
     const CURRENCIES = { US: '$', HK: 'HK$', CN: '¥' };
     
-    // 全局动态真实汇率变量 (默认给个底座，会被网络拉取覆盖)
     let FX_RATES = { US: 1.0, HK: 7.80, CN: 7.20 }; 
     
+    // 全新优化的核心观察池
     const GLOBAL_STOCKS = [
-      { symbol: '688226', name: '威腾电气', market: 'CN', basePrice: 28.54 },
-      { symbol: '000711', name: '京蓝科技', market: 'CN', basePrice: 6.15 },
-      { symbol: '300302', name: '同有科技', market: 'CN', basePrice: 29.29 },
-      { symbol: 'DIDIY', name: '滴滴 (DiDi)', market: 'US', basePrice: 3.72 },
-      { symbol: 'NIO', name: '蔚来 (NIO)', market: 'US', basePrice: 4.01 },
-      { symbol: 'AAPL', name: '苹果 (Apple)', market: 'US', basePrice: 173.50 },
-      { symbol: 'MSFT', name: '微软 (Microsoft)', market: 'US', basePrice: 406.20 },
-      { symbol: 'NVDA', name: '英伟达 (NVIDIA)', market: 'US', basePrice: 881.50 },
-      { symbol: 'TSLA', name: '特斯拉 (Tesla)', market: 'US', basePrice: 195.80 },
-      { symbol: '0700.HK', name: '腾讯控股', market: 'HK', basePrice: 388.50 },
-      { symbol: '9988.HK', name: '阿里巴巴', market: 'HK', basePrice: 72.20 },
-      { symbol: '600519', name: '贵州茅台', market: 'CN', basePrice: 1630.00 },
-      { symbol: '300750', name: '宁德时代', market: 'CN', basePrice: 196.50 }
+      { symbol: 'SPY', name: '标普500 ETF (宏观)', market: 'US', basePrice: 510.00 },
+      { symbol: 'QQQ', name: '纳斯达克 ETF (科技)', market: 'US', basePrice: 440.00 },
+      { symbol: 'NVDA', name: '英伟达 (算力龙头)', market: 'US', basePrice: 880.00 },
+      { symbol: 'AAPL', name: '苹果 (消费电子)', market: 'US', basePrice: 173.00 },
+      { symbol: 'TSLA', name: '特斯拉 (新能源)', market: 'US', basePrice: 195.00 },
+      { symbol: 'MSFT', name: '微软 (AI软件)', market: 'US', basePrice: 406.00 },
+      { symbol: 'NIO', name: '蔚来 (造车新势力)', market: 'US', basePrice: 4.50 },
+      { symbol: '0700.HK', name: '腾讯控股 (互联网)', market: 'HK', basePrice: 388.00 },
+      { symbol: '9988.HK', name: '阿里巴巴 (电商)', market: 'HK', basePrice: 72.00 },
+      { symbol: '3690.HK', name: '美团 (本地生活)', market: 'HK', basePrice: 100.00 },
+      { symbol: '510300', name: '沪深300 ETF (A股大盘)', market: 'CN', basePrice: 3.50 },
+      { symbol: '600519', name: '贵州茅台 (消费白马)', market: 'CN', basePrice: 1600.00 },
+      { symbol: '300750', name: '宁德时代 (动力电池)', market: 'CN', basePrice: 190.00 }
     ];
 
     let currentPrices = {}; 
@@ -294,27 +296,13 @@
         const response = await fetch(API_URL);
         const data = await response.json();
         
-        if (data && data.accounts && data.accounts.JJ) {
+        if (data && data.accounts && data.accounts['阿桂']) {
           db = data;
         } else {
           db.accounts = {};
+          // 初始化时仅生成阿桂和UMI的数据
           USERS.forEach(user => { 
-            if (user === 'JJ') {
-              db.accounts[user] = { 
-                principal: 10000.00, cash: 12.68, withdrawn: 0.00, 
-                portfolio: {
-                  '688226': { shares: 289, costUSD: 1829.17, market: 'CN' },
-                  '000711': { shares: 5241, costUSD: 3649.05, market: 'CN' },
-                  '300302': { shares: 320, costUSD: 2431.60, market: 'CN' },
-                  'DIDIY':  { shares: 86,  costUSD: 502.50,  market: 'US' },
-                  'NIO':    { shares: 250, costUSD: 1575.00, market: 'US' }
-                } 
-              };
-            } else if (user === '奶奶') {
-              db.accounts[user] = { principal: 10000.00, cash: 10000.00, withdrawn: 0.00, portfolio: {} };
-            } else {
-              db.accounts[user] = { principal: 2000.00, cash: 2000.00, withdrawn: 0.00, portfolio: {} };
-            }
+            db.accounts[user] = { principal: 2000.00, cash: 2000.00, withdrawn: 0.00, portfolio: {} };
           });
           await saveToCloud();
         }
@@ -335,6 +323,8 @@
 
         GLOBAL_STOCKS.forEach(stock => { currentPrices[stock.symbol] = stock.basePrice; });
         for (const u in db.accounts) {
+          // 如果云端库里有旧数据（JJ,奶奶），跳过不在USERS列表里的账户初始化价格
+          if(!USERS.includes(u)) continue; 
           for (const sym in db.accounts[u].portfolio) {
             if (!currentPrices[sym]) currentPrices[sym] = 10.00;
           }
@@ -395,7 +385,8 @@
 
     async function fetchRealPrices() {
       const symbolsToFetch = new Set(GLOBAL_STOCKS.map(s => s.symbol));
-      for (const u in db.accounts) {
+      for (const u of USERS) {
+        if(!db.accounts[u]) continue;
         for (const sym in db.accounts[u].portfolio) symbolsToFetch.add(sym);
       }
       if (selectedStockSymbol) symbolsToFetch.add(selectedStockSymbol);
@@ -472,24 +463,11 @@
       }
     }
 
-    async function adjustPrincipal() {
-      const acc = db.accounts[activeView];
-      const newPrincipal = prompt(`当前本金: $${acc.principal.toFixed(2)} USD。\n调整后将自动补齐或扣除可用现金:`, acc.principal);
-      if (newPrincipal !== null) {
-        const parsed = parseFloat(newPrincipal);
-        if (!isNaN(parsed) && parsed > 0) {
-          acc.cash += (parsed - acc.principal);
-          acc.principal = parsed;
-          renderPortfolio();
-          await saveToCloud(); 
-        } else { alert('⚠️ 输入无效！'); }
-      }
-    }
-
     function renderMarketList() {
       const listEl = document.getElementById('stock-list');
       const allSymbols = new Set(GLOBAL_STOCKS.map(s => s.symbol));
-      for (const u in db.accounts) {
+      for (const u of USERS) {
+        if(!db.accounts[u]) continue;
         for (const sym in db.accounts[u].portfolio) allSymbols.add(sym);
       }
       
@@ -640,7 +618,6 @@
           const profitClass = profitUSD >= 0 ? 'profit-positive' : 'profit-negative';
           const curSym = CURRENCIES[data.market];
           
-          // 成本单价(本币) = (美元成本 / 股数) * 当前实际汇率
           const costPerShareLocal = (data.costUSD / data.shares) * FX_RATES[data.market];
           
           stockValueUSD += currentValUSD;
@@ -709,6 +686,7 @@
       if(!db.accounts) return;
       let globalAssets = 0; let globalProfit = 0; let gridHTML = '';
       USERS.forEach(user => {
+        if(!db.accounts[user]) return;
         const acc = db.accounts[user];
         let stockVal = 0;
         for (const [sym, d] of Object.entries(acc.portfolio)) {
@@ -721,7 +699,7 @@
         gridHTML += `
           <div class="overview-card">
             <div style="font-size: 18px; font-weight: 700; margin-bottom: 12px; border-bottom: 1px solid var(--bg-color); padding-bottom: 10px; display:flex; justify-content:space-between; align-items:center;">
-              <span>[${user}] 投资组合</span><span style="font-size:12px; color:var(--text-muted); font-weight:normal;">本金: $${acc.principal.toFixed(0)}</span>
+              <span>[${user}] 投资组合</span><span style="font-size:12px; color:var(--text-muted); font-weight:normal;">初始本金: $${acc.principal.toFixed(0)}</span>
             </div>
             <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 14px;"><span style="color: var(--text-muted);">总资产估值</span><span style="font-weight: 600;">$${totalAsst.toFixed(2)}</span></div>
             <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 14px;"><span style="color: var(--text-muted);">现金 / 仓位</span><span style="font-weight: 600; font-size: 13px;">$${acc.cash.toFixed(0)} / $${stockVal.toFixed(0)}</span></div>

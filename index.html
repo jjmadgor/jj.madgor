@@ -32,45 +32,62 @@
     * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     body { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif; background-color: var(--bg-color); color: var(--text-main); -webkit-font-smoothing: antialiased; transition: background-color 0.3s, color 0.3s; padding-top: env(safe-area-inset-top); }
     
-    /* ================= 升级版流体霓虹扉页 ================= */
+    /* ================= 酷炫流体霓虹扉页 ================= */
     #disclaimer-screen { 
       position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; 
       background: radial-gradient(circle at 50% 20%, #1c1c24 0%, #050505 75%); 
       z-index: 30000; display: flex; flex-direction: column; justify-content: center; align-items: center; 
-      padding: 24px; transition: opacity 0.4s ease;
+      padding: 20px; transition: opacity 0.4s ease; overflow-y: auto;
     }
     
     .disclaimer-card { 
-      background: var(--card-bg); padding: 36px 28px; border-radius: 24px; 
-      box-shadow: var(--panel-shadow); width: 100%; max-width: 420px; 
+      background: var(--card-bg); padding: 32px 24px; border-radius: 24px; 
+      box-shadow: var(--panel-shadow); width: 100%; max-width: 440px; 
       border: 1px solid var(--border-color); backdrop-filter: blur(20px);
-      text-align: center; position: relative; overflow: hidden;
+      text-align: center; position: relative; margin: auto;
     }
 
     /* 扉页顶部的流体霓虹徽标模拟 */
     .brand-icon-wrapper {
-      width: 72px; height: 72px; border-radius: 18px; background: #000;
-      margin: 0 auto 18px; display: flex; justify-content: center; align-items: center;
+      width: 64px; height: 64px; border-radius: 16px; background: #000;
+      margin: 0 auto 14px; display: flex; justify-content: center; align-items: center;
       position: relative; box-shadow: 0 10px 25px rgba(255, 0, 122, 0.25), 0 5px 15px rgba(0, 229, 255, 0.2);
       border: 1px solid rgba(255,255,255,0.15); overflow: hidden;
     }
     .brand-icon-wrapper svg { width: 100%; height: 100%; }
 
-    .disclaimer-card h2 { font-size: 20px; margin-bottom: 8px; font-weight: 700; letter-spacing: -0.5px; }
-    .disclaimer-subtitle { font-size: 12px; color: var(--text-muted); margin-bottom: 22px; text-transform: uppercase; letter-spacing: 1px; }
+    .disclaimer-card h2 { font-size: 19px; margin-bottom: 4px; font-weight: 700; letter-spacing: -0.5px; }
+    .disclaimer-subtitle { font-size: 11px; color: var(--text-muted); margin-bottom: 18px; text-transform: uppercase; letter-spacing: 1px; }
 
-    .disclaimer-text { 
-      font-size: 13px; color: var(--text-muted); line-height: 1.6; margin-bottom: 24px; text-align: left;
-      background: rgba(142, 142, 147, 0.06); padding: 14px 16px; border-radius: 12px;
+    /* 大师名言轮播/罗列卡片样式 */
+    .quotes-container {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 20px;
+      text-align: left;
     }
-    .disclaimer-text p { margin-bottom: 8px; }
-    .disclaimer-text p:last-child { margin-bottom: 0; }
-    .disclaimer-text strong { color: var(--text-main); }
 
-    .quote-box { 
-      font-style: italic; background: rgba(0, 113, 227, 0.08); padding: 12px 14px; 
-      border-radius: 10px; border-left: 3px solid var(--apple-blue); color: var(--apple-blue); 
-      font-size: 12px; margin-bottom: 24px; font-weight: 600; text-align: left; line-height: 1.4;
+    .quote-item {
+      background: rgba(142, 142, 147, 0.06);
+      padding: 10px 14px;
+      border-radius: 10px;
+      border-left: 3px solid var(--apple-blue);
+    }
+
+    .quote-text {
+      font-size: 12px;
+      color: var(--text-main);
+      font-style: italic;
+      line-height: 1.4;
+      margin-bottom: 2px;
+    }
+
+    .quote-author {
+      font-size: 10px;
+      color: var(--text-muted);
+      text-align: right;
+      font-weight: 600;
     }
     
     #lock-screen { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: var(--bg-color); z-index: 20000; display: none; flex-direction: column; justify-content: center; align-items: center; }
@@ -188,10 +205,9 @@
 </head>
 <body>
 
-  <!-- ================= 酷炫流体霓虹风格 扉页 ================= -->
+  <!-- ================= 酷炫流体霓虹扉页 (大师名言版) ================= -->
   <div id="disclaimer-screen">
     <div class="disclaimer-card">
-      <!-- 嵌入你最喜欢的汽水音乐霓虹风格流体 J 徽标 -->
       <div class="brand-icon-wrapper">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
           <defs>
@@ -214,15 +230,25 @@
       </div>
 
       <h2>JJ投资管理系统</h2>
-      <div class="disclaimer-subtitle">Secure Sandbox & Investment Log</div>
+      <div class="disclaimer-subtitle">Investment Wisdom & Sandbox</div>
 
-      <div class="disclaimer-text">
-        <p><strong>1. 资产安全与隐私</strong><br>本系统采用私有云沙盒架构，专为阿桂、小李、小赵团队量身打造，数据独立加密存储。</p>
-        <p><strong>2. 风险提示</strong><br>全球市场波动莫测，一切策略及资产估值仅供复盘参考。真实投资环境需极其谨慎，买卖有风险，盈亏自负。</p>
-      </div>
-
-      <div class="quote-box">
-        “在极度不确定的金融市场中，保持克制、敬畏风险，是长久生存的唯一法则。”
+      <div class="quotes-container">
+        <div class="quote-item">
+          <div class="quote-text">“在别人贪婪时恐惧，在别人恐惧时贪婪。”</div>
+          <div class="quote-author">— 沃伦·巴菲特</div>
+        </div>
+        <div class="quote-item">
+          <div class="quote-text">“风险意味着有多重可能发生的结果，但结果只有一个。”</div>
+          <div class="quote-author">— 霍华德·马克斯</div>
+        </div>
+        <div class="quote-item">
+          <div class="quote-text">“如果我知道我会死在哪里，那我将永远不去那个地方。”</div>
+          <div class="quote-author">— 查理·芒格</div>
+        </div>
+        <div class="quote-item">
+          <div class="quote-text">“永远不要为股票下跌而感到痛苦，好股票总会迎来它的价值。”</div>
+          <div class="quote-author">— 吉姆·罗杰斯</div>
+        </div>
       </div>
 
       <button class="btn" onclick="acceptDisclaimer()">确 认 并 进 入</button>

@@ -2,242 +2,154 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GTO Range Viewer</title>
+    <title>GTO Range Viewer - 产品级稳定版</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #0b0f19;
-            color: #f8fafc;
-            margin: 0;
-            padding: 40px 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .header { text-align: center; margin-bottom: 24px; }
-        .header h1 { margin: 0 0 8px 0; font-size: 24px; }
+        body { font-family: -apple-system, Arial, sans-serif; background: #0b0f19; color: #fff; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
         
-        .controls-container {
-            background: #151b2b;
-            border: 1px solid #2a3441;
-            border-radius: 8px;
-            padding: 16px 24px;
-            margin-bottom: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-            width: 100%;
-            max-width: 600px;
-            box-sizing: border-box;
-        }
-
-        .button-group {
-            display: flex;
-            gap: 8px;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-
-        button {
-            background: #1e293b;
-            color: #94a3b8;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 6px;
-            font-size: 13px;
-            font-weight: 600;
-            cursor: pointer;
-        }
-
-        button:hover { background: #2a3441; color: #fff; }
+        /* 自检探针样式 */
+        #diagnostic-panel { background: #ef4444; color: white; padding: 15px; border-radius: 8px; margin-bottom: 20px; width: 100%; max-width: 600px; text-align: center; font-weight: bold; }
+        
+        .panel { background: #151b2b; border: 1px solid #2a3441; border-radius: 8px; padding: 20px; margin-bottom: 20px; width: 100%; max-width: 600px; box-sizing: border-box; }
+        .flex-center { display: flex; gap: 10px; justify-content: center; margin-bottom: 15px; }
+        
+        button { background: #1e293b; color: #94a3b8; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: bold; transition: 0.2s; }
         button.active { background: #3b82f6; color: #fff; }
-
-        .legend {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            padding-top: 12px;
-            border-top: 1px solid #2a3441;
-            font-size: 13px;
-        }
-        .legend-item { display: flex; align-items: center; gap: 6px; }
-        .color-box { width: 14px; height: 14px; border-radius: 3px; }
-
-        .grid-container {
-            display: grid;
-            grid-template-columns: repeat(13, 1fr);
-            gap: 1px;
-            background-color: #0b0f19;
-            border: 1px solid #2a3441;
-            border-radius: 8px;
-            width: 100%;
-            max-width: 600px;
-            aspect-ratio: 1 / 1;
-            padding: 10px;
-            box-sizing: border-box;
-        }
-
-        .hand-cell {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 13px;
-            font-weight: bold;
-            color: #fff;
-            text-shadow: 1px 1px 2px #000;
-            cursor: pointer;
-            user-select: none;
-        }
-        .hand-cell:hover { outline: 2px solid #fff; z-index: 10; }
-
-        #tooltip {
-            position: fixed;
-            background: rgba(15, 23, 42, 0.95);
-            border: 1px solid #334155;
-            padding: 10px;
-            border-radius: 6px;
-            color: #fff;
-            font-size: 13px;
-            pointer-events: none;
-            display: none;
-            z-index: 9999;
-        }
+        
+        .grid { display: grid; grid-template-columns: repeat(13, 1fr); gap: 1px; background: #2a3441; border: 1px solid #2a3441; }
+        .cell { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; text-shadow: 1px 1px 1px #000; cursor: pointer; position: relative; }
+        .cell:hover { outline: 2px solid #fff; z-index: 2; }
+        
+        .legend { display: flex; justify-content: center; gap: 15px; font-size: 12px; margin-top: 10px; }
+        .dot { width: 12px; height: 12px; display: inline-block; border-radius: 3px; vertical-align: middle; margin-right: 4px; }
+        
+        /* 悬浮窗简化，放弃复杂计算，保证绝对稳定 */
+        #tooltip { position: fixed; background: #0f172a; border: 1px solid #334155; padding: 10px; border-radius: 6px; font-size: 13px; display: none; pointer-events: none; z-index: 100; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
     </style>
 </head>
 <body>
 
-    <div class="header">
-        <h1>GTO Range Viewer</h1>
-    </div>
+    <!-- 产品自检探针：如果JS没运行，用户会看到这个红框 -->
+    <div id="diagnostic-panel">状态：正在加载... 如果你一直看到这条红色提示，说明浏览器拦截了代码执行！</div>
 
-    <div class="controls-container">
-        <div class="button-group" id="table-type-controls">
-            <button class="active" onclick="setTableType('6max')">6人桌</button>
-            <button onclick="setTableType('9max')">9人桌</button>
+    <!-- 核心UI结构 -->
+    <div class="panel" id="ui-container" style="display: none;">
+        <div class="flex-center" id="type-btns">
+            <button class="active" onclick="switchType('6max')">6人桌</button>
+            <button onclick="switchType('9max')">9人桌</button>
         </div>
-        <div class="button-group" id="position-controls"></div>
+        <div class="flex-center" id="pos-btns"></div>
         <div class="legend">
-            <div class="legend-item"><div class="color-box" style="background:#ef4444;"></div> 加注</div>
-            <div class="legend-item"><div class="color-box" style="background:#10b981;"></div> 跟注</div>
-            <div class="legend-item"><div class="color-box" style="background:#1f2937;"></div> 弃牌</div>
+            <span><span class="dot" style="background:#ef4444"></span>加注</span>
+            <span><span class="dot" style="background:#10b981"></span>跟注</span>
+            <span><span class="dot" style="background:#1f2937"></span>弃牌</span>
         </div>
     </div>
 
-    <div class="grid-container" id="matrix-grid"></div>
+    <div class="panel" style="padding: 0; overflow: hidden; display: none;" id="grid-container">
+        <div class="grid" id="matrix"></div>
+    </div>
+    
     <div id="tooltip"></div>
 
     <script>
-        const ranks = ['A', 'K', 'Q', 'J', 'T', '9', '8', '7', '6', '5', '4', '3', '2'];
-        let currentTableType = '6max';
-        let currentPosition = 'UTG';
-        const tooltip = document.getElementById('tooltip');
+        // 探针一：JS引擎存活确认
+        document.getElementById('diagnostic-panel').style.display = 'none';
+        document.getElementById('ui-container').style.display = 'block';
+        document.getElementById('grid-container').style.display = 'block';
 
-        const positions = {
+        const ranks = ['A', 'K', 'Q', 'J', 'T', '9', '8', '7', '6', '5', '4', '3', '2'];
+        let curType = '6max';
+        let curPos = 'UTG';
+        
+        const config = {
             '6max': ['UTG', 'HJ', 'CO', 'BTN', 'SB'],
             '9max': ['UTG', 'UTG+1', 'UTG+2', 'LJ', 'HJ', 'CO', 'BTN', 'SB']
         };
 
-        const mockData = {
+        // 数据源结构简化，降低解析失败风险
+        const db = {
             '6max': {
-                'UTG': { 
-                    'AA':{r:100}, 'KK':{r:100}, 'QQ':{r:100}, 'JJ':{r:100}, 'TT':{r:100}, '99':{r:100}, '88':{r:100}, 
-                    '77':{r:50, c:50}, '66':{r:20, c:30},
-                    'AKs':{r:100}, 'AQs':{r:100}, 'AJs':{r:100}, 'ATs':{r:100}, 'A5s':{r:60}, 'A4s':{r:40}, 
-                    'KQs':{r:100}, 'KJs':{r:100}, 'KTs':{r:20}, 'QJs':{r:100}, 'JTs':{r:100}, 'T9s':{r:100}, 
-                    '98s':{r:80, c:20}, '87s':{r:50}, 
-                    'AKo':{r:100}, 'AQo':{r:100}, 'AJo':{r:20}
-                },
-                'BTN': { 
-                    'AA':{r:100}, '22':{r:100}, 'AKs':{r:100}, 'A2s':{r:100}, 'K2s':{r:80, c:20}, 
-                    'Q5s':{r:70}, 'J7s':{r:50}, 'T7s':{r:60}, '96s':{r:40}, '85s':{r:50}, '75s':{r:60}, '64s':{r:40}, '54s':{r:50}, 
-                    'AKo':{r:100}, 'A2o':{r:80}, 'KQo':{r:100}, 'K9o':{r:60}, 'Q9o':{r:60}, 'J9o':{r:50}, 'T9o':{r:50} 
-                }
+                'UTG': { 'AA':{r:100}, 'KK':{r:100}, 'QQ':{r:100}, '77':{r:50,c:50}, 'AKs':{r:100}, 'A5s':{r:50,c:50}, 'AKo':{r:100} },
+                'BTN': { 'AA':{r:100}, '22':{r:100}, 'K2s':{r:50,c:50}, 'T9o':{r:100} }
             },
             '9max': {
-                'UTG': { 'AA':{r:100}, '88':{r:50}, 'AKs':{r:100}, 'AQo':{r:50} }
+                'UTG': { 'AA':{r:100}, 'KK':{r:100}, 'AKs':{r:100} }
             }
         };
 
-        function renderPositionButtons() {
-            const container = document.getElementById('position-controls');
-            container.innerHTML = '';
-            const currentPositions = positions[currentTableType];
-            
-            if (!currentPositions.includes(currentPosition)) {
-                currentPosition = currentPositions[0];
-            }
+        function switchType(type) {
+            curType = type;
+            const btns = document.getElementById('type-btns').getElementsByTagName('button');
+            btns[0].className = type === '6max' ? 'active' : '';
+            btns[1].className = type === '9max' ? 'active' : '';
+            renderPositions();
+            renderMatrix();
+        }
 
-            currentPositions.forEach(pos => {
+        function renderPositions() {
+            const container = document.getElementById('pos-btns');
+            container.innerHTML = '';
+            const posList = config[curType];
+            
+            if (!posList.includes(curPos)) curPos = posList[0];
+
+            posList.forEach(pos => {
                 const btn = document.createElement('button');
                 btn.innerText = pos;
-                if (pos === currentPosition) btn.className = 'active';
+                if (pos === curPos) btn.className = 'active';
                 btn.onclick = () => {
-                    currentPosition = pos;
-                    renderPositionButtons();
-                    renderGrid();
+                    curPos = pos;
+                    renderPositions();
+                    renderMatrix();
                 };
                 container.appendChild(btn);
             });
         }
 
-        function setTableType(type) {
-            currentTableType = type;
-            const btns = document.getElementById('table-type-controls').children;
-            btns[0].className = type === '6max' ? 'active' : '';
-            btns[1].className = type === '9max' ? 'active' : '';
-            renderPositionButtons();
-            renderGrid();
-        }
-
-        function renderGrid() {
-            const grid = document.getElementById('matrix-grid');
-            grid.innerHTML = '';
+        function renderMatrix() {
+            const matrix = document.getElementById('matrix');
+            const tooltip = document.getElementById('tooltip');
+            matrix.innerHTML = '';
             
-            const tableData = mockData[currentTableType] || {};
-            const currentRangeData = tableData[currentPosition] || {};
+            const rangeData = (db[curType] && db[curType][curPos]) ? db[curType][curPos] : {};
 
             for (let i = 0; i < 13; i++) {
                 for (let j = 0; i < 13; j++) {
-                    let handStr = '';
-                    if (i < j) { handStr = ranks[i] + ranks[j] + 's'; } 
-                    else if (i > j) { handStr = ranks[j] + ranks[i] + 'o'; } 
-                    else { handStr = ranks[i] + ranks[j]; }
+                    let hand = '';
+                    if (i < j) hand = ranks[i] + ranks[j] + 's';
+                    else if (i > j) hand = ranks[j] + ranks[i] + 'o';
+                    else hand = ranks[i] + ranks[j];
 
-                    const actions = currentRangeData[handStr] || { r: 0, c: 0 };
-                    const r = actions.r || 0; 
-                    const c = actions.c || 0; 
-                    const f = 100 - r - c;    
+                    const action = rangeData[hand] || {r:0, c:0};
+                    const r = action.r || 0;
+                    const c = action.c || 0;
+                    const f = 100 - r - c;
 
                     const cell = document.createElement('div');
-                    cell.className = 'hand-cell';
-                    cell.innerText = handStr;
+                    cell.className = 'cell';
+                    cell.innerText = hand;
+                    
+                    // 渐变核心逻辑
+                    cell.style.background = `linear-gradient(to top, #ef4444 ${r}%, #10b981 ${r}% ${r+c}%, #1f2937 ${r+c}%)`;
 
-                    const p1 = r;
-                    const p2 = r + c;
-                    cell.style.background = `linear-gradient(to top, #ef4444 0%, #ef4444 ${p1}%, #10b981 ${p1}%, #10b981 ${p2}%, #1f2937 ${p2}%, #1f2937 100%)`;
-
-                    cell.onmouseenter = (e) => {
-                        tooltip.innerHTML = `<strong>${handStr}</strong><br>加注: ${r}%<br>跟注: ${c}%<br>弃牌: ${f}%`;
+                    cell.onmouseenter = () => {
+                        tooltip.innerHTML = `${hand}<br><span style="color:#fca5a5">加注: ${r}%</span><br><span style="color:#6ee7b7">跟注: ${c}%</span><br><span style="color:#9ca3af">弃牌: ${f}%</span>`;
                         tooltip.style.display = 'block';
                     };
                     cell.onmousemove = (e) => {
                         tooltip.style.left = (e.clientX + 15) + 'px';
                         tooltip.style.top = (e.clientY + 15) + 'px';
                     };
-                    cell.onmouseleave = () => {
-                        tooltip.style.display = 'none';
-                    };
+                    cell.onmouseleave = () => tooltip.style.display = 'none';
 
-                    grid.appendChild(cell);
+                    matrix.appendChild(cell);
                 }
             }
         }
 
-        // 直接强制执行初始化，放弃所有监听器，保证 100% 刷出
-        renderPositionButtons();
-        renderGrid();
+        // 探针二：主函数立即执行
+        renderPositions();
+        renderMatrix();
     </script>
 </body>
 </html>

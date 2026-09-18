@@ -1,1 +1,21 @@
-
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <filter id="blurNeon" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="45" />
+    </filter>
+    <linearGradient id="qsText" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="1" />
+      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0.5" />
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="115" fill="#050505"/>
+  <!-- 底部流体霓虹光晕 -->
+  <circle cx="160" cy="180" r="130" fill="#FF007A" filter="url(#blurNeon)" opacity="0.8"/>
+  <circle cx="360" cy="340" r="140" fill="#00E5FF" filter="url(#blurNeon)" opacity="0.8"/>
+  <circle cx="256" cy="120" r="90" fill="#7000FF" filter="url(#blurNeon)" opacity="0.7"/>
+  <!-- 大小不一、圆润流体的错位文字 -->
+  <g transform="translate(256, 360)">
+    <text x="-45" y="0" font-family="'Arial Rounded MT Bold', 'SF Pro Rounded', sans-serif" font-size="290" font-weight="900" fill="url(#qsText)" text-anchor="middle" opacity="0.95">J</text>
+    <text x="60" y="-30" font-family="'Arial Rounded MT Bold', 'SF Pro Rounded', sans-serif" font-size="220" font-weight="900" fill="url(#qsText)" text-anchor="middle" opacity="0.85">J</text>
+  </g>
+</svg>

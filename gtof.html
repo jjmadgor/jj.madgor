@@ -3,53 +3,61 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GTO 聚合查询系统</title>
+    <title>100BB 现金桌 GTO 策略库</title>
     <style>
+        :root {
+            --bg-body: #0b0f19;
+            --bg-panel: #151b2b;
+            --border-color: #2a3441;
+            --color-raise: #ef4444; /* 红色: 加注 / 3-Bet */
+            --color-call:  #10b981; /* 绿色: 跟注 / Limp */
+            --color-fold:  #1f2937; /* 灰色: 弃牌 */
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+
         body {
-            background-color: #0b0f19;
-            color: #f8fafc;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
             margin: 0;
-            padding: 20px;
+            padding: 30px 20px;
             display: flex;
             flex-direction: column;
             align-items: center;
         }
 
         .header { text-align: center; margin-bottom: 20px; }
-        .header h1 { margin: 0 0 5px 0; font-size: 24px; letter-spacing: 1px; }
-        .header p { margin: 0; color: #94a3b8; font-size: 13px; }
+        .header h1 { margin: 0 0 8px 0; font-size: 26px; color: #fff; }
+        .header p { margin: 0; color: #3b82f6; font-size: 14px; font-weight: 600; }
 
-        .panel {
-            background: #151b2b;
-            border: 1px solid #2a3441;
+        .controls-container {
+            background: var(--bg-panel);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
             padding: 20px;
-            border-radius: 12px;
             margin-bottom: 20px;
             width: 100%;
             max-width: 650px;
             box-sizing: border-box;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.5);
         }
 
         .filter-row {
             display: flex;
-            align-items: center;
-            margin-bottom: 12px;
+            align-items: flex-start;
+            margin-bottom: 16px;
             border-bottom: 1px solid #1e293b;
-            padding-bottom: 12px;
+            padding-bottom: 16px;
         }
-        .filter-row:last-child {
-            margin-bottom: 0;
-            border-bottom: none;
-            padding-bottom: 0;
-        }
+        .filter-row:last-child { margin-bottom: 0; border-bottom: none; padding-bottom: 0; }
 
         .filter-label {
-            width: 80px;
-            font-size: 13px;
-            color: #94a3b8;
-            font-weight: 600;
+            width: 90px;
+            font-size: 14px;
+            color: var(--text-muted);
+            font-weight: bold;
+            padding-top: 6px;
         }
 
         .btn-group {
@@ -61,279 +69,285 @@
 
         button {
             background: #1e293b;
-            color: #94a3b8;
+            color: var(--text-muted);
             border: 1px solid transparent;
-            padding: 6px 14px;
+            padding: 8px 16px;
             border-radius: 6px;
             font-size: 13px;
-            font-weight: 600;
+            font-weight: bold;
             cursor: pointer;
             transition: all 0.2s;
         }
 
         button:hover { background: #2a3441; color: #fff; }
-        button.active { background: #3b82f6; color: #fff; box-shadow: 0 0 8px rgba(59, 130, 246, 0.4); }
+        button.active { background: #3b82f6; color: #fff; box-shadow: 0 0 10px rgba(59, 130, 246, 0.4); }
 
         .legend {
             display: flex;
             justify-content: center;
-            gap: 20px;
-            font-size: 12px;
-            color: #94a3b8;
-            margin-top: 15px;
-            padding-top: 15px;
-            border-top: 1px solid #2a3441;
+            gap: 24px;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-top: 5px;
         }
 
         .legend-item span {
             display: inline-block;
-            width: 12px;
-            height: 12px;
-            border-radius: 3px;
+            width: 14px;
+            height: 14px;
+            border-radius: 4px;
             margin-right: 6px;
-            vertical-align: middle;
+            vertical-align: -2px;
         }
 
-        .grid {
+        .grid-wrapper {
+            background: var(--bg-panel);
+            padding: 12px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+        }
+
+        .grid-container {
             display: grid;
             grid-template-columns: repeat(13, 1fr);
             gap: 1px;
-            background: #0b0f19;
-            border: 1px solid #2a3441;
-            border-radius: 8px;
-            padding: 4px;
+            background-color: var(--bg-body);
+            width: 100%;
+            max-width: 650px;
+            aspect-ratio: 1 / 1;
         }
 
-        .cell {
-            aspect-ratio: 1;
+        .hand-cell {
+            position: relative;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 12px;
+            font-size: 13px;
             font-weight: 700;
-            color: #fff;
-            position: relative;
-            cursor: pointer;
+            color: #ffffff;
             text-shadow: 1px 1px 2px rgba(0,0,0,0.9);
+            cursor: pointer;
             user-select: none;
             overflow: hidden;
         }
 
-        .cell::after {
+        .hand-cell::after {
             content: '';
             position: absolute;
             inset: 0;
             border: 2px solid transparent;
             pointer-events: none;
         }
-        .cell:hover::after { border-color: #ffffff; z-index: 10; }
+        .hand-cell:hover::after { border-color: #ffffff; z-index: 10; }
 
         #tooltip {
             position: fixed;
+            pointer-events: none;
             background: rgba(15, 23, 42, 0.95);
             border: 1px solid #334155;
-            padding: 12px;
+            padding: 12px 16px;
             border-radius: 8px;
-            display: none;
+            color: #fff;
+            font-size: 14px;
+            z-index: 9999;
+            opacity: 0;
+            display: flex;
             flex-direction: column;
             gap: 6px;
-            font-size: 13px;
-            pointer-events: none;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.6);
-            z-index: 9999;
             backdrop-filter: blur(4px);
-            min-width: 120px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.6);
         }
 
-        .tt-header { font-weight: bold; font-size: 15px; text-align: center; border-bottom: 1px solid #334155; padding-bottom: 6px; margin-bottom: 2px; }
-        .tt-row { display: flex; justify-content: space-between; }
+        .tt-title { font-weight: bold; font-size: 16px; text-align: center; border-bottom: 1px solid #334155; padding-bottom: 6px; margin-bottom: 2px;}
+        .tt-row { display: flex; justify-content: space-between; gap: 30px; }
     </style>
 </head>
 <body>
 
     <div class="header">
-        <h1>GTO 范围聚合查询</h1>
-        <p>多维度策略矩阵库</p>
+        <h1>100BB Cash GTO</h1>
+        <p>无限注德州扑克 · 现金桌专属策略</p>
     </div>
 
-    <!-- 控制面板 -->
-    <div class="panel">
+    <div class="controls-container">
+        <!-- 主行动线切换 -->
         <div class="filter-row">
-            <div class="filter-label">赛制</div>
-            <div class="btn-group" id="format-btns">
-                <button class="active" onclick="setFormat('MTT')">锦标赛 (MTT)</button>
-                <button onclick="setFormat('Cash')">常规桌 (Cash 6-Max)</button>
+            <div class="filter-label">行动类别</div>
+            <div class="btn-group" id="action-btns">
+                <button class="active" onclick="setAction('RFI')">首入池 (RFI)</button>
+                <button onclick="setAction('vsOpen')">面对加注 (vs Open)</button>
+                <button onclick="setAction('HU')">单挑桌 (HU Cash)</button>
             </div>
         </div>
         
-        <div class="filter-row">
-            <div class="filter-label">筹码深度</div>
-            <div class="btn-group" id="depth-btns"></div>
+        <!-- 具体场景切换 -->
+        <div class="filter-row" style="border-bottom: none; padding-bottom: 0;">
+            <div class="filter-label" id="scenario-label">选择位置</div>
+            <div class="btn-group" id="scenario-btns"></div>
         </div>
 
-        <div class="filter-row">
-            <div class="filter-label">我方位置</div>
-            <div class="btn-group" id="pos-btns"></div>
-        </div>
-
-        <div class="legend">
-            <div class="legend-item"><span style="background: #ef4444;"></span>加注 (Raise)</div>
-            <div class="legend-item"><span style="background: #10b981;"></span>跟注 (Call)</div>
-            <div class="legend-item"><span style="background: #1f2937;"></span>弃牌 (Fold)</div>
+        <div class="filter-row" style="margin-top: 15px; border-bottom: none; padding-bottom: 0;">
+            <div class="legend" style="width: 100%;">
+                <div class="legend-item" id="legend-raise"><span style="background: var(--color-raise);"></span>加注 (Raise/3-Bet)</div>
+                <div class="legend-item" id="legend-call"><span style="background: var(--color-call);"></span>跟注 (Call/Limp)</div>
+                <div class="legend-item"><span style="background: var(--color-fold);"></span>弃牌 (Fold)</div>
+            </div>
         </div>
     </div>
 
-    <!-- 渲染网格 -->
-    <div class="panel" style="padding: 10px;">
-        <div class="grid" id="matrix"></div>
+    <div class="grid-wrapper">
+        <div class="grid-container" id="matrix-grid"></div>
     </div>
 
-    <!-- 悬浮窗 -->
     <div id="tooltip"></div>
 
     <script>
         const cards = ['A', 'K', 'Q', 'J', 'T', '9', '8', '7', '6', '5', '4', '3', '2'];
         
-        // 状态管理
-        let curFormat = 'MTT';
-        let curDepth = '30BB';
-        let curPos = 'UTG';
+        let currentAction = 'RFI';
+        let currentScenario = 'UTG';
 
-        // 配置结构定义
+        // 配置：不同行动类别下对应的场景按钮
         const config = {
-            'MTT': {
-                depths: ['15BB', '20BB', '30BB', '40BB'],
-                positions: ['UTG', 'HJ', 'CO', 'BTN', 'SB', 'BB']
+            'RFI': {
+                label: '我方位置',
+                scenarios: ['UTG', 'HJ', 'CO', 'BTN', 'SB']
             },
-            'Cash': {
-                depths: ['100BB'],
-                positions: ['UTG', 'HJ', 'CO', 'BTN', 'SB', 'BB']
+            'vsOpen': {
+                label: '对抗场景',
+                scenarios: ['HJ 面对 UTG', 'BTN 面对 CO', 'BB 面对 BTN']
+            },
+            'HU': {
+                label: '单挑位置',
+                scenarios: ['SB(庄位) 开池', 'BB 面对开池']
             }
         };
 
-        // GTO 数据库模拟 (分层: 赛制 -> 深度 -> 位置 -> 手牌 -> 动作频率)
+        // GTO 数据核心库 (100BB Cash)
+        // r = Raise/3-Bet (红色), c = Call/Limp (绿色), 剩余比例自动计算为 Fold (灰色)
         const db = {
-            'MTT': {
-                '30BB': {
-                    'UTG': { 
-                        'AA':{r:100}, 'KK':{r:100}, 'QQ':{r:100}, 'JJ':{r:100}, 'TT':{r:100}, '99':{r:100}, '88':{r:100}, '77':{r:60, c:0},
-                        'AKs':{r:100}, 'AQs':{r:100}, 'AJs':{r:100}, 'ATs':{r:100}, 'A5s':{r:40},
-                        'KQs':{r:100}, 'KJs':{r:100}, 'QJs':{r:100}, 'JTs':{r:80},
-                        'AKo':{r:100}, 'AQo':{r:100}, 'AJo':{r:30}
-                    },
-                    'BTN': {
-                        'AA':{r:100}, '22':{r:100}, 'AKs':{r:100}, 'A2s':{r:100}, 'K2s':{r:70}, 'Q5s':{r:50}, 'J7s':{r:50},
-                        'T7s':{r:60}, '96s':{r:40}, '85s':{r:50}, '75s':{r:60}, '64s':{r:40}, '54s':{r:50},
-                        'AKo':{r:100}, 'A2o':{r:60}, 'KQo':{r:100}, 'K9o':{r:50}, 'Q9o':{r:50}, 'J9o':{r:40}, 'T9o':{r:40}
-                    }
-                },
-                '15BB': {
-                    'UTG': { 'AA':{r:100}, 'KK':{r:100}, 'AKs':{r:100}, 'AKo':{r:100} } // 筹码浅，打得极紧或直接 All-in
-                }
+            'RFI': {
+                'UTG': { 'AA':{r:100}, 'KK':{r:100}, 'QQ':{r:100}, 'JJ':{r:100}, 'TT':{r:100}, '99':{r:100}, '88':{r:100}, '77':{r:80}, '66':{r:40}, '55':{r:20}, 'AKs':{r:100}, 'AQs':{r:100}, 'AJs':{r:100}, 'ATs':{r:100}, 'A5s':{r:80}, 'A4s':{r:50}, 'KQs':{r:100}, 'KJs':{r:100}, 'KTs':{r:50}, 'QJs':{r:100}, 'QTs':{r:20}, 'JTs':{r:100}, 'T9s':{r:50}, 'AKo':{r:100}, 'AQo':{r:100}, 'AJo':{r:20} },
+                'HJ': { 'AA':{r:100}, 'KK':{r:100}, 'QQ':{r:100}, 'JJ':{r:100}, 'TT':{r:100}, '99':{r:100}, '88':{r:100}, '77':{r:100}, '66':{r:80}, '55':{r:50}, '44':{r:20}, 'AKs':{r:100}, 'AQs':{r:100}, 'AJs':{r:100}, 'ATs':{r:100}, 'A9s':{r:50}, 'A8s':{r:30}, 'A5s':{r:100}, 'A4s':{r:80}, 'A3s':{r:50}, 'KQs':{r:100}, 'KJs':{r:100}, 'KTs':{r:100}, 'K9s':{r:50}, 'QJs':{r:100}, 'QTs':{r:100}, 'Q9s':{r:50}, 'JTs':{r:100}, 'J9s':{r:50}, 'T9s':{r:100}, '98s':{r:80}, '87s':{r:50}, 'AKo':{r:100}, 'AQo':{r:100}, 'AJo':{r:100}, 'ATo':{r:50}, 'KQo':{r:100}, 'KJo':{r:50} },
+                'CO': { 'AA':{r:100}, 'KK':{r:100}, 'QQ':{r:100}, 'JJ':{r:100}, 'TT':{r:100}, '99':{r:100}, '88':{r:100}, '77':{r:100}, '66':{r:100}, '55':{r:100}, '44':{r:80}, '33':{r:50}, '22':{r:50}, 'AKs':{r:100}, 'AQs':{r:100}, 'AJs':{r:100}, 'ATs':{r:100}, 'A9s':{r:100}, 'A8s':{r:80}, 'A7s':{r:60}, 'A6s':{r:50}, 'A5s':{r:100}, 'A4s':{r:100}, 'A3s':{r:80}, 'A2s':{r:60}, 'KQs':{r:100}, 'KJs':{r:100}, 'KTs':{r:100}, 'K9s':{r:80}, 'K8s':{r:50}, 'K7s':{r:30}, 'QJs':{r:100}, 'QTs':{r:100}, 'Q9s':{r:100}, 'Q8s':{r:50}, 'JTs':{r:100}, 'J9s':{r:100}, 'J8s':{r:50}, 'T9s':{r:100}, 'T8s':{r:80}, '98s':{r:100}, '87s':{r:100}, '76s':{r:80}, '65s':{r:50}, 'AKo':{r:100}, 'AQo':{r:100}, 'AJo':{r:100}, 'ATo':{r:100}, 'A9o':{r:50}, 'KQo':{r:100}, 'KJo':{r:100}, 'KTo':{r:50}, 'QJo':{r:80} },
+                'BTN': { 'AA':{r:100}, 'KK':{r:100}, 'QQ':{r:100}, 'JJ':{r:100}, 'TT':{r:100}, '99':{r:100}, '88':{r:100}, '77':{r:100}, '66':{r:100}, '55':{r:100}, '44':{r:100}, '33':{r:100}, '22':{r:100}, 'AKs':{r:100}, 'A2s':{r:100}, 'A3s':{r:100}, 'A4s':{r:100}, 'A5s':{r:100}, 'A6s':{r:100}, 'A7s':{r:100}, 'A8s':{r:100}, 'A9s':{r:100}, 'ATs':{r:100}, 'AJs':{r:100}, 'AQs':{r:100}, 'K2s':{r:80}, 'K3s':{r:80}, 'K4s':{r:80}, 'K5s':{r:80}, 'K6s':{r:100}, 'K7s':{r:100}, 'K8s':{r:100}, 'K9s':{r:100}, 'KTs':{r:100}, 'KJs':{r:100}, 'KQs':{r:100}, 'Q4s':{r:50}, 'Q5s':{r:80}, 'Q6s':{r:100}, 'Q7s':{r:100}, 'Q8s':{r:100}, 'Q9s':{r:100}, 'QTs':{r:100}, 'QJs':{r:100}, 'J6s':{r:50}, 'J7s':{r:80}, 'J8s':{r:100}, 'J9s':{r:100}, 'JTs':{r:100}, 'T6s':{r:50}, 'T7s':{r:80}, 'T8s':{r:100}, 'T9s':{r:100}, '96s':{r:50}, '97s':{r:80}, '98s':{r:100}, '85s':{r:50}, '86s':{r:80}, '87s':{r:100}, '75s':{r:50}, '76s':{r:100}, '64s':{r:50}, '65s':{r:100}, '54s':{r:100}, 'AKo':{r:100}, 'AQo':{r:100}, 'AJo':{r:100}, 'ATo':{r:100}, 'A9o':{r:100}, 'A8o':{r:80}, 'A7o':{r:50}, 'A5o':{r:50}, 'KQo':{r:100}, 'KJo':{r:100}, 'KTo':{r:100}, 'K9o':{r:80}, 'QJo':{r:100}, 'QTo':{r:100}, 'Q9o':{r:50}, 'JTo':{r:100}, 'J9o':{r:50}, 'T9o':{r:80}, '98o':{r:50} },
+                // SB 在 Cash GTO 中有大量的混合策略 (Limp)，这里的 c 代表 Limp (平跟)
+                'SB': { 'AA':{r:100}, 'KK':{r:100}, 'QQ':{r:100}, 'JJ':{r:100}, 'TT':{r:50,c:50}, '99':{r:30,c:70}, '88':{c:100}, '77':{c:100}, '66':{c:100}, '55':{c:100}, '44':{c:100}, '33':{c:100}, '22':{c:100}, 'AKs':{r:100}, 'AQs':{r:100}, 'AJs':{r:100}, 'ATs':{r:80,c:20}, 'A9s':{r:50,c:50}, 'A8s':{c:100}, 'A7s':{c:100}, 'A6s':{c:100}, 'A5s':{r:80,c:20}, 'A4s':{r:50,c:50}, 'A3s':{c:100}, 'A2s':{c:100}, 'KQs':{r:100}, 'KJs':{r:80,c:20}, 'KTs':{r:50,c:50}, 'K9s':{c:100}, 'QJs':{r:50,c:50}, 'QTs':{c:100}, 'JTs':{c:100}, 'T9s':{c:100}, '98s':{c:100}, '87s':{c:100}, 'AKo':{r:100}, 'AQo':{r:100}, 'AJo':{r:80,c:20}, 'ATo':{c:100}, 'KQo':{r:80,c:20}, 'KJo':{c:100}, 'QJo':{c:100} }
             },
-            'Cash': {
-                '100BB': {
-                    'UTG': { 'AA':{r:100}, 'KK':{r:100}, 'QQ':{r:100}, 'JJ':{r:100}, 'TT':{r:100}, '99':{r:100}, '88':{r:100}, 'AKs':{r:100}, 'AQs':{r:100}, 'AKo':{r:100} }
-                }
+            'vsOpen': {
+                'HJ 面对 UTG': { 'AA':{r:100}, 'KK':{r:100}, 'QQ':{r:100}, 'JJ':{r:50, c:50}, 'TT':{c:100}, '99':{c:100}, '88':{c:100}, '77':{c:50}, 'AKs':{r:100}, 'AQs':{r:80, c:20}, 'AJs':{c:100}, 'ATs':{c:100}, 'A5s':{r:30}, 'A4s':{r:20}, 'KQs':{c:100}, 'KJs':{c:100}, 'KTs':{c:100}, 'QJs':{c:100}, 'QTs':{c:50}, 'JTs':{c:100}, 'T9s':{c:100}, '98s':{c:100}, '87s':{c:50}, 'AKo':{r:100}, 'AQo':{c:100} },
+                'BTN 面对 CO': { 'AA':{r:100}, 'KK':{r:100}, 'QQ':{r:100}, 'JJ':{r:80, c:20}, 'TT':{r:50, c:50}, '99':{c:100}, '88':{c:100}, '77':{c:100}, '66':{c:80}, '55':{c:50}, 'AKs':{r:100}, 'AQs':{r:100}, 'AJs':{r:50, c:50}, 'ATs':{c:100}, 'A5s':{r:50}, 'A4s':{r:50}, 'A3s':{r:30}, 'KQs':{r:30, c:70}, 'KJs':{c:100}, 'KTs':{c:100}, 'QJs':{c:100}, 'QTs':{c:100}, 'JTs':{c:100}, 'T9s':{c:100}, '98s':{c:100}, '87s':{c:100}, '76s':{c:80}, '65s':{c:50}, 'AKo':{r:100}, 'AQo':{r:50, c:50}, 'AJo':{c:100}, 'KQo':{c:100} },
+                // 大盲防守极为宽泛，大量跟注 (Call)
+                'BB 面对 BTN': { 'AA':{r:100}, 'KK':{r:100}, 'QQ':{r:100}, 'JJ':{r:80, c:20}, 'TT':{r:50, c:50}, '99':{r:20, c:80}, '88':{c:100}, '77':{c:100}, '66':{c:100}, '55':{c:100}, '44':{c:100}, '33':{c:100}, '22':{c:100}, 'AKs':{r:100}, 'AQs':{r:100}, 'AJs':{r:80, c:20}, 'ATs':{r:50, c:50}, 'A9s':{c:100}, 'A8s':{c:100}, 'A7s':{c:100}, 'A6s':{c:100}, 'A5s':{r:80, c:20}, 'A4s':{r:50, c:50}, 'A3s':{r:50, c:50}, 'A2s':{c:100}, 'KQs':{r:80, c:20}, 'KJs':{r:50, c:50}, 'KTs':{c:100}, 'K9s':{c:100}, 'K8s':{c:100}, 'K7s':{c:100}, 'K6s':{c:100}, 'K5s':{c:100}, 'K4s':{c:100}, 'K3s':{c:100}, 'K2s':{c:100}, 'QJs':{c:100}, 'QTs':{c:100}, 'Q9s':{c:100}, 'Q8s':{c:100}, 'Q7s':{c:100}, 'Q6s':{c:100}, 'Q5s':{c:100}, 'Q4s':{c:100}, 'Q3s':{c:100}, 'Q2s':{c:100}, 'JTs':{c:100}, 'J9s':{c:100}, 'J8s':{c:100}, 'J7s':{c:100}, 'J6s':{c:100}, 'J5s':{c:100}, 'T9s':{c:100}, 'T8s':{c:100}, 'T7s':{c:100}, 'T6s':{c:100}, '98s':{c:100}, '97s':{c:100}, '96s':{c:100}, '87s':{c:100}, '86s':{c:100}, '76s':{c:100}, '75s':{c:100}, '65s':{c:100}, '64s':{c:100}, '54s':{c:100}, 'AKo':{r:100}, 'AQo':{r:80, c:20}, 'AJo':{r:50, c:50}, 'ATo':{c:100}, 'A9o':{c:100}, 'A8o':{c:100}, 'A7o':{c:100}, 'A6o':{c:100}, 'A5o':{c:100}, 'A4o':{c:100}, 'A3o':{c:100}, 'A2o':{c:100}, 'KQo':{r:50, c:50}, 'KJo':{c:100}, 'KTo':{c:100}, 'K9o':{c:100}, 'K8o':{c:100}, 'QJo':{c:100}, 'QTo':{c:100}, 'Q9o':{c:100}, 'Q8o':{c:100}, 'JTo':{c:100}, 'J9o':{c:100}, 'T9o':{c:100}, '98o':{c:100} }
+            },
+            'HU': {
+                // 单挑桌 SB (即庄位)，开池极宽
+                'SB(庄位) 开池': { 'AA':{r:100}, 'KK':{r:100}, 'QQ':{r:100}, 'JJ':{r:100}, 'TT':{r:100}, '99':{r:100}, '88':{r:100}, '77':{r:100}, '66':{r:100}, '55':{r:100}, '44':{r:100}, '33':{r:100}, '22':{r:100}, 'AKs':{r:100}, 'A2s':{r:100}, 'A3s':{r:100}, 'A4s':{r:100}, 'A5s':{r:100}, 'A6s':{r:100}, 'A7s':{r:100}, 'A8s':{r:100}, 'A9s':{r:100}, 'ATs':{r:100}, 'AJs':{r:100}, 'AQs':{r:100}, 'K2s':{r:100}, 'K3s':{r:100}, 'K4s':{r:100}, 'K5s':{r:100}, 'K6s':{r:100}, 'K7s':{r:100}, 'K8s':{r:100}, 'K9s':{r:100}, 'KTs':{r:100}, 'KJs':{r:100}, 'KQs':{r:100}, 'Q2s':{r:100}, 'Q3s':{r:100}, 'Q4s':{r:100}, 'Q5s':{r:100}, 'Q6s':{r:100}, 'Q7s':{r:100}, 'Q8s':{r:100}, 'Q9s':{r:100}, 'QTs':{r:100}, 'QJs':{r:100}, 'J2s':{r:100}, 'J3s':{r:100}, 'J4s':{r:100}, 'J5s':{r:100}, 'J6s':{r:100}, 'J7s':{r:100}, 'J8s':{r:100}, 'J9s':{r:100}, 'JTs':{r:100}, 'T2s':{r:100}, 'T3s':{r:100}, 'T4s':{r:100}, 'T5s':{r:100}, 'T6s':{r:100}, 'T7s':{r:100}, 'T8s':{r:100}, 'T9s':{r:100}, '92s':{r:100}, '93s':{r:100}, '94s':{r:100}, '95s':{r:100}, '96s':{r:100}, '97s':{r:100}, '98s':{r:100}, '83s':{r:100}, '84s':{r:100}, '85s':{r:100}, '86s':{r:100}, '87s':{r:100}, '73s':{r:100}, '74s':{r:100}, '75s':{r:100}, '76s':{r:100}, '63s':{r:100}, '64s':{r:100}, '65s':{r:100}, '53s':{r:100}, '54s':{r:100}, '43s':{r:100}, 'AKo':{r:100}, 'AQo':{r:100}, 'AJo':{r:100}, 'ATo':{r:100}, 'A9o':{r:100}, 'A8o':{r:100}, 'A7o':{r:100}, 'A6o':{r:100}, 'A5o':{r:100}, 'A4o':{r:100}, 'A3o':{r:100}, 'A2o':{r:100}, 'KQo':{r:100}, 'KJo':{r:100}, 'KTo':{r:100}, 'K9o':{r:100}, 'K8o':{r:100}, 'K7o':{r:100}, 'K6o':{r:100}, 'K5o':{r:100}, 'K4o':{r:100}, 'QJo':{r:100}, 'QTo':{r:100}, 'Q9o':{r:100}, 'Q8o':{r:100}, 'Q7o':{r:100}, 'Q6o':{r:100}, 'JTo':{r:100}, 'J9o':{r:100}, 'J8o':{r:100}, 'J7o':{r:100}, 'T9o':{r:100}, 'T8o':{r:100}, '98o':{r:100} },
+                // BB 面对单挑桌开池，几乎要防守 70% 的手牌
+                'BB 面对开池': { 'AA':{r:100}, 'KK':{r:100}, 'QQ':{r:100}, 'JJ':{r:100}, 'TT':{r:80, c:20}, '99':{r:50, c:50}, '88':{c:100}, '77':{c:100}, '66':{c:100}, '55':{c:100}, '44':{c:100}, '33':{c:100}, '22':{c:100}, 'AKs':{r:100}, 'AQs':{r:100}, 'AJs':{r:100}, 'ATs':{r:80, c:20}, 'A9s':{r:50, c:50}, 'A8s':{c:100}, 'A7s':{c:100}, 'A6s':{c:100}, 'A5s':{r:50, c:50}, 'A4s':{r:30, c:70}, 'A3s':{c:100}, 'A2s':{c:100}, 'KQs':{r:100}, 'KJs':{r:80, c:20}, 'KTs':{r:50, c:50}, 'K9s':{c:100}, 'K8s':{c:100}, 'K7s':{c:100}, 'K6s':{c:100}, 'K5s':{c:100}, 'K4s':{c:100}, 'K3s':{c:100}, 'K2s':{c:100}, 'QJs':{r:50, c:50}, 'QTs':{c:100}, 'Q9s':{c:100}, 'Q8s':{c:100}, 'Q7s':{c:100}, 'Q6s':{c:100}, 'Q5s':{c:100}, 'Q4s':{c:100}, 'Q3s':{c:100}, 'Q2s':{c:100}, 'JTs':{c:100}, 'J9s':{c:100}, 'J8s':{c:100}, 'J7s':{c:100}, 'J6s':{c:100}, 'J5s':{c:100}, 'T9s':{c:100}, 'T8s':{c:100}, 'T7s':{c:100}, 'T6s':{c:100}, '98s':{c:100}, '97s':{c:100}, '96s':{c:100}, '87s':{c:100}, '86s':{c:100}, '76s':{c:100}, '75s':{c:100}, '65s':{c:100}, '54s':{c:100}, 'AKo':{r:100}, 'AQo':{r:100}, 'AJo':{r:80, c:20}, 'ATo':{r:50, c:50}, 'A9o':{c:100}, 'A8o':{c:100}, 'A7o':{c:100}, 'A6o':{c:100}, 'A5o':{c:100}, 'A4o':{c:100}, 'A3o':{c:100}, 'A2o':{c:100}, 'KQo':{r:80, c:20}, 'KJo':{r:50, c:50}, 'KTo':{c:100}, 'K9o':{c:100}, 'K8o':{c:100}, 'K7o':{c:100}, 'QJo':{c:100}, 'QTo':{c:100}, 'Q9o':{c:100}, 'Q8o':{c:100}, 'JTo':{c:100}, 'J9o':{c:100}, 'T9o':{c:100}, '98o':{c:100} }
             }
         };
 
-        function init() {
-            renderControls();
-            renderMatrix();
+        function setAction(action) {
+            currentAction = action;
+            currentScenario = config[action].scenarios[0];
+            
+            const btns = document.getElementById('action-btns').children;
+            btns[0].className = action === 'RFI' ? 'active' : '';
+            btns[1].className = action === 'vsOpen' ? 'active' : '';
+            btns[2].className = action === 'HU' ? 'active' : '';
+            
+            document.getElementById('scenario-label').innerText = config[action].label;
+            
+            // 动态更新图例文字
+            if(action === 'RFI') {
+                document.getElementById('legend-raise').innerHTML = '<span style="background: var(--color-raise);"></span>加注 (Raise)';
+                document.getElementById('legend-call').innerHTML = '<span style="background: var(--color-call);"></span>平跟 (Limp/SB)';
+            } else {
+                document.getElementById('legend-raise').innerHTML = '<span style="background: var(--color-raise);"></span>再加注 (3-Bet)';
+                document.getElementById('legend-call').innerHTML = '<span style="background: var(--color-call);"></span>跟注 (Call)';
+            }
+
+            renderScenarios();
+            renderGrid();
         }
 
-        function setFormat(format) {
-            curFormat = format;
-            curDepth = config[format].depths[0];
-            curPos = config[format].positions[0];
+        function renderScenarios() {
+            const container = document.getElementById('scenario-btns');
+            container.innerHTML = '';
             
-            const btns = document.getElementById('format-btns').children;
-            btns[0].className = format === 'MTT' ? 'active' : '';
-            btns[1].className = format === 'Cash' ? 'active' : '';
-            
-            renderControls();
-            renderMatrix();
-        }
-
-        function renderControls() {
-            // 渲染筹码深度按钮
-            const depthContainer = document.getElementById('depth-btns');
-            depthContainer.innerHTML = '';
-            config[curFormat].depths.forEach(depth => {
+            config[currentAction].scenarios.forEach(scen => {
                 const btn = document.createElement('button');
-                btn.innerText = depth;
-                if (depth === curDepth) btn.className = 'active';
-                btn.onclick = () => { curDepth = depth; renderControls(); renderMatrix(); };
-                depthContainer.appendChild(btn);
-            });
-
-            // 渲染位置按钮
-            const posContainer = document.getElementById('pos-btns');
-            posContainer.innerHTML = '';
-            config[curFormat].positions.forEach(pos => {
-                const btn = document.createElement('button');
-                btn.innerText = pos;
-                if (pos === curPos) btn.className = 'active';
-                btn.onclick = () => { curPos = pos; renderControls(); renderMatrix(); };
-                posContainer.appendChild(btn);
+                btn.innerText = scen;
+                if (scen === currentScenario) btn.className = 'active';
+                btn.onclick = () => { currentScenario = scen; renderScenarios(); renderGrid(); };
+                container.appendChild(btn);
             });
         }
 
-        function renderMatrix() {
-            const matrix = document.getElementById('matrix');
+        function renderGrid() {
+            const matrix = document.getElementById('matrix-grid');
             const tooltip = document.getElementById('tooltip');
             matrix.innerHTML = '';
             
-            // 安全读取深层嵌套数据
-            const formatData = db[curFormat] || {};
-            const depthData = formatData[curDepth] || {};
-            const range = depthData[curPos] || {};
+            const actionData = db[currentAction] || {};
+            const rangeData = actionData[currentScenario] || {};
 
             for (let i = 0; i < 13; i++) {
                 for (let j = 0; j < 13; j++) {
-                    let hand = '';
-                    if (i < j) hand = cards[i] + cards[j] + 's';
-                    else if (i > j) hand = cards[j] + cards[i] + 'o';
-                    else hand = cards[i] + cards[j];
+                    let handStr = '';
+                    if (i < j) handStr = cards[i] + cards[j] + 's';
+                    else if (i > j) handStr = cards[j] + cards[i] + 'o';
+                    else handStr = cards[i] + cards[j];
 
-                    const action = range[hand] || {r:0, c:0};
-                    const r = action.r || 0;
-                    const c = action.c || 0;
-                    const f = 100 - r - c;
+                    const action = rangeData[handStr] || { r: 0, c: 0 };
+                    const r = action.r || 0; 
+                    const c = action.c || 0; 
+                    const f = 100 - r - c;    
 
                     const cell = document.createElement('div');
-                    cell.className = 'cell';
-                    cell.innerText = hand;
-                    
-                    // 渐变渲染：底层红，中间绿，上层灰
-                    cell.style.background = `linear-gradient(to top, #ef4444 ${r}%, #10b981 ${r}% ${r+c}%, #1f2937 ${r+c}%)`;
+                    cell.className = 'hand-cell';
+                    cell.innerText = handStr;
+
+                    // 高级渲染：精确渐变色
+                    cell.style.background = `linear-gradient(to top, 
+                        var(--color-raise) 0%, var(--color-raise) ${r}%, 
+                        var(--color-call) ${r}%, var(--color-call) ${r+c}%, 
+                        var(--color-fold) ${r+c}%, var(--color-fold) 100%)`;
 
                     // 悬浮窗交互
-                    cell.onmouseenter = () => {
+                    cell.addEventListener('mouseenter', () => {
+                        let rLabel = currentAction === 'RFI' ? 'Raise' : '3-Bet';
+                        let cLabel = currentAction === 'RFI' ? 'Limp' : 'Call';
+                        
                         tooltip.innerHTML = `
-                            <div class="tt-header">${hand}</div>
-                            <div class="tt-row"><span style="color:#fca5a5;">Raise:</span> <span>${r}%</span></div>
-                            <div class="tt-row"><span style="color:#6ee7b7;">Call:</span> <span>${c}%</span></div>
+                            <div class="tt-title">${handStr}</div>
+                            <div class="tt-row"><span style="color:#fca5a5;">${rLabel}:</span> <span>${r}%</span></div>
+                            <div class="tt-row"><span style="color:#6ee7b7;">${cLabel}:</span> <span>${c}%</span></div>
                             <div class="tt-row"><span style="color:#9ca3af;">Fold:</span> <span>${f}%</span></div>
                         `;
-                        tooltip.style.display = 'flex';
-                    };
-                    cell.onmousemove = (e) => {
+                        tooltip.style.opacity = '1';
+                    });
+
+                    cell.addEventListener('mousemove', (e) => {
                         tooltip.style.left = (e.clientX + 15) + 'px';
                         tooltip.style.top = (e.clientY + 15) + 'px';
-                    };
-                    cell.onmouseleave = () => {
-                        tooltip.style.display = 'none';
-                    };
+                    });
+
+                    cell.addEventListener('mouseleave', () => {
+                        tooltip.style.opacity = '0';
+                    });
 
                     matrix.appendChild(cell);
                 }
             }
         }
 
-        // 启动应用
-        init();
+        // 初始化
+        renderScenarios();
+        renderGrid();
     </script>
 </body>
 </html>

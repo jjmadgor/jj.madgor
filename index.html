@@ -4,14 +4,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   
-  <!-- === 核心：PWA 与桌面图标唤醒代码 === -->
   <title>JJ投资</title>
   <link rel="manifest" href="manifest.json">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="JJ投资">
   <link rel="apple-touch-icon" href="icon.svg">
-  <!-- ================================== -->
 
   <style>
     /* 默认浅色模式变量 */
@@ -44,7 +42,6 @@
 
     .container { max-width: 1200px; margin: 0 auto; padding: 20px 16px 40px; }
     .nav-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
-    /* 删除了"核心交易室"，只保留了纯文字 */
     .brand { font-size: 24px; font-weight: 800; letter-spacing: -0.5px; }
     .status-panel { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
     .live-indicator, .cloud-indicator { display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 600; }
@@ -176,14 +173,16 @@
     
     <div class="user-selector-wrapper">
       <div class="user-selector" id="user-selector">
-        <div class="user-tab active" onclick="switchView('总览')">资产总览</div>
-        <div class="user-tab" onclick="switchView('阿桂')">阿桂</div>
-        <div class="user-tab" onclick="switchView('UMI')">UMI</div>
+        <!-- 标签顺序调整：阿桂在前，总览在最后 -->
+        <div class="user-tab active" onclick="switchView('阿桂')">阿桂</div>
+        <div class="user-tab" onclick="switchView('小李')">小李</div>
+        <div class="user-tab" onclick="switchView('小赵')">小赵</div>
+        <div class="user-tab" onclick="switchView('总览')">资产总览</div>
       </div>
     </div>
 
-    <!-- 综合总览视图 -->
-    <div id="overview-view">
+    <!-- 综合总览视图（默认隐藏） -->
+    <div id="overview-view" style="display: none;">
       <div class="dashboard" style="align-items: center; text-align: center;">
         <p style="font-size: 14px; color: var(--text-muted); margin-bottom: -10px;">全局资产管理规模 (AUM / USD)</p>
         <div class="balance-display" id="global-total-assets" style="font-size: 42px;">$0.00</div>
@@ -197,8 +196,8 @@
       <div class="overview-grid" id="overview-grid-container"></div>
     </div>
 
-    <!-- 个人账户视图 -->
-    <div id="individual-view" style="display: none;">
+    <!-- 个人账户视图（默认显示） -->
+    <div id="individual-view" style="display: block;">
       <div class="dashboard">
         <div class="dashboard-top">
           <div class="account-info">
@@ -277,7 +276,8 @@
   <script>
     const AUTH_PIN = '0103';
     const API_URL = 'api.php'; 
-    const USERS = ['阿桂', 'UMI'];
+    // 人员更新：保留阿桂，加入小李、小赵
+    const USERS = ['阿桂', '小李', '小赵'];
     const CURRENCIES = { US: '$', HK: 'HK$', CN: '¥' };
     
     let FX_RATES = { US: 1.0, HK: 7.80, CN: 7.20 }; 
@@ -316,7 +316,8 @@
     ];
 
     let currentPrices = {}; 
-    let activeView = '总览'; 
+    // 将初始视图设为阿桂
+    let activeView = '阿桂'; 
     let selectedStockSymbol = ''; 
     let currentMarketTab = 'ALL';
     let db = { accounts: {}, fxRates: null, fxLastUpdate: 0 }; 
@@ -362,6 +363,7 @@
           db.accounts = {};
         }
 
+        // 初始化资金，如果是新用户（如小李、小赵），系统将自动分配2000美金
         USERS.forEach(user => { 
           if (!db.accounts[user]) db.accounts[user] = { principal: 2000.00, cash: 2000.00, withdrawn: 0.00, portfolio: {}, history: [], chart: [] };
           if (!db.accounts[user].history) db.accounts[user].history = [];
@@ -390,7 +392,8 @@
         }
         
         renderMarketList();
-        switchView('总览');
+        // 初始切入阿桂账户
+        switchView('阿桂');
 
         fetchRealPrices().then(() => {
             USERS.forEach(user => recordChartSnapshot(db.accounts[user], false));

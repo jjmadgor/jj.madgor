@@ -47,7 +47,6 @@
       text-align: center; position: relative; margin: auto;
     }
 
-    /* 扉页顶部的流体霓虹徽标模拟 */
     .brand-icon-wrapper {
       width: 64px; height: 64px; border-radius: 16px; background: #000;
       margin: 0 auto 14px; display: flex; justify-content: center; align-items: center;
@@ -59,7 +58,6 @@
     .disclaimer-card h2 { font-size: 19px; margin-bottom: 4px; font-weight: 700; letter-spacing: -0.5px; }
     .disclaimer-subtitle { font-size: 11px; color: var(--text-muted); margin-bottom: 18px; text-transform: uppercase; letter-spacing: 1px; }
 
-    /* 大师名言轮播/罗列卡片样式 */
     .quotes-container {
       display: flex;
       flex-direction: column;
@@ -284,7 +282,7 @@
       <div class="user-selector" id="user-selector">
         <div class="user-tab active" onclick="switchView('阿桂')">阿桂</div>
         <div class="user-tab" onclick="switchView('小李')">小李</div>
-        <div class="user-tab" onclick="switchView('小赵')">小赵</div>
+        <div class="user-tab" onclick="switchView('小王')">小王</div>
         <div class="user-tab" onclick="switchView('总览')">资产总览</div>
       </div>
     </div>
@@ -384,7 +382,7 @@
   <script>
     const AUTH_PIN = '0103';
     const API_URL = 'api.php'; 
-    const USERS = ['阿桂', '小李', '小赵'];
+    const USERS = ['阿桂', '小李', '小王'];
     const CURRENCIES = { US: '$', HK: 'HK$', CN: '¥' };
     
     let FX_RATES = { US: 1.0, HK: 7.80, CN: 7.20 }; 

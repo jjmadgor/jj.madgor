@@ -32,7 +32,17 @@
     * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     body { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif; background-color: var(--bg-color); color: var(--text-main); -webkit-font-smoothing: antialiased; transition: background-color 0.3s, color 0.3s; padding-top: env(safe-area-inset-top); }
     
-    #lock-screen { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: var(--bg-color); z-index: 10000; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+    /* ================= 扉页 (免责声明) 样式 ================= */
+    #disclaimer-screen { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: var(--bg-color); z-index: 30000; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; backdrop-filter: blur(10px); }
+    .disclaimer-box { background: var(--card-bg); padding: 40px 30px; border-radius: 20px; box-shadow: var(--panel-shadow); width: 100%; max-width: 400px; border: 1px solid var(--border-color); }
+    .disclaimer-box h2 { font-size: 22px; margin-bottom: 24px; text-align: center; font-weight: 800; letter-spacing: -0.5px; }
+    .shield-icon { font-size: 48px; text-align: center; margin-bottom: 16px; }
+    .disclaimer-content { font-size: 13px; color: var(--text-muted); line-height: 1.6; margin-bottom: 30px; text-align: justify; }
+    .disclaimer-content p { margin-bottom: 12px; }
+    .disclaimer-content strong { color: var(--text-main); }
+    .disclaimer-box .quote { font-style: italic; background: rgba(0, 113, 227, 0.05); padding: 14px; border-radius: 10px; border-left: 3px solid var(--apple-blue); color: var(--apple-blue); font-size: 13px; margin-top: 24px; font-weight: 600; text-align: left; }
+    
+    #lock-screen { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: var(--bg-color); z-index: 20000; display: none; flex-direction: column; justify-content: center; align-items: center; }
     .lock-box { background: var(--card-bg); padding: 40px 30px; border-radius: 20px; box-shadow: var(--panel-shadow); text-align: center; width: 90%; max-width: 360px; }
     .lock-box h2 { margin-bottom: 8px; font-size: 22px; color: var(--text-main); letter-spacing: -0.5px; }
     .lock-box p { color: var(--text-muted); font-size: 14px; margin-bottom: 24px; }
@@ -65,9 +75,9 @@
     .profit-positive { color: var(--apple-green); }
     .profit-negative { color: var(--apple-red); }
     .profit-neutral { color: var(--text-muted); }
-    .btn { background: var(--apple-blue); color: white; border: none; padding: 12px; width: 100%; border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer; transition: 0.2s; }
-    .btn:hover { background: #0077ED; }
-    .btn:disabled { background: #E5E5EA; color: #86868B; cursor: not-allowed; }
+    .btn { background: var(--apple-blue); color: white; border: none; padding: 14px; width: 100%; border-radius: 12px; font-size: 15px; font-weight: 600; cursor: pointer; transition: 0.2s; }
+    .btn:hover { background: #0077ED; transform: scale(0.98); }
+    .btn:disabled { background: #E5E5EA; color: #86868B; cursor: not-allowed; transform: none; }
 
     #chart-container { height: 160px; margin-top: 16px; border-top: 1px solid var(--border-color); padding-top: 16px; width: 100%; position: relative; }
 
@@ -147,12 +157,28 @@
 </head>
 <body>
 
+  <!-- ================= 免责声明 扉页 ================= -->
+  <div id="disclaimer-screen">
+    <div class="disclaimer-box">
+      <div class="shield-icon">🛡️</div>
+      <h2>JJ投资 · 系统访问声明</h2>
+      <div class="disclaimer-content">
+        <p><strong>1. 内部核心终端</strong><br>本系统为 JJ Family 专属的投资追踪与模拟实盘沙盒，未经授权请勿泄露系统数据。</p>
+        <p><strong>2. 敬畏市场，投资需谨慎</strong><br>全球宏观市场瞬息万变，股票、ETF及衍生品交易存在本金亏损风险。本系统展示的模拟盘/实盘数据及浮盈收益仅供复盘与策略参考，<strong>绝对不构成任何直接的财务或投资建议</strong>。</p>
+        <p><strong>3. 纪律与风控</strong><br>在真实的金融环境中，请始终保持理性。严格遵守交易纪律，合理分配资产配置，切忌盲目加杠杆与重仓赌博。</p>
+        <div class="quote">“投资的第一原则是永远不要亏钱，第二原则是永远不要忘记第一条。”<br>— 沃伦·巴菲特</div>
+      </div>
+      <button class="btn" onclick="acceptDisclaimer()">我已仔细阅读并同意</button>
+    </div>
+  </div>
+
+  <!-- ================= 锁屏界面 ================= -->
   <div id="lock-screen">
     <div class="lock-box">
       <h2>身份验证</h2>
       <p>请输入 JJ投资 访问密码</p>
       <input type="password" id="pin-input" placeholder="••••" maxlength="4" onkeypress="if(event.key==='Enter') verifyPin()">
-      <button class="btn" onclick="verifyPin()">解 锁</button>
+      <button class="btn" onclick="verifyPin()">解 锁 系 统</button>
       <div id="pin-error">密码错误，请重试</div>
     </div>
   </div>
@@ -173,7 +199,6 @@
     
     <div class="user-selector-wrapper">
       <div class="user-selector" id="user-selector">
-        <!-- 标签顺序调整：阿桂在前，总览在最后 -->
         <div class="user-tab active" onclick="switchView('阿桂')">阿桂</div>
         <div class="user-tab" onclick="switchView('小李')">小李</div>
         <div class="user-tab" onclick="switchView('小赵')">小赵</div>
@@ -276,7 +301,6 @@
   <script>
     const AUTH_PIN = '0103';
     const API_URL = 'api.php'; 
-    // 人员更新：保留阿桂，加入小李、小赵
     const USERS = ['阿桂', '小李', '小赵'];
     const CURRENCIES = { US: '$', HK: 'HK$', CN: '¥' };
     
@@ -316,22 +340,31 @@
     ];
 
     let currentPrices = {}; 
-    // 将初始视图设为阿桂
     let activeView = '阿桂'; 
     let selectedStockSymbol = ''; 
     let currentMarketTab = 'ALL';
     let db = { accounts: {}, fxRates: null, fxLastUpdate: 0 }; 
     let isUserTyping = false; 
 
+    // 初始化时仅绑定事件，默认展示 HTML 中的扉页
     window.onload = () => {
-      if (localStorage.getItem('jj_auth_pin') === AUTH_PIN) {
-        document.getElementById('lock-screen').style.display = 'none';
-        document.getElementById('loading-overlay').style.display = 'flex';
-        initCloudSystem();
-      }
       window.addEventListener('resize', renderChart);
     };
 
+    // 第一步：点击同意免责声明
+    function acceptDisclaimer() {
+      document.getElementById('disclaimer-screen').style.display = 'none';
+      // 如果曾经输入过正确密码，直接跳入系统
+      if (localStorage.getItem('jj_auth_pin') === AUTH_PIN) {
+        document.getElementById('loading-overlay').style.display = 'flex';
+        initCloudSystem();
+      } else {
+        // 否则拉起锁屏界面
+        document.getElementById('lock-screen').style.display = 'flex';
+      }
+    }
+
+    // 第二步：输入并验证密码
     function verifyPin() {
       const pin = document.getElementById('pin-input').value;
       if (pin === AUTH_PIN) {
@@ -363,7 +396,6 @@
           db.accounts = {};
         }
 
-        // 初始化资金，如果是新用户（如小李、小赵），系统将自动分配2000美金
         USERS.forEach(user => { 
           if (!db.accounts[user]) db.accounts[user] = { principal: 2000.00, cash: 2000.00, withdrawn: 0.00, portfolio: {}, history: [], chart: [] };
           if (!db.accounts[user].history) db.accounts[user].history = [];
@@ -392,7 +424,6 @@
         }
         
         renderMarketList();
-        // 初始切入阿桂账户
         switchView('阿桂');
 
         fetchRealPrices().then(() => {

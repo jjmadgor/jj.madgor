@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GTO Range Viewer Pro</title>
     <style>
-        /* 现代扑克软件暗黑配色方案 (参考 GTOWizard) */
+        /* 现代扑克软件暗黑配色方案 */
         :root {
             --bg-body: #0b0f19;
             --bg-panel: #151b2b;
@@ -31,15 +31,18 @@
             align-items: center;
         }
 
-        .header {
-            text-align: center;
-            margin-bottom: 24px;
-        }
-
-        .header h1 { margin: 0 0 8px 0; font-size: 24px; letter-spacing: 0.5px; }
+        .header { text-align: center; margin-bottom: 24px; }
+        .header h1 { margin: 0 0 8px 0; font-size: 24px; }
         .header p { margin: 0; color: var(--text-muted); font-size: 14px; }
 
-        /* 控制台样式 */
+        #loading-msg {
+            color: #3b82f6;
+            font-size: 18px;
+            margin-bottom: 20px;
+            padding: 10px;
+            border: 1px dashed #3b82f6;
+        }
+
         .controls-container {
             background: var(--bg-panel);
             border: 1px solid var(--border-color);
@@ -49,7 +52,6 @@
             display: flex;
             flex-direction: column;
             gap: 16px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
             width: 100%;
             max-width: 600px;
             box-sizing: border-box;
@@ -80,12 +82,11 @@
         }
 
         button.active {
-            background: #3b82f6; /* 激活状态用强调蓝 */
+            background: #3b82f6;
             color: #fff;
             box-shadow: 0 0 10px rgba(59, 130, 246, 0.3);
         }
 
-        /* 图例 (Legend) */
         .legend {
             display: flex;
             justify-content: center;
@@ -95,35 +96,24 @@
             font-size: 13px;
         }
 
-        .legend-item {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .color-box {
-            width: 14px;
-            height: 14px;
-            border-radius: 3px;
-        }
+        .legend-item { display: flex; align-items: center; gap: 6px; }
+        .color-box { width: 14px; height: 14px; border-radius: 3px; }
         .bg-raise { background-color: var(--color-raise); }
         .bg-call  { background-color: var(--color-call); }
         .bg-fold  { background-color: var(--color-fold); }
 
-        /* 13x13 矩阵网格 */
         .grid-wrapper {
             background: var(--bg-panel);
             padding: 12px;
             border-radius: var(--radius-md);
             border: 1px solid var(--border-color);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
 
         .grid-container {
             display: grid;
             grid-template-columns: repeat(13, 1fr);
-            gap: 1px; /* 产生细线边框效果 */
-            background-color: var(--bg-body); /* 缝隙透出背景色 */
+            gap: 1px;
+            background-color: var(--bg-body);
             width: 100%;
             max-width: 600px;
             aspect-ratio: 1 / 1;
@@ -137,214 +127,19 @@
             font-size: 13px;
             font-weight: 700;
             color: #ffffff;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.8); /* 保证在亮色背景上也能看清字 */
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
             cursor: pointer;
             user-select: none;
             overflow: hidden;
         }
 
-        /* 鼠标悬停网格高亮 */
         .hand-cell::after {
             content: '';
             position: absolute;
             inset: 0;
             border: 2px solid transparent;
-            transition: border-color 0.1s;
             pointer-events: none;
         }
         .hand-cell:hover::after {
             border-color: #ffffff;
-            z-index: 10;
-        }
-
-        /* 定制悬浮提示框 (Tooltip) */
-        #tooltip {
-            position: fixed;
-            pointer-events: none;
-            background: rgba(15, 23, 42, 0.95);
-            border: 1px solid #334155;
-            padding: 10px 14px;
-            border-radius: 6px;
-            color: #fff;
-            font-size: 13px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-            z-index: 9999;
-            opacity: 0;
-            transition: opacity 0.1s;
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-            backdrop-filter: blur(4px);
-        }
-
-        .tt-title { font-weight: bold; font-size: 15px; margin-bottom: 4px; text-align: center; border-bottom: 1px solid #334155; padding-bottom: 4px;}
-        .tt-row { display: flex; justify-content: space-between; gap: 20px; }
-        .tt-raise { color: #fca5a5; }
-        .tt-call { color: #6ee7b7; }
-        .tt-fold { color: #9ca3af; }
-
-    </style>
-</head>
-<body>
-
-    <div class="header">
-        <h1>GTO Range Viewer</h1>
-        <p>100BB 深度 - 结构化频率矩阵</p>
-    </div>
-
-    <div class="controls-container">
-        <!-- 桌型切换 -->
-        <div class="button-group" id="table-type-controls">
-            <button class="active" onclick="setTableType('6max')">6人桌 (6-Max)</button>
-            <button onclick="setTableType('9max')">9人桌 (9-Max)</button>
-        </div>
-        
-        <!-- 位置切换 -->
-        <div class="button-group" id="position-controls"></div>
-
-        <!-- 图例 -->
-        <div class="legend">
-            <div class="legend-item"><div class="color-box bg-raise"></div> 加注 (Raise)</div>
-            <div class="legend-item"><div class="color-box bg-call"></div> 跟注 (Call)</div>
-            <div class="legend-item"><div class="color-box bg-fold"></div> 弃牌 (Fold)</div>
-        </div>
-    </div>
-
-    <!-- 棋盘区 -->
-    <div class="grid-wrapper">
-        <div class="grid-container" id="matrix-grid"></div>
-    </div>
-
-    <!-- 悬浮窗 -->
-    <div id="tooltip"></div>
-
-    <script>
-        const ranks = ['A', 'K', 'Q', 'J', 'T', '9', '8', '7', '6', '5', '4', '3', '2'];
-        let currentTableType = '6max';
-        let currentPosition = 'UTG';
-        const tooltip = document.getElementById('tooltip');
-
-        const positions = {
-            '6max': ['UTG', 'HJ', 'CO', 'BTN', 'SB'],
-            '9max': ['UTG', 'UTG+1', 'UTG+2', 'LJ', 'HJ', 'CO', 'BTN', 'SB']
-        };
-
-        // 【升级版数据结构】：现在包含 r(Raise) 和 c(Call) 的精准百分比
-        // 缺少的比例会自动被视为 f(Fold)
-        const mockData = {
-            '6max': {
-                'UTG': { 
-                    'AA':{r:100}, 'KK':{r:100}, 'QQ':{r:100}, 'JJ':{r:100}, 'TT':{r:100}, '99':{r:100}, '88':{r:100}, 
-                    '77':{r:50, c:50}, '66':{r:20, c:30}, // 混合策略演示：77 是一半加注一半跟注
-                    'AKs':{r:100}, 'AQs':{r:100}, 'AJs':{r:100}, 'ATs':{r:100}, 'A5s':{r:60}, 'A4s':{r:40}, 
-                    'KQs':{r:100}, 'KJs':{r:100}, 'KTs':{r:20}, 'QJs':{r:100}, 'JTs':{r:100}, 'T9s':{r:100}, 
-                    '98s':{r:80, c:20}, '87s':{r:50}, 
-                    'AKo':{r:100}, 'AQo':{r:100}, 'AJo':{r:20}
-                },
-                'BTN': { 
-                    'AA':{r:100}, '22':{r:100}, 'AKs':{r:100}, 'A2s':{r:100}, 'K2s':{r:80, c:20}, 
-                    'Q5s':{r:70}, 'J7s':{r:50}, 'T7s':{r:60}, '96s':{r:40}, '85s':{r:50}, '75s':{r:60}, '64s':{r:40}, '54s':{r:50}, 
-                    'AKo':{r:100}, 'A2o':{r:80}, 'KQo':{r:100}, 'K9o':{r:60}, 'Q9o':{r:60}, 'J9o':{r:50}, 'T9o':{r:50} 
-                }
-            },
-            '9max': {
-                'UTG': { 'AA':{r:100}, 'KK':{r:100}, 'QQ':{r:100}, 'JJ':{r:100}, 'TT':{r:100}, '99':{r:100}, '88':{r:50}, 'AKs':{r:100}, 'AQs':{r:100}, 'AJs':{r:100}, 'KQs':{r:100}, 'AKo':{r:100}, 'AQo':{r:50} }
-            }
-        };
-
-        function init() {
-            renderPositionButtons();
-            renderGrid();
-        }
-
-        function renderPositionButtons() {
-            const container = document.getElementById('position-controls');
-            container.innerHTML = '';
-            const currentPositions = positions[currentTableType];
-            
-            if (!currentPositions.includes(currentPosition)) {
-                currentPosition = currentPositions[0];
-            }
-
-            currentPositions.forEach(pos => {
-                const btn = document.createElement('button');
-                btn.innerText = pos;
-                if (pos === currentPosition) btn.className = 'active';
-                btn.onclick = () => {
-                    currentPosition = pos;
-                    renderPositionButtons();
-                    renderGrid();
-                };
-                container.appendChild(btn);
-            });
-        }
-
-        function setTableType(type) {
-            currentTableType = type;
-            const btns = document.getElementById('table-type-controls').children;
-            btns[0].className = type === '6max' ? 'active' : '';
-            btns[1].className = type === '9max' ? 'active' : '';
-            renderPositionButtons();
-            renderGrid();
-        }
-
-        function renderGrid() {
-            const grid = document.getElementById('matrix-grid');
-            grid.innerHTML = '';
-            const currentRangeData = mockData[currentTableType][currentPosition] || {};
-
-            for (let i = 0; i < 13; i++) {
-                for (let j = 0; i < 13; j++) {
-                    
-                    let handStr = '';
-                    if (i < j) { handStr = ranks[i] + ranks[j] + 's'; } 
-                    else if (i > j) { handStr = ranks[j] + ranks[i] + 'o'; } 
-                    else { handStr = ranks[i] + ranks[j]; }
-
-                    const actions = currentRangeData[handStr] || { r: 0, c: 0 };
-                    const r = actions.r || 0; // Raise 频率
-                    const c = actions.c || 0; // Call 频率
-                    const f = 100 - r - c;    // Fold 频率
-
-                    const cell = document.createElement('div');
-                    cell.className = 'hand-cell';
-                    cell.innerText = handStr;
-
-                    // 核心视觉升级：精准的多段渐变色 (底->上：Raise -> Call -> Fold)
-                    const p1 = r;
-                    const p2 = r + c;
-                    cell.style.background = `linear-gradient(to top, 
-                        var(--color-raise) 0%, var(--color-raise) ${p1}%, 
-                        var(--color-call) ${p1}%, var(--color-call) ${p2}%, 
-                        var(--color-fold) ${p2}%, var(--color-fold) 100%)`;
-
-                    // Tooltip 交互逻辑
-                    cell.addEventListener('mouseenter', (e) => {
-                        tooltip.innerHTML = `
-                            <div class="tt-title">${handStr}</div>
-                            <div class="tt-row tt-raise"><span>Raise:</span> <span>${r}%</span></div>
-                            <div class="tt-row tt-call"><span>Call:</span> <span>${c}%</span></div>
-                            <div class="tt-row tt-fold"><span>Fold:</span> <span>${f}%</span></div>
-                        `;
-                        tooltip.style.opacity = '1';
-                    });
-
-                    cell.addEventListener('mousemove', (e) => {
-                        // 提示框跟随鼠标，偏移一点避免遮挡指针
-                        tooltip.style.left = (e.clientX + 15) + 'px';
-                        tooltip.style.top = (e.clientY + 15) + 'px';
-                    });
-
-                    cell.addEventListener('mouseleave', () => {
-                        tooltip.style.opacity = '0';
-                    });
-
-                    grid.appendChild(cell);
-                }
-            }
-        }
-
-        window.onload = init;
-    </script>
-</body>
-</html>
+            z-index

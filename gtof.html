@@ -2,154 +2,300 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>GTO Range Viewer - 产品级稳定版</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GTO Range Viewer - 稳定专业版</title>
     <style>
-        body { font-family: -apple-system, Arial, sans-serif; background: #0b0f19; color: #fff; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
-        
-        /* 自检探针样式 */
-        #diagnostic-panel { background: #ef4444; color: white; padding: 15px; border-radius: 8px; margin-bottom: 20px; width: 100%; max-width: 600px; text-align: center; font-weight: bold; }
-        
-        .panel { background: #151b2b; border: 1px solid #2a3441; border-radius: 8px; padding: 20px; margin-bottom: 20px; width: 100%; max-width: 600px; box-sizing: border-box; }
-        .flex-center { display: flex; gap: 10px; justify-content: center; margin-bottom: 15px; }
-        
-        button { background: #1e293b; color: #94a3b8; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: bold; transition: 0.2s; }
-        button.active { background: #3b82f6; color: #fff; }
-        
-        .grid { display: grid; grid-template-columns: repeat(13, 1fr); gap: 1px; background: #2a3441; border: 1px solid #2a3441; }
-        .cell { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; text-shadow: 1px 1px 1px #000; cursor: pointer; position: relative; }
-        .cell:hover { outline: 2px solid #fff; z-index: 2; }
-        
-        .legend { display: flex; justify-content: center; gap: 15px; font-size: 12px; margin-top: 10px; }
-        .dot { width: 12px; height: 12px; display: inline-block; border-radius: 3px; vertical-align: middle; margin-right: 4px; }
-        
-        /* 悬浮窗简化，放弃复杂计算，保证绝对稳定 */
-        #tooltip { position: fixed; background: #0f172a; border: 1px solid #334155; padding: 10px; border-radius: 6px; font-size: 13px; display: none; pointer-events: none; z-index: 100; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+        :root {
+            --bg-body: #0b0f19;
+            --bg-panel: #151b2b;
+            --border-color: #2a3441;
+            --color-raise: #ef4444; 
+            --color-call:  #10b981; 
+            --color-fold:  #1f2937; 
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-body);
+            color: #f8fafc;
+            margin: 0;
+            padding: 40px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .header { text-align: center; margin-bottom: 24px; }
+        .header h1 { margin: 0 0 8px 0; font-size: 24px; }
+        .header p { margin: 0; color: #94a3b8; font-size: 14px; }
+
+        .controls-container {
+            background: var(--bg-panel);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 16px 24px;
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            width: 100%;
+            max-width: 600px;
+            box-sizing: border-box;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        button {
+            background: #1e293b;
+            color: #94a3b8;
+            border: 1px solid transparent;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        button:hover { color: #fff; background: #2a3441; }
+        button.active {
+            background: #3b82f6; 
+            color: #fff;
+            box-shadow: 0 0 10px rgba(59, 130, 246, 0.3);
+        }
+
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            padding-top: 12px;
+            border-top: 1px solid var(--border-color);
+            font-size: 13px;
+        }
+
+        .legend-item { display: flex; align-items: center; gap: 6px; }
+        .color-box { width: 14px; height: 14px; border-radius: 3px; }
+
+        .grid-wrapper {
+            background: var(--bg-panel);
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(13, 1fr);
+            gap: 1px; 
+            background-color: var(--bg-body); 
+            width: 100%;
+            max-width: 600px;
+            aspect-ratio: 1 / 1;
+        }
+
+        .hand-cell {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            font-weight: 700;
+            color: #ffffff;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+            cursor: pointer;
+            user-select: none;
+            overflow: hidden;
+        }
+
+        .hand-cell::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border: 2px solid transparent;
+            pointer-events: none;
+        }
+        .hand-cell:hover::after {
+            border-color: #ffffff;
+            z-index: 10;
+        }
+
+        #tooltip {
+            position: fixed;
+            pointer-events: none;
+            background: rgba(15, 23, 42, 0.95);
+            border: 1px solid #334155;
+            padding: 10px 14px;
+            border-radius: 6px;
+            color: #fff;
+            font-size: 13px;
+            z-index: 9999;
+            opacity: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            backdrop-filter: blur(4px);
+        }
+
+        .tt-title { font-weight: bold; font-size: 15px; margin-bottom: 4px; text-align: center; border-bottom: 1px solid #334155; padding-bottom: 4px;}
+        .tt-row { display: flex; justify-content: space-between; gap: 20px; }
+        .tt-raise { color: #fca5a5; }
+        .tt-call { color: #6ee7b7; }
+        .tt-fold { color: #9ca3af; }
     </style>
 </head>
 <body>
 
-    <!-- 产品自检探针：如果JS没运行，用户会看到这个红框 -->
-    <div id="diagnostic-panel">状态：正在加载... 如果你一直看到这条红色提示，说明浏览器拦截了代码执行！</div>
+    <div class="header">
+        <h1>GTO Range Viewer</h1>
+        <p>100BB 深度 - 结构化频率矩阵</p>
+    </div>
 
-    <!-- 核心UI结构 -->
-    <div class="panel" id="ui-container" style="display: none;">
-        <div class="flex-center" id="type-btns">
-            <button class="active" onclick="switchType('6max')">6人桌</button>
-            <button onclick="switchType('9max')">9人桌</button>
+    <div class="controls-container">
+        <div class="button-group" id="table-type-controls">
+            <button class="active" onclick="setTableType('6max')">6人桌 (6-Max)</button>
+            <button onclick="setTableType('9max')">9人桌 (9-Max)</button>
         </div>
-        <div class="flex-center" id="pos-btns"></div>
+        <div class="button-group" id="position-controls"></div>
         <div class="legend">
-            <span><span class="dot" style="background:#ef4444"></span>加注</span>
-            <span><span class="dot" style="background:#10b981"></span>跟注</span>
-            <span><span class="dot" style="background:#1f2937"></span>弃牌</span>
+            <div class="legend-item"><div class="color-box" style="background-color: var(--color-raise);"></div> 加注 (Raise)</div>
+            <div class="legend-item"><div class="color-box" style="background-color: var(--color-call);"></div> 跟注 (Call)</div>
+            <div class="legend-item"><div class="color-box" style="background-color: var(--color-fold);"></div> 弃牌 (Fold)</div>
         </div>
     </div>
 
-    <div class="panel" style="padding: 0; overflow: hidden; display: none;" id="grid-container">
-        <div class="grid" id="matrix"></div>
+    <div class="grid-wrapper">
+        <div class="grid-container" id="matrix-grid"></div>
     </div>
-    
+
     <div id="tooltip"></div>
 
     <script>
-        // 探针一：JS引擎存活确认
-        document.getElementById('diagnostic-panel').style.display = 'none';
-        document.getElementById('ui-container').style.display = 'block';
-        document.getElementById('grid-container').style.display = 'block';
-
         const ranks = ['A', 'K', 'Q', 'J', 'T', '9', '8', '7', '6', '5', '4', '3', '2'];
-        let curType = '6max';
-        let curPos = 'UTG';
-        
-        const config = {
+        let currentTableType = '6max';
+        let currentPosition = 'UTG';
+        const tooltip = document.getElementById('tooltip');
+
+        const positions = {
             '6max': ['UTG', 'HJ', 'CO', 'BTN', 'SB'],
             '9max': ['UTG', 'UTG+1', 'UTG+2', 'LJ', 'HJ', 'CO', 'BTN', 'SB']
         };
 
-        // 数据源结构简化，降低解析失败风险
-        const db = {
+        const mockData = {
             '6max': {
-                'UTG': { 'AA':{r:100}, 'KK':{r:100}, 'QQ':{r:100}, '77':{r:50,c:50}, 'AKs':{r:100}, 'A5s':{r:50,c:50}, 'AKo':{r:100} },
-                'BTN': { 'AA':{r:100}, '22':{r:100}, 'K2s':{r:50,c:50}, 'T9o':{r:100} }
+                'UTG': { 
+                    'AA':{r:100}, 'KK':{r:100}, 'QQ':{r:100}, 'JJ':{r:100}, 'TT':{r:100}, '99':{r:100}, '88':{r:100}, 
+                    '77':{r:50, c:50}, '66':{r:20, c:30},
+                    'AKs':{r:100}, 'AQs':{r:100}, 'AJs':{r:100}, 'ATs':{r:100}, 'A5s':{r:60}, 'A4s':{r:40}, 
+                    'KQs':{r:100}, 'KJs':{r:100}, 'KTs':{r:20}, 'QJs':{r:100}, 'JTs':{r:100}, 'T9s':{r:100}, 
+                    '98s':{r:80, c:20}, '87s':{r:50}, 
+                    'AKo':{r:100}, 'AQo':{r:100}, 'AJo':{r:20}
+                },
+                'BTN': { 
+                    'AA':{r:100}, '22':{r:100}, 'AKs':{r:100}, 'A2s':{r:100}, 'K2s':{r:80, c:20}, 
+                    'Q5s':{r:70}, 'J7s':{r:50}, 'T7s':{r:60}, '96s':{r:40}, '85s':{r:50}, '75s':{r:60}, '64s':{r:40}, '54s':{r:50}, 
+                    'AKo':{r:100}, 'A2o':{r:80}, 'KQo':{r:100}, 'K9o':{r:60}, 'Q9o':{r:60}, 'J9o':{r:50}, 'T9o':{r:50} 
+                }
             },
             '9max': {
-                'UTG': { 'AA':{r:100}, 'KK':{r:100}, 'AKs':{r:100} }
+                'UTG': { 'AA':{r:100}, 'KK':{r:100}, 'QQ':{r:100}, 'JJ':{r:100}, 'TT':{r:100}, '99':{r:100}, '88':{r:50}, 'AKs':{r:100}, 'AQs':{r:100}, 'AJs':{r:100}, 'KQs':{r:100}, 'AKo':{r:100}, 'AQo':{r:50} }
             }
         };
 
-        function switchType(type) {
-            curType = type;
-            const btns = document.getElementById('type-btns').getElementsByTagName('button');
-            btns[0].className = type === '6max' ? 'active' : '';
-            btns[1].className = type === '9max' ? 'active' : '';
-            renderPositions();
-            renderMatrix();
-        }
-
-        function renderPositions() {
-            const container = document.getElementById('pos-btns');
+        function renderPositionButtons() {
+            const container = document.getElementById('position-controls');
             container.innerHTML = '';
-            const posList = config[curType];
+            const currentPositions = positions[currentTableType];
             
-            if (!posList.includes(curPos)) curPos = posList[0];
+            if (!currentPositions.includes(currentPosition)) {
+                currentPosition = currentPositions[0];
+            }
 
-            posList.forEach(pos => {
+            currentPositions.forEach(pos => {
                 const btn = document.createElement('button');
                 btn.innerText = pos;
-                if (pos === curPos) btn.className = 'active';
+                if (pos === currentPosition) btn.className = 'active';
                 btn.onclick = () => {
-                    curPos = pos;
-                    renderPositions();
-                    renderMatrix();
+                    currentPosition = pos;
+                    renderPositionButtons();
+                    renderGrid();
                 };
                 container.appendChild(btn);
             });
         }
 
-        function renderMatrix() {
-            const matrix = document.getElementById('matrix');
-            const tooltip = document.getElementById('tooltip');
-            matrix.innerHTML = '';
+        function setTableType(type) {
+            currentTableType = type;
+            const btns = document.getElementById('table-type-controls').children;
+            btns[0].className = type === '6max' ? 'active' : '';
+            btns[1].className = type === '9max' ? 'active' : '';
+            renderPositionButtons();
+            renderGrid();
+        }
+
+        function renderGrid() {
+            const grid = document.getElementById('matrix-grid');
+            grid.innerHTML = '';
             
-            const rangeData = (db[curType] && db[curType][curPos]) ? db[curType][curPos] : {};
+            const tableData = mockData[currentTableType] || {};
+            const currentRangeData = tableData[currentPosition] || {};
 
+            // 这是修复后的循环，保证不再死循环
             for (let i = 0; i < 13; i++) {
-                for (let j = 0; i < 13; j++) {
-                    let hand = '';
-                    if (i < j) hand = ranks[i] + ranks[j] + 's';
-                    else if (i > j) hand = ranks[j] + ranks[i] + 'o';
-                    else hand = ranks[i] + ranks[j];
+                for (let j = 0; j < 13; j++) {
+                    
+                    let handStr = '';
+                    if (i < j) { handStr = ranks[i] + ranks[j] + 's'; } 
+                    else if (i > j) { handStr = ranks[j] + ranks[i] + 'o'; } 
+                    else { handStr = ranks[i] + ranks[j]; }
 
-                    const action = rangeData[hand] || {r:0, c:0};
-                    const r = action.r || 0;
-                    const c = action.c || 0;
-                    const f = 100 - r - c;
+                    const actions = currentRangeData[handStr] || { r: 0, c: 0 };
+                    const r = actions.r || 0; 
+                    const c = actions.c || 0; 
+                    const f = 100 - r - c;    
 
                     const cell = document.createElement('div');
-                    cell.className = 'cell';
-                    cell.innerText = hand;
-                    
-                    // 渐变核心逻辑
-                    cell.style.background = `linear-gradient(to top, #ef4444 ${r}%, #10b981 ${r}% ${r+c}%, #1f2937 ${r+c}%)`;
+                    cell.className = 'hand-cell';
+                    cell.innerText = handStr;
 
-                    cell.onmouseenter = () => {
-                        tooltip.innerHTML = `${hand}<br><span style="color:#fca5a5">加注: ${r}%</span><br><span style="color:#6ee7b7">跟注: ${c}%</span><br><span style="color:#9ca3af">弃牌: ${f}%</span>`;
-                        tooltip.style.display = 'block';
-                    };
-                    cell.onmousemove = (e) => {
+                    const p1 = r;
+                    const p2 = r + c;
+                    cell.style.background = `linear-gradient(to top, 
+                        var(--color-raise) 0%, var(--color-raise) ${p1}%, 
+                        var(--color-call) ${p1}%, var(--color-call) ${p2}%, 
+                        var(--color-fold) ${p2}%, var(--color-fold) 100%)`;
+
+                    cell.addEventListener('mouseenter', (e) => {
+                        tooltip.innerHTML = `
+                            <div class="tt-title">${handStr}</div>
+                            <div class="tt-row tt-raise"><span>Raise:</span> <span>${r}%</span></div>
+                            <div class="tt-row tt-call"><span>Call:</span> <span>${c}%</span></div>
+                            <div class="tt-row tt-fold"><span>Fold:</span> <span>${f}%</span></div>
+                        `;
+                        tooltip.style.opacity = '1';
+                    });
+
+                    cell.addEventListener('mousemove', (e) => {
                         tooltip.style.left = (e.clientX + 15) + 'px';
                         tooltip.style.top = (e.clientY + 15) + 'px';
-                    };
-                    cell.onmouseleave = () => tooltip.style.display = 'none';
+                    });
 
-                    matrix.appendChild(cell);
+                    cell.addEventListener('mouseleave', () => {
+                        tooltip.style.opacity = '0';
+                    });
+
+                    grid.appendChild(cell);
                 }
             }
         }
 
-        // 探针二：主函数立即执行
-        renderPositions();
-        renderMatrix();
+        // 初始化
+        renderPositionButtons();
+        renderGrid();
     </script>
 </body>
 </html>

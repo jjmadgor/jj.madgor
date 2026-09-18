@@ -1,1 +1,255 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GTO Range Viewer MVP</title>
+    <style>
+        /* Apple 风格极简深色主题 */
+        :root {
+            --bg-color: #000000;
+            --panel-bg: #1c1c1e;
+            --text-main: #f5f5f7;
+            --text-muted: #86868b;
+            --raise-color: #ff453a; /* Apple Red */
+            --fold-color: #2c2c2e;
+            --border-radius: 12px;
+        }
 
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 40px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        /* 控制面板：桌型和位置 */
+        .controls {
+            background: var(--panel-bg);
+            padding: 20px;
+            border-radius: var(--border-radius);
+            margin-bottom: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+        }
+
+        .control-group {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        button {
+            background: #3a3a3c;
+            color: var(--text-main);
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        button:hover {
+            background: #4a4a4c;
+        }
+
+        button.active {
+            background: var(--text-main);
+            color: #000;
+        }
+
+        /* 13x13 矩阵网格 */
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(13, 1fr);
+            gap: 2px;
+            background: #000;
+            border: 2px solid var(--panel-bg);
+            border-radius: 8px;
+            overflow: hidden;
+            width: 100%;
+            max-width: 650px;
+        }
+
+        .hand-cell {
+            aspect-ratio: 1 / 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+            color: rgba(255, 255, 255, 0.9);
+            position: relative;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .hand-cell:hover {
+            opacity: 0.8;
+            outline: 2px solid #fff;
+            z-index: 10;
+        }
+
+        /* 右上角同花标注 */
+        .hand-cell.suited { color: #81b0ff; }
+        /* 左下角杂色标注 */
+        .hand-cell.offsuit { color: #ff9f9a; }
+        /* 对角线对子标注 */
+        .hand-cell.pair { color: #ffd60a; }
+
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h2>GTO Preflop Ranges</h2>
+        <p style="color: var(--text-muted); font-size: 14px;">100BB 深度 - 首入池 (RFI) 范围展示</p>
+    </div>
+
+    <div class="controls">
+        <div class="control-group" id="table-type-controls">
+            <button class="active" onclick="setTableType('6max')">6人桌 (6-Max)</button>
+            <button onclick="setTableType('9max')">9人桌 (9-Max)</button>
+        </div>
+        <div class="control-group" id="position-controls">
+            <!-- 位置按钮会通过 JS 动态生成 -->
+        </div>
+    </div>
+
+    <div class="grid-container" id="matrix-grid">
+        <!-- 169个格子由 JS 动态生成 -->
+    </div>
+
+    <script>
+        const ranks = ['A', 'K', 'Q', 'J', 'T', '9', '8', '7', '6', '5', '4', '3', '2'];
+        let currentTableType = '6max';
+        let currentPosition = 'UTG';
+
+        // 位置定义
+        const positions = {
+            '6max': ['UTG', 'HJ', 'CO', 'BTN', 'SB'],
+            '9max': ['UTG', 'UTG+1', 'UTG+2', 'LJ', 'HJ', 'CO', 'BTN', 'SB']
+        };
+
+        // 【核心数据区】：这里就是你需要填入 GTO 真实数据的地方
+        // 格式：'手牌': 加注频率 (0-100)。这里我用纯算法模拟了极其粗略的两个真实场景，供你测试 UI。
+        const mockData = {
+            '6max': {
+                'UTG': { 'AA': 100, 'KK': 100, 'QQ': 100, 'JJ': 100, 'TT': 100, '99': 100, '88': 100, '77': 100, '66': 50, 'AKs': 100, 'AQs': 100, 'AJs': 100, 'ATs': 100, 'A5s': 50, 'A4s': 50, 'KQs': 100, 'KJs': 100, 'KTs': 50, 'QJs': 100, 'QTs': 50, 'JTs': 100, 'T9s': 100, '98s': 50, '87s': 50, 'AKo': 100, 'AQo': 100 },
+                'BTN': { 'AA': 100, '22': 100, 'AKs': 100, 'A2s': 100, 'K2s': 50, 'Q5s': 50, 'J7s': 50, 'T7s': 50, '96s': 50, '85s': 50, '75s': 50, '64s': 50, '54s': 50, 'AKo': 100, 'A2o': 50, 'KQo': 100, 'K9o': 50, 'Q9o': 50, 'J9o': 50, 'T9o': 50 } // BTN 范围宽很多
+            },
+            '9max': {
+                'UTG': { 'AA': 100, 'KK': 100, 'QQ': 100, 'JJ': 100, 'TT': 100, '99': 100, '88': 50, 'AKs': 100, 'AQs': 100, 'AJs': 100, 'KQs': 100, 'AKo': 100, 'AQo': 50 } // 9人桌枪口非常紧
+            }
+        };
+
+        // 初始化网页
+        function init() {
+            renderPositionButtons();
+            renderGrid();
+        }
+
+        // 渲染位置按钮
+        function renderPositionButtons() {
+            const container = document.getElementById('position-controls');
+            container.innerHTML = '';
+            const currentPositions = positions[currentTableType];
+            
+            // 容错：如果切换桌型后当前位置不存在，重置为第一个位置
+            if (!currentPositions.includes(currentPosition)) {
+                currentPosition = currentPositions[0];
+            }
+
+            currentPositions.forEach(pos => {
+                const btn = document.createElement('button');
+                btn.innerText = pos;
+                if (pos === currentPosition) btn.className = 'active';
+                btn.onclick = () => {
+                    currentPosition = pos;
+                    renderPositionButtons(); // 更新高亮状态
+                    renderGrid(); // 重新渲染网格数据
+                };
+                container.appendChild(btn);
+            });
+        }
+
+        // 切换桌型（6人/9人）
+        function setTableType(type) {
+            currentTableType = type;
+            // 更新桌型按钮高亮
+            const btns = document.getElementById('table-type-controls').children;
+            btns[0].className = type === '6max' ? 'active' : '';
+            btns[1].className = type === '9max' ? 'active' : '';
+            
+            renderPositionButtons();
+            renderGrid();
+        }
+
+        // 渲染 13x13 网格
+        function renderGrid() {
+            const grid = document.getElementById('matrix-grid');
+            grid.innerHTML = '';
+
+            // 获取当前选择的 GTO 数据字典，如果没有数据则为空对象
+            const currentRangeData = mockData[currentTableType][currentPosition] || {};
+
+            for (let i = 0; i < 13; i++) {
+                for (let j = 0; i < 13; j++) {
+                    if(j===13) break; // 防止无限循环
+                    
+                    let handStr = '';
+                    let typeClass = '';
+
+                    // 判断是对子、同花还是杂色
+                    if (i < j) {
+                        handStr = ranks[i] + ranks[j] + 's'; // 同花 (右上)
+                        typeClass = 'suited';
+                    } else if (i > j) {
+                        handStr = ranks[j] + ranks[i] + 'o'; // 杂色 (左下)
+                        typeClass = 'offsuit';
+                    } else {
+                        handStr = ranks[i] + ranks[j]; // 对子 (对角线)
+                        typeClass = 'pair';
+                    }
+
+                    // 获取该手牌的 Raise 频率 (0-100)
+                    const raiseFreq = currentRangeData[handStr] || 0; 
+
+                    // 创建格子 DOM
+                    const cell = document.createElement('div');
+                    cell.className = `hand-cell ${typeClass}`;
+                    cell.innerText = handStr;
+
+                    // 核心渲染逻辑：使用线性渐变实现混合频率的背景填充 (从下往上填色)
+                    if (raiseFreq > 0) {
+                        cell.style.background = `linear-gradient(to top, var(--raise-color) ${raiseFreq}%, var(--fold-color) ${raiseFreq}%)`;
+                    } else {
+                        cell.style.background = 'var(--fold-color)';
+                    }
+
+                    // 鼠标悬停显示频率信息 (可以用更好的 Tooltip 替代)
+                    cell.title = `${handStr}: 加注率 ${raiseFreq}%`;
+
+                    grid.appendChild(cell);
+                }
+            }
+        }
+
+        // 页面加载完毕执行
+        window.onload = init;
+    </script>
+</body>
+</html>

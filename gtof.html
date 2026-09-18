@@ -6,8 +6,8 @@
     <title>GTO 聚合查询系统</title>
     <style>
         body {
-            background-color: #121212;
-            color: #ffffff;
+            background-color: #0b0f19;
+            color: #f8fafc;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             margin: 0;
             padding: 20px;
@@ -16,50 +16,73 @@
             align-items: center;
         }
 
+        .header { text-align: center; margin-bottom: 20px; }
+        .header h1 { margin: 0 0 5px 0; font-size: 24px; letter-spacing: 1px; }
+        .header p { margin: 0; color: #94a3b8; font-size: 13px; }
+
         .panel {
-            background: #1e1e1e;
+            background: #151b2b;
+            border: 1px solid #2a3441;
             padding: 20px;
             border-radius: 12px;
             margin-bottom: 20px;
             width: 100%;
             max-width: 650px;
             box-sizing: border-box;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+        }
+
+        .filter-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+            border-bottom: 1px solid #1e293b;
+            padding-bottom: 12px;
+        }
+        .filter-row:last-child {
+            margin-bottom: 0;
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .filter-label {
+            width: 80px;
+            font-size: 13px;
+            color: #94a3b8;
+            font-weight: 600;
         }
 
         .btn-group {
             display: flex;
-            gap: 10px;
-            justify-content: center;
-            margin-bottom: 15px;
+            gap: 8px;
             flex-wrap: wrap;
+            flex: 1;
         }
 
         button {
-            background: #2d2d2d;
-            color: #a0a0a0;
-            border: none;
-            padding: 8px 16px;
+            background: #1e293b;
+            color: #94a3b8;
+            border: 1px solid transparent;
+            padding: 6px 14px;
             border-radius: 6px;
-            font-size: 14px;
+            font-size: 13px;
+            font-weight: 600;
             cursor: pointer;
-            transition: 0.2s;
+            transition: all 0.2s;
         }
 
-        button.active {
-            background: #007aff; /* Apple 蓝 */
-            color: #ffffff;
-        }
+        button:hover { background: #2a3441; color: #fff; }
+        button.active { background: #3b82f6; color: #fff; box-shadow: 0 0 8px rgba(59, 130, 246, 0.4); }
 
         .legend {
             display: flex;
             justify-content: center;
             gap: 20px;
             font-size: 12px;
-            color: #a0a0a0;
-            margin-top: 10px;
+            color: #94a3b8;
+            margin-top: 15px;
             padding-top: 15px;
-            border-top: 1px solid #333;
+            border-top: 1px solid #2a3441;
         }
 
         .legend-item span {
@@ -74,11 +97,11 @@
         .grid {
             display: grid;
             grid-template-columns: repeat(13, 1fr);
-            gap: 2px;
-            background: #000000;
-            border: 2px solid #333333;
+            gap: 1px;
+            background: #0b0f19;
+            border: 1px solid #2a3441;
             border-radius: 8px;
-            padding: 2px;
+            padding: 4px;
         }
 
         .cell {
@@ -87,123 +110,185 @@
             align-items: center;
             justify-content: center;
             font-size: 12px;
-            font-weight: 600;
+            font-weight: 700;
             color: #fff;
             position: relative;
             cursor: pointer;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.9);
+            user-select: none;
+            overflow: hidden;
         }
 
-        .cell:hover {
-            outline: 2px solid #ffffff;
-            z-index: 2;
+        .cell::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border: 2px solid transparent;
+            pointer-events: none;
         }
+        .cell:hover::after { border-color: #ffffff; z-index: 10; }
 
-        #info-box {
+        #tooltip {
             position: fixed;
-            top: 20px;
-            right: 20px;
-            background: rgba(30, 30, 30, 0.95);
-            border: 1px solid #444;
-            padding: 15px;
+            background: rgba(15, 23, 42, 0.95);
+            border: 1px solid #334155;
+            padding: 12px;
             border-radius: 8px;
             display: none;
             flex-direction: column;
-            gap: 8px;
-            font-size: 14px;
+            gap: 6px;
+            font-size: 13px;
             pointer-events: none;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.6);
+            z-index: 9999;
+            backdrop-filter: blur(4px);
+            min-width: 120px;
         }
+
+        .tt-header { font-weight: bold; font-size: 15px; text-align: center; border-bottom: 1px solid #334155; padding-bottom: 6px; margin-bottom: 2px; }
+        .tt-row { display: flex; justify-content: space-between; }
     </style>
 </head>
 <body>
 
-    <h2 style="margin-top: 0;">GTO Preflop Range</h2>
+    <div class="header">
+        <h1>GTO 范围聚合查询</h1>
+        <p>多维度策略矩阵库</p>
+    </div>
 
+    <!-- 控制面板 -->
     <div class="panel">
-        <div class="btn-group" id="table-btns">
-            <button class="active" onclick="changeTable('6max')">6人桌 (6-Max)</button>
-            <button onclick="changeTable('9max')">9人桌 (9-Max)</button>
+        <div class="filter-row">
+            <div class="filter-label">赛制</div>
+            <div class="btn-group" id="format-btns">
+                <button class="active" onclick="setFormat('MTT')">锦标赛 (MTT)</button>
+                <button onclick="setFormat('Cash')">常规桌 (Cash 6-Max)</button>
+            </div>
         </div>
-        <div class="btn-group" id="pos-btns">
-            <!-- JS 动态生成位置按钮 -->
+        
+        <div class="filter-row">
+            <div class="filter-label">筹码深度</div>
+            <div class="btn-group" id="depth-btns"></div>
         </div>
+
+        <div class="filter-row">
+            <div class="filter-label">我方位置</div>
+            <div class="btn-group" id="pos-btns"></div>
+        </div>
+
         <div class="legend">
-            <div class="legend-item"><span style="background: #ff453a;"></span>加注 (Raise)</div>
-            <div class="legend-item"><span style="background: #32d74b;"></span>跟注 (Call)</div>
-            <div class="legend-item"><span style="background: #2c2c2e;"></span>弃牌 (Fold)</div>
+            <div class="legend-item"><span style="background: #ef4444;"></span>加注 (Raise)</div>
+            <div class="legend-item"><span style="background: #10b981;"></span>跟注 (Call)</div>
+            <div class="legend-item"><span style="background: #1f2937;"></span>弃牌 (Fold)</div>
         </div>
     </div>
 
+    <!-- 渲染网格 -->
     <div class="panel" style="padding: 10px;">
         <div class="grid" id="matrix"></div>
     </div>
 
-    <div id="info-box"></div>
+    <!-- 悬浮窗 -->
+    <div id="tooltip"></div>
 
     <script>
         const cards = ['A', 'K', 'Q', 'J', 'T', '9', '8', '7', '6', '5', '4', '3', '2'];
-        let currentTable = '6max';
-        let currentPos = 'UTG';
+        
+        // 状态管理
+        let curFormat = 'MTT';
+        let curDepth = '30BB';
+        let curPos = 'UTG';
 
-        const posConfig = {
-            '6max': ['UTG', 'HJ', 'CO', 'BTN', 'SB'],
-            '9max': ['UTG', 'UTG+1', 'UTG+2', 'LJ', 'HJ', 'CO', 'BTN', 'SB']
+        // 配置结构定义
+        const config = {
+            'MTT': {
+                depths: ['15BB', '20BB', '30BB', '40BB'],
+                positions: ['UTG', 'HJ', 'CO', 'BTN', 'SB', 'BB']
+            },
+            'Cash': {
+                depths: ['100BB'],
+                positions: ['UTG', 'HJ', 'CO', 'BTN', 'SB', 'BB']
+            }
         };
 
-        // GTO 数据源：r = raise %, c = call %，剩下的全是 fold
-        const gtoData = {
-            '6max': {
-                'UTG': { 'AA':{r:100}, 'KK':{r:100}, 'QQ':{r:100}, 'JJ':{r:100}, 'TT':{r:100}, '99':{r:100}, '88':{r:100}, '77':{r:50,c:50}, '66':{r:20,c:30}, 'AKs':{r:100}, 'AQs':{r:100}, 'AJs':{r:100}, 'ATs':{r:100}, 'A5s':{r:60}, 'A4s':{r:40}, 'KQs':{r:100}, 'KJs':{r:100}, 'KTs':{r:20}, 'QJs':{r:100}, 'JTs':{r:100}, 'T9s':{r:100}, '98s':{r:80,c:20}, '87s':{r:50}, 'AKo':{r:100}, 'AQo':{r:100}, 'AJo':{r:20} },
-                'BTN': { 'AA':{r:100}, '22':{r:100}, 'AKs':{r:100}, 'K2s':{r:80,c:20}, 'Q5s':{r:70}, 'AKo':{r:100}, 'A2o':{r:80} }
+        // GTO 数据库模拟 (分层: 赛制 -> 深度 -> 位置 -> 手牌 -> 动作频率)
+        const db = {
+            'MTT': {
+                '30BB': {
+                    'UTG': { 
+                        'AA':{r:100}, 'KK':{r:100}, 'QQ':{r:100}, 'JJ':{r:100}, 'TT':{r:100}, '99':{r:100}, '88':{r:100}, '77':{r:60, c:0},
+                        'AKs':{r:100}, 'AQs':{r:100}, 'AJs':{r:100}, 'ATs':{r:100}, 'A5s':{r:40},
+                        'KQs':{r:100}, 'KJs':{r:100}, 'QJs':{r:100}, 'JTs':{r:80},
+                        'AKo':{r:100}, 'AQo':{r:100}, 'AJo':{r:30}
+                    },
+                    'BTN': {
+                        'AA':{r:100}, '22':{r:100}, 'AKs':{r:100}, 'A2s':{r:100}, 'K2s':{r:70}, 'Q5s':{r:50}, 'J7s':{r:50},
+                        'T7s':{r:60}, '96s':{r:40}, '85s':{r:50}, '75s':{r:60}, '64s':{r:40}, '54s':{r:50},
+                        'AKo':{r:100}, 'A2o':{r:60}, 'KQo':{r:100}, 'K9o':{r:50}, 'Q9o':{r:50}, 'J9o':{r:40}, 'T9o':{r:40}
+                    }
+                },
+                '15BB': {
+                    'UTG': { 'AA':{r:100}, 'KK':{r:100}, 'AKs':{r:100}, 'AKo':{r:100} } // 筹码浅，打得极紧或直接 All-in
+                }
             },
-            '9max': {
-                'UTG': { 'AA':{r:100}, 'KK':{r:100}, 'QQ':{r:100}, 'AKs':{r:100}, 'AKo':{r:100} }
+            'Cash': {
+                '100BB': {
+                    'UTG': { 'AA':{r:100}, 'KK':{r:100}, 'QQ':{r:100}, 'JJ':{r:100}, 'TT':{r:100}, '99':{r:100}, '88':{r:100}, 'AKs':{r:100}, 'AQs':{r:100}, 'AKo':{r:100} }
+                }
             }
         };
 
         function init() {
-            renderPositions();
-            renderGrid();
+            renderControls();
+            renderMatrix();
         }
 
-        function changeTable(type) {
-            currentTable = type;
-            currentPos = posConfig[type][0]; // 切换桌子默认回到 UTG
+        function setFormat(format) {
+            curFormat = format;
+            curDepth = config[format].depths[0];
+            curPos = config[format].positions[0];
             
-            const btns = document.getElementById('table-btns').children;
-            btns[0].className = type === '6max' ? 'active' : '';
-            btns[1].className = type === '9max' ? 'active' : '';
+            const btns = document.getElementById('format-btns').children;
+            btns[0].className = format === 'MTT' ? 'active' : '';
+            btns[1].className = format === 'Cash' ? 'active' : '';
             
-            renderPositions();
-            renderGrid();
+            renderControls();
+            renderMatrix();
         }
 
-        function changePos(pos) {
-            currentPos = pos;
-            renderPositions();
-            renderGrid();
-        }
+        function renderControls() {
+            // 渲染筹码深度按钮
+            const depthContainer = document.getElementById('depth-btns');
+            depthContainer.innerHTML = '';
+            config[curFormat].depths.forEach(depth => {
+                const btn = document.createElement('button');
+                btn.innerText = depth;
+                if (depth === curDepth) btn.className = 'active';
+                btn.onclick = () => { curDepth = depth; renderControls(); renderMatrix(); };
+                depthContainer.appendChild(btn);
+            });
 
-        function renderPositions() {
-            const container = document.getElementById('pos-btns');
-            container.innerHTML = '';
-            
-            posConfig[currentTable].forEach(pos => {
+            // 渲染位置按钮
+            const posContainer = document.getElementById('pos-btns');
+            posContainer.innerHTML = '';
+            config[curFormat].positions.forEach(pos => {
                 const btn = document.createElement('button');
                 btn.innerText = pos;
-                if (pos === currentPos) btn.className = 'active';
-                btn.onclick = () => changePos(pos);
-                container.appendChild(btn);
+                if (pos === curPos) btn.className = 'active';
+                btn.onclick = () => { curPos = pos; renderControls(); renderMatrix(); };
+                posContainer.appendChild(btn);
             });
         }
 
-        function renderGrid() {
+        function renderMatrix() {
             const matrix = document.getElementById('matrix');
-            const infoBox = document.getElementById('info-box');
+            const tooltip = document.getElementById('tooltip');
             matrix.innerHTML = '';
             
-            const range = (gtoData[currentTable] && gtoData[currentTable][currentPos]) || {};
+            // 安全读取深层嵌套数据
+            const formatData = db[curFormat] || {};
+            const depthData = formatData[curDepth] || {};
+            const range = depthData[curPos] || {};
 
             for (let i = 0; i < 13; i++) {
                 for (let j = 0; j < 13; j++) {
@@ -221,21 +306,25 @@
                     cell.className = 'cell';
                     cell.innerText = hand;
                     
-                    // 渲染颜色渐变，兼容所有浏览器
-                    cell.style.background = `linear-gradient(to top, #ff453a ${r}%, #32d74b ${r}% ${r+c}%, #2c2c2e ${r+c}%)`;
+                    // 渐变渲染：底层红，中间绿，上层灰
+                    cell.style.background = `linear-gradient(to top, #ef4444 ${r}%, #10b981 ${r}% ${r+c}%, #1f2937 ${r+c}%)`;
 
-                    // 数据展示逻辑
+                    // 悬浮窗交互
                     cell.onmouseenter = () => {
-                        infoBox.innerHTML = `
-                            <strong style="font-size: 16px; border-bottom: 1px solid #444; padding-bottom: 5px;">${hand} 频率</strong>
-                            <span style="color: #ff453a;">加注 (Raise): ${r}%</span>
-                            <span style="color: #32d74b;">跟注 (Call): ${c}%</span>
-                            <span style="color: #a0a0a0;">弃牌 (Fold): ${f}%</span>
+                        tooltip.innerHTML = `
+                            <div class="tt-header">${hand}</div>
+                            <div class="tt-row"><span style="color:#fca5a5;">Raise:</span> <span>${r}%</span></div>
+                            <div class="tt-row"><span style="color:#6ee7b7;">Call:</span> <span>${c}%</span></div>
+                            <div class="tt-row"><span style="color:#9ca3af;">Fold:</span> <span>${f}%</span></div>
                         `;
-                        infoBox.style.display = 'flex';
+                        tooltip.style.display = 'flex';
+                    };
+                    cell.onmousemove = (e) => {
+                        tooltip.style.left = (e.clientX + 15) + 'px';
+                        tooltip.style.top = (e.clientY + 15) + 'px';
                     };
                     cell.onmouseleave = () => {
-                        infoBox.style.display = 'none';
+                        tooltip.style.display = 'none';
                     };
 
                     matrix.appendChild(cell);
@@ -243,7 +332,7 @@
             }
         }
 
-        // 页面加载完毕立刻渲染
+        // 启动应用
         init();
     </script>
 </body>

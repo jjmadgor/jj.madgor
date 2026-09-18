@@ -16,15 +16,15 @@
     :root {
       --bg-color: #F5F5F7; --card-bg: #FFFFFF; --text-main: #1D1D1F; --text-muted: #86868B;
       --apple-blue: #0071E3; --apple-green: #34C759; --apple-red: #FF3B30;
-      --border-color: rgba(0, 0, 0, 0.08); --panel-shadow: 0 2px 16px rgba(0, 0, 0, 0.04);
+      --border-color: rgba(0, 0, 0, 0.08); --panel-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
       --tab-active-bg: #FFFFFF; --input-bg: var(--bg-color);
     }
     
     /* 深色模式自动适配 */
     @media (prefers-color-scheme: dark) {
       :root {
-        --bg-color: #000000; --card-bg: #1C1C1E; --text-main: #F5F5F7; --text-muted: #98989D;
-        --border-color: rgba(255, 255, 255, 0.15); --panel-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+        --bg-color: #050505; --card-bg: #161618; --text-main: #F5F5F7; --text-muted: #98989D;
+        --border-color: rgba(255, 255, 255, 0.12); --panel-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
         --tab-active-bg: #2C2C2E; --input-bg: #000000;
       }
     }
@@ -32,18 +32,49 @@
     * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     body { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif; background-color: var(--bg-color); color: var(--text-main); -webkit-font-smoothing: antialiased; transition: background-color 0.3s, color 0.3s; padding-top: env(safe-area-inset-top); }
     
-    /* ================= 扉页 (免责声明) 样式 ================= */
-    #disclaimer-screen { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: var(--bg-color); z-index: 30000; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; backdrop-filter: blur(10px); }
-    .disclaimer-box { background: var(--card-bg); padding: 40px 30px; border-radius: 20px; box-shadow: var(--panel-shadow); width: 100%; max-width: 400px; border: 1px solid var(--border-color); }
-    .disclaimer-box h2 { font-size: 22px; margin-bottom: 24px; text-align: center; font-weight: 800; letter-spacing: -0.5px; }
-    .shield-icon { font-size: 48px; text-align: center; margin-bottom: 16px; }
-    .disclaimer-content { font-size: 13px; color: var(--text-muted); line-height: 1.6; margin-bottom: 30px; text-align: justify; }
-    .disclaimer-content p { margin-bottom: 12px; }
-    .disclaimer-content strong { color: var(--text-main); }
-    .disclaimer-box .quote { font-style: italic; background: rgba(0, 113, 227, 0.05); padding: 14px; border-radius: 10px; border-left: 3px solid var(--apple-blue); color: var(--apple-blue); font-size: 13px; margin-top: 24px; font-weight: 600; text-align: left; }
+    /* ================= 升级版流体霓虹扉页 ================= */
+    #disclaimer-screen { 
+      position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; 
+      background: radial-gradient(circle at 50% 20%, #1c1c24 0%, #050505 75%); 
+      z-index: 30000; display: flex; flex-direction: column; justify-content: center; align-items: center; 
+      padding: 24px; transition: opacity 0.4s ease;
+    }
+    
+    .disclaimer-card { 
+      background: var(--card-bg); padding: 36px 28px; border-radius: 24px; 
+      box-shadow: var(--panel-shadow); width: 100%; max-width: 420px; 
+      border: 1px solid var(--border-color); backdrop-filter: blur(20px);
+      text-align: center; position: relative; overflow: hidden;
+    }
+
+    /* 扉页顶部的流体霓虹徽标模拟 */
+    .brand-icon-wrapper {
+      width: 72px; height: 72px; border-radius: 18px; background: #000;
+      margin: 0 auto 18px; display: flex; justify-content: center; align-items: center;
+      position: relative; box-shadow: 0 10px 25px rgba(255, 0, 122, 0.25), 0 5px 15px rgba(0, 229, 255, 0.2);
+      border: 1px solid rgba(255,255,255,0.15); overflow: hidden;
+    }
+    .brand-icon-wrapper svg { width: 100%; height: 100%; }
+
+    .disclaimer-card h2 { font-size: 20px; margin-bottom: 8px; font-weight: 700; letter-spacing: -0.5px; }
+    .disclaimer-subtitle { font-size: 12px; color: var(--text-muted); margin-bottom: 22px; text-transform: uppercase; letter-spacing: 1px; }
+
+    .disclaimer-text { 
+      font-size: 13px; color: var(--text-muted); line-height: 1.6; margin-bottom: 24px; text-align: left;
+      background: rgba(142, 142, 147, 0.06); padding: 14px 16px; border-radius: 12px;
+    }
+    .disclaimer-text p { margin-bottom: 8px; }
+    .disclaimer-text p:last-child { margin-bottom: 0; }
+    .disclaimer-text strong { color: var(--text-main); }
+
+    .quote-box { 
+      font-style: italic; background: rgba(0, 113, 227, 0.08); padding: 12px 14px; 
+      border-radius: 10px; border-left: 3px solid var(--apple-blue); color: var(--apple-blue); 
+      font-size: 12px; margin-bottom: 24px; font-weight: 600; text-align: left; line-height: 1.4;
+    }
     
     #lock-screen { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: var(--bg-color); z-index: 20000; display: none; flex-direction: column; justify-content: center; align-items: center; }
-    .lock-box { background: var(--card-bg); padding: 40px 30px; border-radius: 20px; box-shadow: var(--panel-shadow); text-align: center; width: 90%; max-width: 360px; }
+    .lock-box { background: var(--card-bg); padding: 40px 30px; border-radius: 20px; box-shadow: var(--panel-shadow); text-align: center; width: 90%; max-width: 360px; border: 1px solid var(--border-color); }
     .lock-box h2 { margin-bottom: 8px; font-size: 22px; color: var(--text-main); letter-spacing: -0.5px; }
     .lock-box p { color: var(--text-muted); font-size: 14px; margin-bottom: 24px; }
     #pin-input { font-size: 28px; font-weight: 700; text-align: center; padding: 12px; width: 100%; border-radius: 12px; border: 1px solid var(--border-color); margin-bottom: 20px; outline: none; background: var(--input-bg); color: var(--text-main); letter-spacing: 4px; }
@@ -67,7 +98,7 @@
     .user-tab { flex: 1; text-align: center; padding: 8px 12px; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600; color: var(--text-muted); transition: all 0.2s ease; white-space: nowrap; }
     .user-tab.active { background: var(--tab-active-bg); color: var(--text-main); box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
 
-    .dashboard { background: var(--card-bg); border-radius: 16px; padding: 20px; margin-bottom: 20px; box-shadow: var(--panel-shadow); display: flex; flex-direction: column; gap: 16px; }
+    .dashboard { background: var(--card-bg); border-radius: 16px; padding: 20px; margin-bottom: 20px; box-shadow: var(--panel-shadow); display: flex; flex-direction: column; gap: 16px; border: 1px solid var(--border-color); }
     .dashboard-top { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 16px; }
     .account-info h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.5px; margin-bottom: 4px; }
     .account-info p { color: var(--text-muted); font-size: 12px; margin-bottom: 8px; }
@@ -76,7 +107,7 @@
     .profit-negative { color: var(--apple-red); }
     .profit-neutral { color: var(--text-muted); }
     .btn { background: var(--apple-blue); color: white; border: none; padding: 14px; width: 100%; border-radius: 12px; font-size: 15px; font-weight: 600; cursor: pointer; transition: 0.2s; }
-    .btn:hover { background: #0077ED; transform: scale(0.98); }
+    .btn:hover { background: #0077ED; transform: scale(0.99); }
     .btn:disabled { background: #E5E5EA; color: #86868B; cursor: not-allowed; transform: none; }
 
     #chart-container { height: 160px; margin-top: 16px; border-top: 1px solid var(--border-color); padding-top: 16px; width: 100%; position: relative; }
@@ -85,7 +116,7 @@
     @media (min-width: 900px) { .main-content { grid-template-columns: 380px 1fr; } }
     .panel-title { font-size: 17px; font-weight: 700; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; }
     
-    .market-section { background: var(--card-bg); border-radius: 16px; padding: 20px; box-shadow: var(--panel-shadow); }
+    .market-section { background: var(--card-bg); border-radius: 16px; padding: 20px; box-shadow: var(--panel-shadow); border: 1px solid var(--border-color); }
     .market-tabs { display: flex; gap: 8px; margin-bottom: 12px; overflow-x: auto; padding-bottom: 4px; -webkit-overflow-scrolling: touch; }
     .market-tabs::-webkit-scrollbar { display: none; }
     .m-tab { padding: 6px 14px; border-radius: 8px; background: var(--input-bg); font-size: 12px; font-weight: 600; color: var(--text-muted); cursor: pointer; white-space: nowrap; transition: 0.2s; }
@@ -148,7 +179,7 @@
 
     .overview-grid { display: grid; grid-template-columns: 1fr; gap: 16px; }
     @media (min-width: 768px) { .overview-grid { grid-template-columns: 1fr 1fr; } }
-    .overview-card { background: var(--card-bg); border-radius: 16px; padding: 20px; box-shadow: var(--panel-shadow); }
+    .overview-card { background: var(--card-bg); border-radius: 16px; padding: 20px; box-shadow: var(--panel-shadow); border: 1px solid var(--border-color); }
     
     #loading-overlay { position: fixed; top:0; left:0; width:100vw; height:100vh; background:var(--bg-color); display:flex; justify-content:center; align-items:center; z-index: 9999; flex-direction: column; gap: 20px; }
     .spinner { width: 40px; height: 40px; border: 4px solid var(--border-color); border-top-color: var(--apple-blue); border-radius: 50%; animation: spin 1s linear infinite; }
@@ -157,22 +188,48 @@
 </head>
 <body>
 
-  <!-- ================= 免责声明 扉页 ================= -->
+  <!-- ================= 酷炫流体霓虹风格 扉页 ================= -->
   <div id="disclaimer-screen">
-    <div class="disclaimer-box">
-      <div class="shield-icon">🛡️</div>
-      <h2>JJ投资 · 系统访问声明</h2>
-      <div class="disclaimer-content">
-        <p><strong>1. 内部核心终端</strong><br>本系统为 JJ Family 专属的投资追踪与模拟实盘沙盒，未经授权请勿泄露系统数据。</p>
-        <p><strong>2. 敬畏市场，投资需谨慎</strong><br>全球宏观市场瞬息万变，股票、ETF及衍生品交易存在本金亏损风险。本系统展示的模拟盘/实盘数据及浮盈收益仅供复盘与策略参考，<strong>绝对不构成任何直接的财务或投资建议</strong>。</p>
-        <p><strong>3. 纪律与风控</strong><br>在真实的金融环境中，请始终保持理性。严格遵守交易纪律，合理分配资产配置，切忌盲目加杠杆与重仓赌博。</p>
-        <div class="quote">“投资的第一原则是永远不要亏钱，第二原则是永远不要忘记第一条。”<br>— 沃伦·巴菲特</div>
+    <div class="disclaimer-card">
+      <!-- 嵌入你最喜欢的汽水音乐霓虹风格流体 J 徽标 -->
+      <div class="brand-icon-wrapper">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+          <defs>
+            <filter id="blurNeon" x="-50%" y="-50%" width="200%" height="200%">
+              <feGaussianBlur stdDeviation="25" />
+            </filter>
+            <linearGradient id="qsText" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#FFFFFF" stop-opacity="1" />
+              <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0.6" />
+            </linearGradient>
+          </defs>
+          <rect width="512" height="512" fill="#000000"/>
+          <circle cx="160" cy="180" r="110" fill="#FF007A" filter="url(#blurNeon)" opacity="0.85"/>
+          <circle cx="360" cy="340" r="120" fill="#00E5FF" filter="url(#blurNeon)" opacity="0.85"/>
+          <g transform="translate(256, 360)">
+            <text x="-40" y="0" font-family="'Arial Rounded MT Bold', sans-serif" font-size="280" font-weight="900" fill="url(#qsText)" text-anchor="middle" opacity="0.95">J</text>
+            <text x="55" y="-30" font-family="'Arial Rounded MT Bold', sans-serif" font-size="210" font-weight="900" fill="url(#qsText)" text-anchor="middle" opacity="0.8">J</text>
+          </g>
+        </svg>
       </div>
-      <button class="btn" onclick="acceptDisclaimer()">我已仔细阅读并同意</button>
+
+      <h2>JJ投资管理系统</h2>
+      <div class="disclaimer-subtitle">Secure Sandbox & Investment Log</div>
+
+      <div class="disclaimer-text">
+        <p><strong>1. 资产安全与隐私</strong><br>本系统采用私有云沙盒架构，专为阿桂、小李、小赵团队量身打造，数据独立加密存储。</p>
+        <p><strong>2. 风险提示</strong><br>全球市场波动莫测，一切策略及资产估值仅供复盘参考。真实投资环境需极其谨慎，买卖有风险，盈亏自负。</p>
+      </div>
+
+      <div class="quote-box">
+        “在极度不确定的金融市场中，保持克制、敬畏风险，是长久生存的唯一法则。”
+      </div>
+
+      <button class="btn" onclick="acceptDisclaimer()">确 认 并 进 入</button>
     </div>
   </div>
 
-  <!-- ================= 锁屏界面 ================= -->
+  <!-- ================= 身份解锁屏幕 ================= -->
   <div id="lock-screen">
     <div class="lock-box">
       <h2>身份验证</h2>
@@ -346,25 +403,24 @@
     let db = { accounts: {}, fxRates: null, fxLastUpdate: 0 }; 
     let isUserTyping = false; 
 
-    // 初始化时仅绑定事件，默认展示 HTML 中的扉页
     window.onload = () => {
       window.addEventListener('resize', renderChart);
     };
 
-    // 第一步：点击同意免责声明
     function acceptDisclaimer() {
-      document.getElementById('disclaimer-screen').style.display = 'none';
-      // 如果曾经输入过正确密码，直接跳入系统
-      if (localStorage.getItem('jj_auth_pin') === AUTH_PIN) {
-        document.getElementById('loading-overlay').style.display = 'flex';
-        initCloudSystem();
-      } else {
-        // 否则拉起锁屏界面
-        document.getElementById('lock-screen').style.display = 'flex';
-      }
+      const screen = document.getElementById('disclaimer-screen');
+      screen.style.opacity = '0';
+      setTimeout(() => {
+        screen.style.display = 'none';
+        if (localStorage.getItem('jj_auth_pin') === AUTH_PIN) {
+          document.getElementById('loading-overlay').style.display = 'flex';
+          initCloudSystem();
+        } else {
+          document.getElementById('lock-screen').style.display = 'flex';
+        }
+      }, 400);
     }
 
-    // 第二步：输入并验证密码
     function verifyPin() {
       const pin = document.getElementById('pin-input').value;
       if (pin === AUTH_PIN) {
@@ -1045,8 +1101,6 @@
       pEl.innerText = `${globalProfit >= 0 ? '+' : ''}$${globalProfit.toFixed(2)}`;
       pEl.className = globalProfit > 0 ? 'profit-positive' : (globalProfit < 0 ? 'profit-negative' : 'profit-neutral');
     }
-
-    initCloudSystem();
   </script>
 </body>
 </html>

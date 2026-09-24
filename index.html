@@ -180,7 +180,7 @@
 </head>
 <body>
 
-  <!-- ================= 酷炫流体霓虹扉页 (大师名言版) ================= -->
+  <!-- ================= 酷炫流体霓虹扉页 ================= -->
   <div id="disclaimer-screen">
     <div class="disclaimer-card">
       <div class="brand-icon-wrapper">
@@ -219,10 +219,6 @@
         <div class="quote-item">
           <div class="quote-text">“如果我知道我会死在哪里，那我将永远不去那个地方。”</div>
           <div class="quote-author">— 查理·芒格</div>
-        </div>
-        <div class="quote-item">
-          <div class="quote-text">“永远不要为股票下跌而感到痛苦，好股票总会迎来它的价值。”</div>
-          <div class="quote-author">— 吉姆·罗杰斯</div>
         </div>
       </div>
 
@@ -264,22 +260,22 @@
       </div>
     </div>
 
-    <!-- 综合总览视图（默认隐藏） -->
+    <!-- 综合总览视图 -->
     <div id="overview-view" style="display: none;">
       <div class="dashboard" style="align-items: center; text-align: center;">
-        <p style="font-size: 14px; color: var(--text-muted); margin-bottom: -10px;">全局资产管理规模 (AUM / USD)</p>
+        <p style="font-size: 14px; color: var(--text-muted); margin-bottom: -10px;">全局账户在管资产规模 (AUM)</p>
         <div class="balance-display" id="global-total-assets" style="font-size: 42px;">$0.00</div>
         <div style="font-size: 13px; font-weight: 600; padding: 6px 14px; background: rgba(142,142,147,0.12); border-radius: 10px; margin-top: 4px; color: var(--text-muted);">
           实时汇率: 1 USD = ¥<span id="display-fx-cn">7.20</span> | HK$<span id="display-fx-hk">7.80</span>
         </div>
         <div style="font-size: 14px; font-weight: 600; padding: 8px 16px; background: var(--bg-color); border-radius: 20px; margin-top: 8px;">
-          累计总收益: <span id="global-total-profit">+$0.00</span>
+          所有账户已提取总利润: <span id="global-total-withdrawn" class="profit-positive">+$0.00</span>
         </div>
       </div>
       <div class="overview-grid" id="overview-grid-container"></div>
     </div>
 
-    <!-- 个人账户视图（默认显示） -->
+    <!-- 个人账户视图 -->
     <div id="individual-view" style="display: block;">
       <div class="dashboard">
         <div class="dashboard-top">
@@ -291,13 +287,15 @@
             <div id="portfolio-donut-container"></div>
           </div>
           <div style="text-align: right;">
-            <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 2px;">当前浮动净收益</p>
+            <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 2px;">当前账户净收益</p>
             <h2 id="realtime-profit" class="profit-positive" style="font-size: 26px;">+$0.00</h2>
             <p style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">已提取利润: $<span id="total-withdrawn">0.00</span></p>
           </div>
         </div>
         
         <div id="chart-container"></div>
+        
+        <button class="btn" id="withdraw-btn" style="margin-top: 16px;" onclick="withdrawProfit()">提取全部闲置利润 (需变现)</button>
       </div>
 
       <div class="main-content">
@@ -364,35 +362,14 @@
     
     const GLOBAL_STOCKS = [
       { symbol: 'VOO', name: '标普500 ETF', market: 'US', basePrice: 470.00 },
-      { symbol: 'QQQM', name: '纳斯达克 100 ETF (长线)', market: 'US', basePrice: 195.00 },
-      { symbol: 'TLT', name: '20年期以上美债', market: 'US', basePrice: 95.00 },
-      { symbol: 'GLD', name: '黄金 ETF', market: 'US', basePrice: 200.00 },
-      { symbol: 'NVDA', name: '英伟达 (AI算力)', market: 'US', basePrice: 880.00 },
+      { symbol: 'QQQM', name: '纳斯达克 100 ETF', market: 'US', basePrice: 195.00 },
+      { symbol: 'NVDA', name: '英伟达', market: 'US', basePrice: 880.00 },
       { symbol: 'AAPL', name: '苹果公司', market: 'US', basePrice: 173.00 },
-      { symbol: 'MSFT', name: '微软', market: 'US', basePrice: 406.00 },
-      { symbol: 'GOOGL', name: '谷歌 (Alphabet)', market: 'US', basePrice: 140.00 },
-      { symbol: 'AMZN', name: '亚马逊', market: 'US', basePrice: 175.00 },
-      { symbol: 'META', name: 'Meta (脸书)', market: 'US', basePrice: 480.00 },
       { symbol: 'TSLA', name: '特斯拉', market: 'US', basePrice: 195.00 },
-      { symbol: 'BRK.B', name: '伯克希尔哈撒韦', market: 'US', basePrice: 400.00 },
-      { symbol: 'LLY', name: '礼来 (医药巨头)', market: 'US', basePrice: 750.00 },
-      { symbol: 'TSM', name: '台积电', market: 'US', basePrice: 140.00 },
-      { symbol: 'NIO', name: '蔚来汽车', market: 'US', basePrice: 4.50 },
-      { symbol: '2800.HK', name: '盈富基金 (恒指ETF)', market: 'HK', basePrice: 17.00 },
       { symbol: '0700.HK', name: '腾讯控股', market: 'HK', basePrice: 388.00 },
       { symbol: '9988.HK', name: '阿里巴巴', market: 'HK', basePrice: 72.00 },
-      { symbol: '3690.HK', name: '美团', market: 'HK', basePrice: 100.00 },
-      { symbol: '1211.HK', name: '比亚迪股份', market: 'HK', basePrice: 200.00 },
-      { symbol: '0941.HK', name: '中国移动 (高股息)', market: 'HK', basePrice: 65.00 },
-      { symbol: '0883.HK', name: '中国海洋石油', market: 'HK', basePrice: 18.00 },
       { symbol: '510300', name: '沪深300 ETF', market: 'CN', basePrice: 3.50 },
-      { symbol: '510500', name: '中证500 ETF', market: 'CN', basePrice: 5.20 },
-      { symbol: '159915', name: '创业板 ETF', market: 'CN', basePrice: 1.70 },
-      { symbol: '518880', name: '黄金 ETF (境内)', market: 'CN', basePrice: 4.80 },
-      { symbol: '600519', name: '贵州茅台', market: 'CN', basePrice: 1600.00 },
-      { symbol: '300750', name: '宁德时代', market: 'CN', basePrice: 190.00 },
-      { symbol: '601318', name: '中国平安', market: 'CN', basePrice: 40.00 },
-      { symbol: '600900', name: '长江电力 (高股息)', market: 'CN', basePrice: 25.00 }
+      { symbol: '600519', name: '贵州茅台', market: 'CN', basePrice: 1600.00 }
     ];
 
     let currentPrices = {}; 
@@ -542,7 +519,7 @@
       if (!container) return;
       
       if (!account || !account.chart || account.chart.length < 2) {
-         container.innerHTML = '<div style="text-align:center; color:var(--text-muted); font-size:12px; line-height:100px; font-weight:600;">（持续运行产生交易记录后，将自动生成带有坐标轴的资产走势图）</div>';
+         container.innerHTML = '<div style="text-align:center; color:var(--text-muted); font-size:12px; line-height:100px; font-weight:600;">（持续运行产生交易记录后，自动生成走势图）</div>';
          return;
       }
 
@@ -556,7 +533,6 @@
       const values = dataPoints.map(d => d.value);
       const maxVal = Math.max(...values);
       const minVal = Math.min(...values);
-      
       const rangeRaw = maxVal - minVal === 0 ? maxVal * 0.02 || 1 : maxVal - minVal;
       const yMin = minVal - rangeRaw * 0.1;
       const yMax = maxVal + rangeRaw * 0.1;
@@ -583,7 +559,6 @@
           <line x1="${padding.left}" y1="${padding.top}" x2="${width - padding.right}" y2="${padding.top}" stroke="var(--border-color)" stroke-width="0.5" stroke-dasharray="3 3" />
           <line x1="${padding.left}" y1="${padding.top + graphHeight/2}" x2="${width - padding.right}" y2="${padding.top + graphHeight/2}" stroke="var(--border-color)" stroke-width="0.5" stroke-dasharray="3 3" />
           <text x="${padding.left - 6}" y="${padding.top + 4}" font-size="10" fill="var(--text-muted)" text-anchor="end" font-family="SF Pro Display">$${Math.round(yMax)}</text>
-          <text x="${padding.left - 6}" y="${padding.top + graphHeight/2 + 4}" font-size="10" fill="var(--text-muted)" text-anchor="end" font-family="SF Pro Display">$${Math.round((yMax+yMin)/2)}</text>
           <text x="${padding.left - 6}" y="${height - padding.bottom + 4}" font-size="10" fill="var(--text-muted)" text-anchor="end" font-family="SF Pro Display">$${Math.round(yMin)}</text>
           <text x="${padding.left}" y="${height - 4}" font-size="10" fill="var(--text-muted)" text-anchor="middle" font-family="SF Pro Display">${formatDay(dataPoints[0].ts)}</text>
           <text x="${width - padding.right}" y="${height - 4}" font-size="10" fill="var(--text-muted)" text-anchor="middle" font-family="SF Pro Display">${formatDay(dataPoints[dataPoints.length-1].ts)}</text>
@@ -595,7 +570,7 @@
     function renderDonut(account) {
         let stockVal = 0;
         let pieces = [];
-        const colors = ['#0071E3', '#34C759', '#FF9500', '#AF52DE', '#FF2D55', '#5856D6', '#32ADE6'];
+        const colors = ['#0071E3', '#34C759', '#FF9500', '#AF52DE', '#FF2D55', '#5856D6'];
         let colorIdx = 0;
         
         for (const [sym, d] of Object.entries(account.portfolio)) {
@@ -896,6 +871,9 @@
         if(account.history.length > 50) account.history.pop();
     }
 
+    // ==========================================
+    // 逻辑修复点 1：普通买入（维持不变）
+    // ==========================================
     async function executeBuy() {
       if (!selectedStockSymbol || !currentPrices[selectedStockSymbol]) return alert('请先选择标的！');
       const shares = parseInt(document.getElementById('trade-qty').value);
@@ -923,7 +901,10 @@
       setTimeout(() => { btn.innerText = '确认买入'; btn.style.background = 'var(--apple-blue)'; }, 1000);
     }
 
-    // 修复 Bug 2: 普通卖出平仓，将本金与利润一起返回可用现金
+    // ==========================================
+    // 逻辑修复点 2：普通卖出平仓
+    // 普通卖出：本金+利润 全部回到“现金池（购买力）”中，所以现金会大于初始本金。
+    // ==========================================
     async function sellStock(symbol) {
       const sharesToSell = parseInt(document.getElementById(`sell-qty-${symbol}`).value);
       const account = db.accounts[activeView];
@@ -938,7 +919,7 @@
       stockData.shares -= sharesToSell;
       stockData.costUSD -= (costPerShareUSD * sharesToSell);
       
-      // 这里的 usdRevenue 包含了该笔交易对应的【本金 + 利润/亏损】
+      // 注意：此时 usdRevenue = 本金 + 利润/亏损，全部加入现金池
       account.cash += usdRevenue;
 
       if (stockData.shares === 0) delete account.portfolio[symbol];
@@ -948,11 +929,13 @@
       renderPortfolio();
       renderHistory();
       recordChartSnapshot(account, true);
-      
-      alert(`✅ 普通卖出成功！\n\n卖出标的：${symbol}\n成交金额：$${usdRevenue.toFixed(2)}\n\n(此金额包含本金及相应利润，已全部存入您的可用购买力)`);
     }
 
-    // 修复 Bug 1: 新增专属“提取利润并平仓”功能
+    // ==========================================
+    // 逻辑修复点 3：专属“提取利润并平仓”
+    // 本金(cost) -> 回到“现金池（购买力）”
+    // 利润(profit) -> 进入“已提取利润”，彻底离开本账户的“当前资产盘子”
+    // ==========================================
     async function extractStockProfit(symbol) {
       const account = db.accounts[activeView];
       const stockData = account.portfolio[symbol];
@@ -962,17 +945,15 @@
       const currentValUSD = (stockData.shares * price) / FX_RATES[stockData.market];
       const profitUSD = currentValUSD - stockData.costUSD;
       const costUSD = stockData.costUSD;
-      const sharesSold = stockData.shares;
       
       if(profitUSD <= 0) return alert('当前没有利润可提取！');
       
-      // 仅将本金返回到购买力
-      account.cash += costUSD; 
-      // 提取利润到专属记录中
-      account.withdrawn += profitUSD; 
+      // 核心财务划拨规则
+      account.cash += costUSD;       // 1. 只有投资本金退回账户购买力
+      account.withdrawn += profitUSD; // 2. 利润划入提款池
       
-      // 清空该股票
-      delete account.portfolio[symbol];
+      const sharesSold = stockData.shares;
+      delete account.portfolio[symbol]; // 3. 仓位完全清空
       
       pushHistory(account, '提润平仓', symbol, sharesSold, price, profitUSD, stockData.market);
       
@@ -980,7 +961,37 @@
       renderHistory();
       recordChartSnapshot(account, true);
       
-      alert(`🎉 利润提取成功！\n\n标的：${symbol}\n\n已将该股的利润 $${profitUSD.toFixed(2)} 提现至“已提取利润”池。\n其投资本金 $${costUSD.toFixed(2)} 已安全退回您的“可用购买力”，可继续建仓投资。`);
+      alert(`🎉 利润提取成功！\n\n标的：${symbol}\n\n已将该股的利润 $${profitUSD.toFixed(2)} 提走！\n投资本金 $${costUSD.toFixed(2)} 已安全退回您的“可用购买力”。`);
+    }
+
+    // ==========================================
+    // 逻辑修复点 4：全局提现（提取当前闲置在现金池里的利润）
+    // ==========================================
+    async function withdrawProfit() {
+      const account = db.accounts[activeView];
+      let stockVal = 0;
+      for (const [sym, d] of Object.entries(account.portfolio)) {
+        if (d.shares > 0) stockVal += (d.shares * (currentPrices[sym] ? currentPrices[sym].price : 0)) / FX_RATES[d.market];
+      }
+      
+      // 账户内部的真实净利润 = (现有现金 + 现有股票市值) - 初始本金
+      const accountNetProfit = (account.cash + stockVal) - account.principal;
+
+      if (accountNetProfit > 0) {
+        // 我们只能提出现金部分
+        const withdrawable = Math.min(accountNetProfit, account.cash);
+        if (withdrawable <= 0) return alert('现金不足，利润都在股票里，请先卖出股票变现！');
+
+        account.cash -= withdrawable;     // 从现金池扣除
+        account.withdrawn += withdrawable; // 计入已提取总额
+        
+        alert(`🎉 成功将账面闲置利润提现 $${withdrawable.toFixed(2)}！`);
+        pushHistory(account, '提取闲置利润', 'CASH', 0, 1.0, withdrawable, 'US');
+        
+        renderPortfolio();
+        renderHistory();
+        recordChartSnapshot(account, true);
+      }
     }
 
     function renderHistory() {
@@ -994,7 +1005,7 @@
       let html = '';
       account.history.forEach(h => {
           const isBuy = h.type === '买入';
-          const color = isBuy ? 'var(--apple-blue)' : (h.type === '提润平仓' ? 'var(--apple-orange)' : 'var(--apple-green)');
+          const color = isBuy ? 'var(--apple-blue)' : (h.type.includes('提润') || h.type.includes('提现') || h.type.includes('提取') ? 'var(--apple-orange)' : 'var(--apple-green)');
           html += `
           <div style="display:flex; justify-content:space-between; align-items:center; padding:12px 10px; border-bottom:1px solid var(--border-color); font-size:13px;">
              <div>
@@ -1036,7 +1047,7 @@
           // 如果该股票有利润，显示提取利润专属按钮
           let extractBtnHtml = '';
           if (profitUSD > 0.01) {
-              extractBtnHtml = `<button class="btn-extract" onclick="extractStockProfit('${symbol}')">💰 提取利润 ($${profitUSD.toFixed(2)}) 并平仓</button>`;
+              extractBtnHtml = `<button class="btn-extract" onclick="extractStockProfit('${symbol}')">💰 提取本单利润 ($${profitUSD.toFixed(2)}) 并平仓</button>`;
           }
 
           html += `
@@ -1072,9 +1083,12 @@
 
       document.getElementById('portfolio-list').innerHTML = html || `<div style="text-align:center; padding: 40px 20px; color: var(--text-muted); background: var(--card-bg); border-radius: 12px; border: 1px dashed var(--border-color);">暂无持仓记录</div>`;
 
-      const totalAssets = account.cash + stockValueUSD;
-      // 账户净利润 = 总资产 + 已经提走放进钱包的利润 - 初始本金
-      const netProfit = (totalAssets + account.withdrawn) - account.principal;
+      // ==========================================
+      // 逻辑修复点 5：界面指标呈现
+      // ==========================================
+      const totalAssets = account.cash + stockValueUSD; // 当前账户总盘子
+      // 净收益：当前总盘子 - 初始本金。如果提走利润，盘子变小，净收益必然下降归零。
+      const accountNetProfit = totalAssets - account.principal;
       
       document.getElementById('total-value').innerText = `$${totalAssets.toFixed(2)}`;
       document.getElementById('cash-balance').innerText = account.cash.toFixed(2);
@@ -1082,15 +1096,28 @@
       document.getElementById('total-withdrawn').innerText = account.withdrawn.toFixed(2);
       
       const profitEl = document.getElementById('realtime-profit');
-      profitEl.innerText = `${netProfit >= 0 ? '+' : ''}$${netProfit.toFixed(2)}`;
-      profitEl.className = netProfit > 0 ? 'profit-positive' : (netProfit < 0 ? 'profit-negative' : 'profit-neutral');
+      profitEl.innerText = `${accountNetProfit >= 0 ? '+' : ''}$${accountNetProfit.toFixed(2)}`;
+      profitEl.className = accountNetProfit > 0 ? 'profit-positive' : (accountNetProfit < 0 ? 'profit-negative' : 'profit-neutral');
       
       document.getElementById('portfolio-donut-container').innerHTML = renderDonut(account);
+
+      // 全局提现按钮状态判断
+      const withdrawBtn = document.getElementById('withdraw-btn');
+      if (accountNetProfit > 0.01 && account.cash >= accountNetProfit) {
+        withdrawBtn.disabled = false; 
+        withdrawBtn.innerText = `提取全部闲置利润 ($${accountNetProfit.toFixed(2)})`;
+      } else if (accountNetProfit > 0.01 && account.cash < accountNetProfit && account.cash > 0) {
+        withdrawBtn.disabled = false; 
+        withdrawBtn.innerText = `提取闲置利润 ($${account.cash.toFixed(2)})`;
+      } else {
+        withdrawBtn.disabled = true; 
+        withdrawBtn.innerText = '暂无闲置现金利润可提取 (需先变现)';
+      }
     }
 
     function renderOverview() {
       if(!db.accounts) return;
-      let globalAssets = 0; let globalProfit = 0; let gridHTML = '';
+      let globalAssets = 0; let globalWithdrawn = 0; let gridHTML = '';
       USERS.forEach(user => {
         if(!db.accounts[user]) return;
         const acc = db.accounts[user];
@@ -1099,24 +1126,29 @@
           if (d.shares > 0) stockVal += (d.shares * (currentPrices[sym] ? currentPrices[sym].price : 0)) / FX_RATES[d.market];
         }
         const totalAsst = acc.cash + stockVal;
-        const profit = (totalAsst + acc.withdrawn) - acc.principal;
-        globalAssets += totalAsst; globalProfit += profit;
+        const currentNetProfit = totalAsst - acc.principal;
+        const totalReturn = currentNetProfit + acc.withdrawn; // 包含提取走的总战绩
+        
+        globalAssets += totalAsst; 
+        globalWithdrawn += acc.withdrawn;
 
         gridHTML += `
           <div class="overview-card">
             <div style="font-size: 18px; font-weight: 700; margin-bottom: 12px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; display:flex; justify-content:space-between; align-items:center;">
               <span>[${user}] 投资组合</span><span style="font-size:12px; color:var(--text-muted); font-weight:normal;">初始本金: $${acc.principal.toFixed(0)}</span>
             </div>
-            <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 14px;"><span style="color: var(--text-muted);">总资产估值</span><span style="font-weight: 600;">$${totalAsst.toFixed(2)}</span></div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 14px;"><span style="color: var(--text-muted);">账户当前估值</span><span style="font-weight: 600;">$${totalAsst.toFixed(2)}</span></div>
             <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 14px;"><span style="color: var(--text-muted);">现金 / 仓位</span><span style="font-weight: 600; font-size: 13px;">$${acc.cash.toFixed(0)} / $${stockVal.toFixed(0)}</span></div>
-            <div style="display: flex; justify-content: space-between; margin-top: 12px; padding-top: 12px; border-top: 1px dashed var(--border-color);"><span style="color: var(--text-muted); font-size: 14px;">累计净收益</span><span style="font-weight: 700; font-size: 16px;" class="${profit > 0 ? 'profit-positive' : (profit < 0 ? 'profit-negative' : 'profit-neutral')}">${profit >= 0 ? '+' : ''}$${profit.toFixed(2)}</span></div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 14px;"><span style="color: var(--text-muted);">已提取利润</span><span style="font-weight: 600; color: var(--apple-orange);">$${acc.withdrawn.toFixed(2)}</span></div>
+            <div style="display: flex; justify-content: space-between; margin-top: 12px; padding-top: 12px; border-top: 1px dashed var(--border-color);"><span style="color: var(--text-muted); font-size: 14px;">累计总战绩 (含提款)</span><span style="font-weight: 700; font-size: 16px;" class="${totalReturn > 0 ? 'profit-positive' : (totalReturn < 0 ? 'profit-negative' : 'profit-neutral')}">${totalReturn >= 0 ? '+' : ''}$${totalReturn.toFixed(2)}</span></div>
           </div>`;
       });
       document.getElementById('overview-grid-container').innerHTML = gridHTML;
       document.getElementById('global-total-assets').innerText = `$${globalAssets.toFixed(2)}`;
-      const pEl = document.getElementById('global-total-profit');
-      pEl.innerText = `${globalProfit >= 0 ? '+' : ''}$${globalProfit.toFixed(2)}`;
-      pEl.className = globalProfit > 0 ? 'profit-positive' : (globalProfit < 0 ? 'profit-negative' : 'profit-neutral');
+      
+      const wEl = document.getElementById('global-total-withdrawn');
+      wEl.innerText = `+$${globalWithdrawn.toFixed(2)}`;
+      wEl.className = globalWithdrawn > 0 ? 'profit-positive' : 'profit-neutral';
     }
   </script>
 </body>

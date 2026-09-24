@@ -15,7 +15,7 @@
     /* 默认浅色模式变量 */
     :root {
       --bg-color: #F5F5F7; --card-bg: #FFFFFF; --text-main: #1D1D1F; --text-muted: #86868B;
-      --apple-blue: #0071E3; --apple-green: #34C759; --apple-red: #FF3B30;
+      --apple-blue: #0071E3; --apple-green: #34C759; --apple-red: #FF3B30; --apple-orange: #FF9500;
       --border-color: rgba(0, 0, 0, 0.08); --panel-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
       --tab-active-bg: #FFFFFF; --input-bg: var(--bg-color);
     }
@@ -58,35 +58,10 @@
     .disclaimer-card h2 { font-size: 19px; margin-bottom: 4px; font-weight: 700; letter-spacing: -0.5px; }
     .disclaimer-subtitle { font-size: 11px; color: var(--text-muted); margin-bottom: 18px; text-transform: uppercase; letter-spacing: 1px; }
 
-    .quotes-container {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      margin-bottom: 20px;
-      text-align: left;
-    }
-
-    .quote-item {
-      background: rgba(142, 142, 147, 0.06);
-      padding: 10px 14px;
-      border-radius: 10px;
-      border-left: 3px solid var(--apple-blue);
-    }
-
-    .quote-text {
-      font-size: 12px;
-      color: var(--text-main);
-      font-style: italic;
-      line-height: 1.4;
-      margin-bottom: 2px;
-    }
-
-    .quote-author {
-      font-size: 10px;
-      color: var(--text-muted);
-      text-align: right;
-      font-weight: 600;
-    }
+    .quotes-container { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; text-align: left; }
+    .quote-item { background: rgba(142, 142, 147, 0.06); padding: 10px 14px; border-radius: 10px; border-left: 3px solid var(--apple-blue); }
+    .quote-text { font-size: 12px; color: var(--text-main); font-style: italic; line-height: 1.4; margin-bottom: 2px; }
+    .quote-author { font-size: 10px; color: var(--text-muted); text-align: right; font-weight: 600; }
     
     #lock-screen { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: var(--bg-color); z-index: 20000; display: none; flex-direction: column; justify-content: center; align-items: center; }
     .lock-box { background: var(--card-bg); padding: 40px 30px; border-radius: 20px; box-shadow: var(--panel-shadow); text-align: center; width: 90%; max-width: 360px; border: 1px solid var(--border-color); }
@@ -123,7 +98,9 @@
     .profit-neutral { color: var(--text-muted); }
     .btn { background: var(--apple-blue); color: white; border: none; padding: 14px; width: 100%; border-radius: 12px; font-size: 15px; font-weight: 600; cursor: pointer; transition: 0.2s; }
     .btn:hover { background: #0077ED; transform: scale(0.99); }
-    .btn:disabled { background: #E5E5EA; color: #86868B; cursor: not-allowed; transform: none; }
+    
+    .btn-extract { width: 100%; background: rgba(255, 149, 0, 0.1); color: var(--apple-orange); border: 1px solid rgba(255, 149, 0, 0.3); padding: 12px; border-radius: 10px; font-size: 14px; font-weight: 700; cursor: pointer; margin-top: 12px; transition: 0.2s; }
+    .btn-extract:hover { background: var(--apple-orange); color: white; }
 
     #chart-container { height: 160px; margin-top: 16px; border-top: 1px solid var(--border-color); padding-top: 16px; width: 100%; position: relative; }
 
@@ -314,15 +291,13 @@
             <div id="portfolio-donut-container"></div>
           </div>
           <div style="text-align: right;">
-            <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 2px;">未结/已结净收益</p>
+            <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 2px;">当前浮动净收益</p>
             <h2 id="realtime-profit" class="profit-positive" style="font-size: 26px;">+$0.00</h2>
             <p style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">已提取利润: $<span id="total-withdrawn">0.00</span></p>
           </div>
         </div>
         
         <div id="chart-container"></div>
-        
-        <button class="btn" id="withdraw-btn" style="margin-top: 16px;" onclick="withdrawProfit()">提取利润 (需先卖出股票变现)</button>
       </div>
 
       <div class="main-content">
@@ -948,6 +923,7 @@
       setTimeout(() => { btn.innerText = '确认买入'; btn.style.background = 'var(--apple-blue)'; }, 1000);
     }
 
+    // 修复 Bug 2: 普通卖出平仓，将本金与利润一起返回可用现金
     async function sellStock(symbol) {
       const sharesToSell = parseInt(document.getElementById(`sell-qty-${symbol}`).value);
       const account = db.accounts[activeView];
@@ -961,15 +937,50 @@
       
       stockData.shares -= sharesToSell;
       stockData.costUSD -= (costPerShareUSD * sharesToSell);
+      
+      // 这里的 usdRevenue 包含了该笔交易对应的【本金 + 利润/亏损】
       account.cash += usdRevenue;
 
       if (stockData.shares === 0) delete account.portfolio[symbol];
       
-      pushHistory(account, '卖出', symbol, sharesToSell, price, usdRevenue, stockData.market);
+      pushHistory(account, '普通卖出', symbol, sharesToSell, price, usdRevenue, stockData.market);
 
       renderPortfolio();
       renderHistory();
       recordChartSnapshot(account, true);
+      
+      alert(`✅ 普通卖出成功！\n\n卖出标的：${symbol}\n成交金额：$${usdRevenue.toFixed(2)}\n\n(此金额包含本金及相应利润，已全部存入您的可用购买力)`);
+    }
+
+    // 修复 Bug 1: 新增专属“提取利润并平仓”功能
+    async function extractStockProfit(symbol) {
+      const account = db.accounts[activeView];
+      const stockData = account.portfolio[symbol];
+      if(!stockData) return;
+      
+      const price = currentPrices[symbol].price;
+      const currentValUSD = (stockData.shares * price) / FX_RATES[stockData.market];
+      const profitUSD = currentValUSD - stockData.costUSD;
+      const costUSD = stockData.costUSD;
+      const sharesSold = stockData.shares;
+      
+      if(profitUSD <= 0) return alert('当前没有利润可提取！');
+      
+      // 仅将本金返回到购买力
+      account.cash += costUSD; 
+      // 提取利润到专属记录中
+      account.withdrawn += profitUSD; 
+      
+      // 清空该股票
+      delete account.portfolio[symbol];
+      
+      pushHistory(account, '提润平仓', symbol, sharesSold, price, profitUSD, stockData.market);
+      
+      renderPortfolio();
+      renderHistory();
+      recordChartSnapshot(account, true);
+      
+      alert(`🎉 利润提取成功！\n\n标的：${symbol}\n\n已将该股的利润 $${profitUSD.toFixed(2)} 提现至“已提取利润”池。\n其投资本金 $${costUSD.toFixed(2)} 已安全退回您的“可用购买力”，可继续建仓投资。`);
     }
 
     function renderHistory() {
@@ -983,7 +994,7 @@
       let html = '';
       account.history.forEach(h => {
           const isBuy = h.type === '买入';
-          const color = isBuy ? 'var(--apple-blue)' : 'var(--apple-green)';
+          const color = isBuy ? 'var(--apple-blue)' : (h.type === '提润平仓' ? 'var(--apple-orange)' : 'var(--apple-green)');
           html += `
           <div style="display:flex; justify-content:space-between; align-items:center; padding:12px 10px; border-bottom:1px solid var(--border-color); font-size:13px;">
              <div>
@@ -1021,6 +1032,13 @@
           const costPerShareLocal = (data.costUSD / data.shares) * FX_RATES[data.market];
           
           stockValueUSD += currentValUSD;
+          
+          // 如果该股票有利润，显示提取利润专属按钮
+          let extractBtnHtml = '';
+          if (profitUSD > 0.01) {
+              extractBtnHtml = `<button class="btn-extract" onclick="extractStockProfit('${symbol}')">💰 提取利润 ($${profitUSD.toFixed(2)}) 并平仓</button>`;
+          }
+
           html += `
             <div class="port-card">
               <div class="port-header">
@@ -1043,8 +1061,9 @@
                 </div>
                 <div class="port-actions-inputs">
                     <input type="number" id="sell-qty-${symbol}" min="1" max="${data.shares}" value="${data.shares}">
-                    <button onclick="sellStock('${symbol}')">卖出平仓</button>
+                    <button onclick="sellStock('${symbol}')">普通卖出平仓</button>
                 </div>
+                ${extractBtnHtml}
               </div>
             </div>
           `;
@@ -1054,7 +1073,9 @@
       document.getElementById('portfolio-list').innerHTML = html || `<div style="text-align:center; padding: 40px 20px; color: var(--text-muted); background: var(--card-bg); border-radius: 12px; border: 1px dashed var(--border-color);">暂无持仓记录</div>`;
 
       const totalAssets = account.cash + stockValueUSD;
+      // 账户净利润 = 总资产 + 已经提走放进钱包的利润 - 初始本金
       const netProfit = (totalAssets + account.withdrawn) - account.principal;
+      
       document.getElementById('total-value').innerText = `$${totalAssets.toFixed(2)}`;
       document.getElementById('cash-balance').innerText = account.cash.toFixed(2);
       document.getElementById('acc-principal').innerText = account.principal.toFixed(2);
@@ -1065,34 +1086,6 @@
       profitEl.className = netProfit > 0 ? 'profit-positive' : (netProfit < 0 ? 'profit-negative' : 'profit-neutral');
       
       document.getElementById('portfolio-donut-container').innerHTML = renderDonut(account);
-
-      const withdrawBtn = document.getElementById('withdraw-btn');
-      if (netProfit > 0.01 && account.cash >= netProfit) {
-        withdrawBtn.disabled = false; withdrawBtn.innerText = `提取利润 ($${netProfit.toFixed(2)})`;
-      } else {
-        withdrawBtn.disabled = true; withdrawBtn.innerText = '暂无可提取利润';
-      }
-    }
-
-    async function withdrawProfit() {
-      const account = db.accounts[activeView];
-      let stockVal = 0;
-      for (const [sym, d] of Object.entries(account.portfolio)) {
-        if (d.shares > 0) stockVal += (d.shares * (currentPrices[sym] ? currentPrices[sym].price : 0)) / FX_RATES[d.market];
-      }
-      const netProfit = (account.cash + stockVal + account.withdrawn) - account.principal;
-
-      if (netProfit > 0 && account.cash >= netProfit) {
-        account.cash -= netProfit;
-        account.withdrawn += netProfit;
-        alert(`🎉 提取利润成功！\n已提现 $${netProfit.toFixed(2)}。`);
-        
-        pushHistory(account, '提取利润', 'CASH', 0, 1.0, netProfit, 'US');
-        
-        renderPortfolio();
-        renderHistory();
-        recordChartSnapshot(account, true);
-      }
     }
 
     function renderOverview() {

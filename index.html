@@ -90,7 +90,7 @@
 
     .dashboard { background: var(--card-bg); border-radius: 16px; padding: 20px; margin-bottom: 20px; box-shadow: var(--panel-shadow); display: flex; flex-direction: column; gap: 16px; border: 1px solid var(--border-color); }
     .dashboard-top { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 16px; }
-    .account-info h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.5px; margin-bottom: 4px; }
+    .account-info h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.5px; margin-bottom: 4px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
     .account-info p { color: var(--text-muted); font-size: 12px; margin-bottom: 8px; }
     .balance-display { font-size: 32px; font-weight: 700; font-family: "SF Pro Display", sans-serif; margin-bottom: 2px; transition: color 0.3s; }
     .profit-positive { color: var(--apple-green); }
@@ -280,7 +280,11 @@
       <div class="dashboard">
         <div class="dashboard-top">
           <div class="account-info">
-            <h1><span id="current-user-name">阿桂</span> 投资组合</h1>
+            <!-- 【新增重置账户按钮】 -->
+            <h1 style="display:flex; align-items:center; flex-wrap:wrap; gap:10px;">
+              <span><span id="current-user-name">阿桂</span> 投资组合</span>
+              <span onclick="resetAccount()" style="font-size:12px; font-weight:600; padding:4px 8px; background:rgba(255,59,48,0.1); color:var(--apple-red); border-radius:8px; cursor:pointer;">⚠️ 重置账户</span>
+            </h1>
             <div class="balance-display" id="total-value">$0.00</div>
             <p style="font-size: 13px; font-weight: 600; margin-top: 4px;">可用购买力 (USD): <span id="cash-balance" style="color: var(--apple-blue);">0.00</span></p>
             <p style="margin-top: 8px; font-size: 12px; color: var(--text-muted);">初始本金: $<span id="acc-principal">0.00</span></p>
@@ -469,6 +473,23 @@
       }
     }
 
+    // 【新增核心功能】一键重置当前账户，消灭脏数据！
+    async function resetAccount() {
+        if(confirm(`⚠️ 确定要重置【${activeView}】的账户吗？\n\n此操作将清空该账户的所有持仓和交易记录，并将资金强制恢复为干净的初始本金 $2000.00。`)) {
+            const account = db.accounts[activeView];
+            account.principal = 2000.00;
+            account.cash = 2000.00;
+            account.withdrawn = 0.00;
+            account.portfolio = {};
+            account.history = [];
+            account.chart = [];
+            
+            await saveToCloud(); // 强制覆盖云端旧数据
+            updateUIDiscreetly();
+            alert(`✅ [${activeView}] 的账户已成功洗白，资金已恢复至 $2000.00！`);
+        }
+    }
+
     async function fetchExchangeRates() {
       try {
         const res = await fetch(`${API_URL}?action=fx`);
@@ -559,6 +580,7 @@
           <line x1="${padding.left}" y1="${padding.top}" x2="${width - padding.right}" y2="${padding.top}" stroke="var(--border-color)" stroke-width="0.5" stroke-dasharray="3 3" />
           <line x1="${padding.left}" y1="${padding.top + graphHeight/2}" x2="${width - padding.right}" y2="${padding.top + graphHeight/2}" stroke="var(--border-color)" stroke-width="0.5" stroke-dasharray="3 3" />
           <text x="${padding.left - 6}" y="${padding.top + 4}" font-size="10" fill="var(--text-muted)" text-anchor="end" font-family="SF Pro Display">$${Math.round(yMax)}</text>
+          <text x="${padding.left - 6}" y="${padding.top + graphHeight/2 + 4}" font-size="10" fill="var(--text-muted)" text-anchor="end" font-family="SF Pro Display">$${Math.round((yMax+yMin)/2)}</text>
           <text x="${padding.left - 6}" y="${height - padding.bottom + 4}" font-size="10" fill="var(--text-muted)" text-anchor="end" font-family="SF Pro Display">$${Math.round(yMin)}</text>
           <text x="${padding.left}" y="${height - 4}" font-size="10" fill="var(--text-muted)" text-anchor="middle" font-family="SF Pro Display">${formatDay(dataPoints[0].ts)}</text>
           <text x="${width - padding.right}" y="${height - 4}" font-size="10" fill="var(--text-muted)" text-anchor="middle" font-family="SF Pro Display">${formatDay(dataPoints[dataPoints.length-1].ts)}</text>
@@ -872,7 +894,7 @@
     }
 
     // ==========================================
-    // 逻辑修复点 1：普通买入（维持不变）
+    // 逻辑：普通买入
     // ==========================================
     async function executeBuy() {
       if (!selectedStockSymbol || !currentPrices[selectedStockSymbol]) return alert('请先选择标的！');
@@ -902,8 +924,7 @@
     }
 
     // ==========================================
-    // 逻辑修复点 2：普通卖出平仓
-    // 普通卖出：本金+利润 全部回到“现金池（购买力）”中，所以现金会大于初始本金。
+    // 逻辑：普通卖出平仓（本金+利润 全部回到购买力）
     // ==========================================
     async function sellStock(symbol) {
       const sharesToSell = parseInt(document.getElementById(`sell-qty-${symbol}`).value);
@@ -919,7 +940,7 @@
       stockData.shares -= sharesToSell;
       stockData.costUSD -= (costPerShareUSD * sharesToSell);
       
-      // 注意：此时 usdRevenue = 本金 + 利润/亏损，全部加入现金池
+      // usdRevenue 包含【本金 + 利润/亏损】，全部加入现金池
       account.cash += usdRevenue;
 
       if (stockData.shares === 0) delete account.portfolio[symbol];
@@ -932,9 +953,7 @@
     }
 
     // ==========================================
-    // 逻辑修复点 3：专属“提取利润并平仓”
-    // 本金(cost) -> 回到“现金池（购买力）”
-    // 利润(profit) -> 进入“已提取利润”，彻底离开本账户的“当前资产盘子”
+    // 逻辑：专属“提取利润并平仓” (本金回池，利润提走)
     // ==========================================
     async function extractStockProfit(symbol) {
       const account = db.accounts[activeView];
@@ -961,11 +980,11 @@
       renderHistory();
       recordChartSnapshot(account, true);
       
-      alert(`🎉 利润提取成功！\n\n标的：${symbol}\n\n已将该股的利润 $${profitUSD.toFixed(2)} 提走！\n投资本金 $${costUSD.toFixed(2)} 已安全退回您的“可用购买力”。`);
+      alert(`🎉 利润提取成功！\n\n已将该股的利润 $${profitUSD.toFixed(2)} 提走！\n投资本金 $${costUSD.toFixed(2)} 已安全退回您的“可用购买力”。`);
     }
 
     // ==========================================
-    // 逻辑修复点 4：全局提现（提取当前闲置在现金池里的利润）
+    // 逻辑：全局提现（提取账面上多余的闲置现金利润）
     // ==========================================
     async function withdrawProfit() {
       const account = db.accounts[activeView];
@@ -974,16 +993,15 @@
         if (d.shares > 0) stockVal += (d.shares * (currentPrices[sym] ? currentPrices[sym].price : 0)) / FX_RATES[d.market];
       }
       
-      // 账户内部的真实净利润 = (现有现金 + 现有股票市值) - 初始本金
       const accountNetProfit = (account.cash + stockVal) - account.principal;
 
       if (accountNetProfit > 0) {
-        // 我们只能提出现金部分
+        // 只能提出现金部分
         const withdrawable = Math.min(accountNetProfit, account.cash);
         if (withdrawable <= 0) return alert('现金不足，利润都在股票里，请先卖出股票变现！');
 
-        account.cash -= withdrawable;     // 从现金池扣除
-        account.withdrawn += withdrawable; // 计入已提取总额
+        account.cash -= withdrawable;
+        account.withdrawn += withdrawable;
         
         alert(`🎉 成功将账面闲置利润提现 $${withdrawable.toFixed(2)}！`);
         pushHistory(account, '提取闲置利润', 'CASH', 0, 1.0, withdrawable, 'US');
@@ -1083,11 +1101,8 @@
 
       document.getElementById('portfolio-list').innerHTML = html || `<div style="text-align:center; padding: 40px 20px; color: var(--text-muted); background: var(--card-bg); border-radius: 12px; border: 1px dashed var(--border-color);">暂无持仓记录</div>`;
 
-      // ==========================================
-      // 逻辑修复点 5：界面指标呈现
-      // ==========================================
-      const totalAssets = account.cash + stockValueUSD; // 当前账户总盘子
-      // 净收益：当前总盘子 - 初始本金。如果提走利润，盘子变小，净收益必然下降归零。
+      // 核心计算
+      const totalAssets = account.cash + stockValueUSD; 
       const accountNetProfit = totalAssets - account.principal;
       
       document.getElementById('total-value').innerText = `$${totalAssets.toFixed(2)}`;

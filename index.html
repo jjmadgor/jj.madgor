@@ -280,7 +280,7 @@
       <div class="dashboard">
         <div class="dashboard-top">
           <div class="account-info">
-            <!-- 【新增重置账户按钮】 -->
+            <!-- 【重置账户按钮】 -->
             <h1 style="display:flex; align-items:center; flex-wrap:wrap; gap:10px;">
               <span><span id="current-user-name">阿桂</span> 投资组合</span>
               <span onclick="resetAccount()" style="font-size:12px; font-weight:600; padding:4px 8px; background:rgba(255,59,48,0.1); color:var(--apple-red); border-radius:8px; cursor:pointer;">⚠️ 重置账户</span>
@@ -473,7 +473,7 @@
       }
     }
 
-    // 【新增核心功能】一键重置当前账户，消灭脏数据！
+    // 洗白重置：消灭脏数据，强制恢复2000初始本金
     async function resetAccount() {
         if(confirm(`⚠️ 确定要重置【${activeView}】的账户吗？\n\n此操作将清空该账户的所有持仓和交易记录，并将资金强制恢复为干净的初始本金 $2000.00。`)) {
             const account = db.accounts[activeView];
@@ -894,7 +894,7 @@
     }
 
     // ==========================================
-    // 逻辑：普通买入
+    // 逻辑：正常买入
     // ==========================================
     async function executeBuy() {
       if (!selectedStockSymbol || !currentPrices[selectedStockSymbol]) return alert('请先选择标的！');
@@ -924,7 +924,9 @@
     }
 
     // ==========================================
-    // 逻辑：普通卖出平仓（本金+利润 全部回到购买力）
+    // 逻辑：普通卖出（包含盈利和亏损两种情况）
+    // 盈利时：本金+利润 全部回到购买力。
+    // 亏损时：扣除亏损后的剩余本金 回到购买力。
     // ==========================================
     async function sellStock(symbol) {
       const sharesToSell = parseInt(document.getElementById(`sell-qty-${symbol}`).value);
@@ -934,13 +936,14 @@
       if (sharesToSell > stockData.shares) return alert(`⚠️ 超过持仓限制！`);
 
       const price = currentPrices[symbol].price;
+      // 当前获取到的真实价值金额 (可能是本金+利润，也可能是残存本金)
       const usdRevenue = (sharesToSell * price) / FX_RATES[stockData.market];
       const costPerShareUSD = stockData.costUSD / stockData.shares;
       
       stockData.shares -= sharesToSell;
       stockData.costUSD -= (costPerShareUSD * sharesToSell);
       
-      // usdRevenue 包含【本金 + 利润/亏损】，全部加入现金池
+      // 不管赚亏，得到的真实现金全额加回购买力
       account.cash += usdRevenue;
 
       if (stockData.shares === 0) delete account.portfolio[symbol];
@@ -953,7 +956,8 @@
     }
 
     // ==========================================
-    // 逻辑：专属“提取利润并平仓” (本金回池，利润提走)
+    // 逻辑：提取利润并平仓 (只有盈利股才会出现此按钮)
+    // 利润进入提现池，初始本金原路退回购买力继续投资，股票直接清空。
     // ==========================================
     async function extractStockProfit(symbol) {
       const account = db.accounts[activeView];
@@ -967,12 +971,12 @@
       
       if(profitUSD <= 0) return alert('当前没有利润可提取！');
       
-      // 核心财务划拨规则
-      account.cash += costUSD;       // 1. 只有投资本金退回账户购买力
-      account.withdrawn += profitUSD; // 2. 利润划入提款池
+      // 财务分流
+      account.cash += costUSD;       // 1. 本金回归
+      account.withdrawn += profitUSD; // 2. 利润落袋
       
       const sharesSold = stockData.shares;
-      delete account.portfolio[symbol]; // 3. 仓位完全清空
+      delete account.portfolio[symbol]; // 3. 仓位清空
       
       pushHistory(account, '提润平仓', symbol, sharesSold, price, profitUSD, stockData.market);
       
